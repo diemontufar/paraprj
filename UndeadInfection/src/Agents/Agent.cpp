@@ -1,21 +1,21 @@
 /*
  * Agent.cpp
  *
- *  Created on: 19/08/2014
+ *  Created on: 21/08/2014
  *      Author: achaves
  */
 
 #include "Agent.h"
 
-namespace agents {
-
-Agent::Agent() {
-	// TODO Auto-generated constructor stub
-
+virtual Agent::Agent() {
 }
 
-Agent::~Agent() {
-	// TODO Auto-generated destructor stub
+virtual Agent::~Agent() {
 }
 
-} /* namespace agents */
+//Forward the agent one step method
+virtual void step(){}
+
+virtual AgentTypeEnum getType(){}
+
+

@@ -1,20 +1,27 @@
 /*
  * Agent.h
- *
+ * Contains the method the all agents must implement
  *  Created on: 19/08/2014
  *      Author: achaves
  */
 
-#ifndef AGENT_H_
-#define AGENT_H_
+enum AgentTypeEnum {human,zombie};
 
-namespace agents {
+class Agent{
+private:
+	int id;
+	AgentTypeEnum type;
 
-class Agent {
 public:
-	Agent();
-	virtual ~Agent();
-};
+	//Virtual constructor
+	virtual Agent() {}
 
-} /* namespace agents */
-#endif /* AGENT_H_ */
+	//Virtual destructor
+	virtual ~Agent() {}
+
+	//Forward the agent one step method
+	virtual void step(){};
+
+	virtual AgentTypeEnum getType(){};
+
+}
