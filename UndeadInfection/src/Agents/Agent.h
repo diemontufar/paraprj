@@ -4,24 +4,27 @@
  *  Created on: 19/08/2014
  *      Author: achaves
  */
+#ifndef AGENT_H_
+#define AGENT_H_
 
-enum AgentTypeEnum {human,zombie};
 
 class Agent{
+	enum AgentTypeEnum {human,zombie};
 private:
 	int id;
 	AgentTypeEnum type;
 
 public:
 	//Virtual constructor
-	virtual Agent() {}
+	Agent();
 
 	//Virtual destructor
-	virtual ~Agent() {}
+	~Agent();
 
 	//Forward the agent one step method
 	virtual void step(){};
 
 	virtual AgentTypeEnum getType(){};
 
-}
+};
+#endif /* AGENT_H */

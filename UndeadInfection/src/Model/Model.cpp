@@ -8,11 +8,23 @@
 #include "Model.h"
 
 Model::Model() {
-	// TODO Auto-generated constructor stub
 
 }
 
 Model::~Model() {
-	// TODO Auto-generated destructor stub
+	delete grids;
+}
+
+void Model::setup(){
+	for ( int i = 0; i < GRIDROWS; i++ ){
+		for (int j = 0; j < GRIDCOLUMNS; j++){
+			 Grid grid;
+			 //Get a rand
+			 Human h;
+//			 Agent a = new Human();
+			// grid.addAgent(5,5,h);
+			// grids[i][j] = grid;
+		}
+	}
 }
 

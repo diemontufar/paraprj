@@ -8,11 +8,14 @@
 #include "Simulation.h"
 
 Simulation::Simulation() {
-	// TODO Auto-generated constructor stub
-
+	//model = new Model();
 }
 
 Simulation::~Simulation() {
-	// TODO Auto-generated destructor stub
+    //delete model;
+}
+
+void start(){
+
 }
 

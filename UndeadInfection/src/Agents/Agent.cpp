@@ -7,15 +7,10 @@
 
 #include "Agent.h"
 
-virtual Agent::Agent() {
+Agent::Agent() {
 }
 
-virtual Agent::~Agent() {
+Agent::~Agent() {
 }
-
-//Forward the agent one step method
-virtual void step(){}
-
-virtual AgentTypeEnum getType(){}
 
 
