@@ -7,9 +7,9 @@
 #ifndef AGENT_H_
 #define AGENT_H_
 
-
+enum AgentTypeEnum {human,zombie};
 class Agent{
-	enum AgentTypeEnum {human,zombie};
+
 private:
 	int id;
 	AgentTypeEnum type;
@@ -22,9 +22,9 @@ public:
 	~Agent();
 
 	//Forward the agent one step method
-	virtual void step(){};
+	virtual void step();
 
-	virtual AgentTypeEnum getType(){};
+	virtual AgentTypeEnum getType();
 
 };
 #endif /* AGENT_H */

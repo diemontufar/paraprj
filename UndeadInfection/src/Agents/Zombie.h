@@ -9,8 +9,6 @@
 
 class Zombie: public Agent {
 private:
-	const int SPEED = 1;
-	const int DECOMPOSITIONTIME = 10;
 
 public:
 	Zombie();

@@ -7,8 +7,41 @@
 //============================================================================
 
 #include <iostream>
+#include "Agents/Human.h"
+#include "Agents/Agent.h"
 using namespace std;
+bool testHuman();
+int main(){
+   bool result = testHuman();
+   if ( result == true )
+	   cout << "Success" << endl;
+   else
+	   cout << "Fail" << endl;
+   return 0;
+}
+bool testHuman(){
+	Human male(false,false);
 
+	if (male.getGender()!=false)
+		return false;
+	if (male.isHasAGun()!=false)
+		return false;
+	if (male.isInfected()!=false)
+		return false;
+
+	Human female(true,true);
+	if (female.getGender()==false)
+		return false;
+	if (female.isHasAGun()==false)
+		return false;
+	if (female.isInfected()!=false)
+		return false;
+	if (female.getType() != human)
+		return false;
+
+	return true;
+}
+/* Main de Diego
 int main() {
 
 
@@ -64,3 +97,4 @@ int main() {
 
 	return 0;
 }
+*/

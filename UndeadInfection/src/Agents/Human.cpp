@@ -6,13 +6,36 @@
  */
 
 #include "Human.h"
+#include "Agent.h"
+#ifdef DEBUG
+#include "iostream"
+#endif
 
-Human::Human() {
-	// TODO Auto-generated constructor stub
+Human::Human(bool theGender, bool ifHasAGun):gender(theGender),hasAGun(ifHasAGun),infected(false) {
 
 }
 
+void Agent::step(){
+   #ifdef DEBUG
+   cout << "Step called";
+   #endif
+}
+
+bool Human::getGender(){
+	return gender;
+}
+
+bool Human::isHasAGun(){
+	return hasAGun;
+
+}
+bool Human::isInfected(){
+	return infected;
+}
+AgentTypeEnum Agent::getType(){
+	return human;
+}
+
 Human::~Human() {
-	// TODO Auto-generated destructor stub
 }
 

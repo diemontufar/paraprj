@@ -12,7 +12,6 @@ Model::Model() {
 }
 
 Model::~Model() {
-	delete grids;
 }
 
 void Model::setup(){
@@ -20,7 +19,7 @@ void Model::setup(){
 		for (int j = 0; j < GRIDCOLUMNS; j++){
 			 Grid grid;
 			 //Get a rand
-			 Human h;
+			 Human h(false,false);
 //			 Agent a = new Human();
 			// grid.addAgent(5,5,h);
 			// grids[i][j] = grid;
