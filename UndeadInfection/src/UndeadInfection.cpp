@@ -10,12 +10,14 @@
 #include "Agents/Human.h"
 #include "Agents/Zombie.h"
 #include "Agents/Agent.h"
+#include "Model/Cell.h"
 using namespace std;
 bool testHuman();
 bool testZombie();
 bool testInheritanceOfAgents();
 bool testZombieDecomposition();
 bool testHumanDeseaseIncubation();
+bool testCell();
 void evalResult(bool result);
 
 int main(){
@@ -24,7 +26,7 @@ int main(){
    evalResult(testInheritanceOfAgents());
    evalResult(testZombieDecomposition());
    evalResult(testHumanDeseaseIncubation());
-
+   evalResult(testCell());
    return 0;
 }
 void evalResult(bool result){
@@ -32,6 +34,39 @@ void evalResult(bool result){
 		   cout << "Success" << endl;
 	   else
 		   cout << "Fail" << endl;
+}
+bool testCell(){
+	cout << "Testing cell" << endl;
+	Cell cell;
+	Agent* humanAgent = new Human(true,false);
+	Agent* zombieAgent = new Zombie();
+
+	cell.setCandidateAgent(humanAgent);
+	cell.setCurrentAgent(zombieAgent);
+
+	if ( (cell.getCandidateAgent())->getType()!=human ){
+		return false;
+	}
+	if ( cell.getCurrentAgent()->getType()!=zombie ){
+		return false;
+	}
+	Human* h = dynamic_cast<Human*>(cell.getCandidateAgent());
+	if ( h->getGender()!=true ){
+		return false;
+	}
+	if ( (*h).getGender()!=true ){
+		return false;
+	}
+
+	Zombie* z = dynamic_cast<Zombie*>(cell.getCurrentAgent());
+	if ( z->isDecomposed() ){
+		return false;
+	}
+	if ( (*z).isDecomposed() ){
+		return false;
+	}
+
+	return true;
 }
 bool testHumanDeseaseIncubation(){
 	cout << "Testing step of human";
