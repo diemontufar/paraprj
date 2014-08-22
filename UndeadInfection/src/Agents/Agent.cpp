@@ -6,11 +6,16 @@
  */
 
 #include "Agent.h"
+Agent::Agent(){
 
-Agent::Agent() {
 }
-
 Agent::~Agent() {
 }
+AgentTypeEnum Agent::getType(){
+	return typeUndef;
+}
+void step(){};
+
+
 
 

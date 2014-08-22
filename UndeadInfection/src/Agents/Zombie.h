@@ -5,16 +5,21 @@
  *      Author: achaves
  */
 
+
+#ifndef ZOMBIE_H_
+#define ZOMBIE_H_
 #include "Agent.h"
 
-class Zombie: public Agent {
+class Zombie: public virtual Agent {
 private:
-
+    short decompositionTime; //Number of ticks that have passed
+    bool decomposed;
 public:
 	Zombie();
 	virtual ~Zombie();
-
-	void step(){
-	}
+	virtual void step();
+	virtual AgentTypeEnum getType();
+	bool isDecomposed();
 };
 
+#endif

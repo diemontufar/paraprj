@@ -8,18 +8,76 @@
 
 #include <iostream>
 #include "Agents/Human.h"
+#include "Agents/Zombie.h"
 #include "Agents/Agent.h"
 using namespace std;
 bool testHuman();
+bool testZombie();
+bool testInheritanceOfAgents();
+bool testZombieDecomposition();
+bool testHumanDeseaseIncubation();
+void evalResult(bool result);
+
 int main(){
-   bool result = testHuman();
-   if ( result == true )
-	   cout << "Success" << endl;
-   else
-	   cout << "Fail" << endl;
+   evalResult(testHuman());
+   evalResult(testZombie());
+   evalResult(testInheritanceOfAgents());
+   evalResult(testZombieDecomposition());
+   evalResult(testHumanDeseaseIncubation());
+
    return 0;
 }
+void evalResult(bool result){
+	   if ( result == true )
+		   cout << "Success" << endl;
+	   else
+		   cout << "Fail" << endl;
+}
+bool testHumanDeseaseIncubation(){
+	cout << "Testing step of human";
+	Human h(false,false);
+	h.infect();
+	for ( int i = 0; i <= INCUBATIONTIME+1; i++ ){
+		h.step();
+	}
+	if (!h.isDead()){
+		return false;
+	}
+	return true;
+}
+bool testZombieDecomposition(){
+	cout << "Testing step of zombies";
+	Zombie z;
+	for ( int i = 0; i <= DECOMPOSITIONTIME+1; i++ ){
+		z.step();
+	}
+	if (!z.isDecomposed()){
+		return false;
+	}
+	return true;
+}
+bool testInheritanceOfAgents(){
+	cout << "Testing inheritance of agents" << endl;
+	Agent* a = new Human(true, true);
+	if(a->getType()!=human)
+		return false;
+	a = new Zombie();
+
+	if(a->getType()!=zombie)
+			return false;
+	return true;
+}
+bool testZombie(){
+	cout << "Testing zombies" << endl;
+	Zombie zombieAgent;
+	if (zombieAgent.getType()!=zombie){
+		return false;
+	}
+	return true;
+
+}
 bool testHuman(){
+	cout << "Testing humans" << endl;
 	Human male(false,false);
 
 	if (male.getGender()!=false)

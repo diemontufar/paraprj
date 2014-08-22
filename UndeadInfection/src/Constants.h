@@ -1,15 +1,19 @@
 
-static const int HUMANSPEED = 2;
-static const int INFECTIONTIME = 5;
+#ifndef CONSTANTS_H_
+#define CONSTANTS_H_
 
-static int const GRIDROWS = 20;
-static int const GRIDCOLUMNS = 20;
+static const int HUMANSPEED = 2; //Human speed
+static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human
 
-static int const CELLROWSPERGRID = 10;
-static int const CELLCOLUMNSPERGRID = 10;
+static int const GRIDROWS = 20; //Number of row grids
+static int const GRIDCOLUMNS = 20;//Number of column grids
 
-static const int ZOMBIESPEED = 1;
-static const int DECOMPOSITIONTIME = 10;
+static int const CELLROWSPERGRID = 10; //Number of cell rows per grid
+static int const CELLCOLUMNSPERGRID = 10; //Number of coll columns per grid
 
-#define DEBUG = true;
+static const int ZOMBIESPEED = 1; //Zombie speed
+static const int DECOMPOSITIONTIME = 10;//Ticks that take the zombie to decompose
 
+#define DEBUG = true; //Enable more verbosity debug messages
+
+#endif

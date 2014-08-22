@@ -7,7 +7,9 @@
 #ifndef AGENT_H_
 #define AGENT_H_
 
-enum AgentTypeEnum {human,zombie};
+#include "../Constants.h"
+
+enum AgentTypeEnum {human,zombie,typeUndef};
 class Agent{
 
 private:
@@ -15,16 +17,15 @@ private:
 	AgentTypeEnum type;
 
 public:
-	//Virtual constructor
-	Agent();
 
 	//Virtual destructor
-	~Agent();
+	Agent();
+	virtual ~Agent();
 
 	//Forward the agent one step method
-	virtual void step();
+	virtual void step()=0;
 
-	virtual AgentTypeEnum getType();
+	virtual AgentTypeEnum getType()=0;
 
 };
 #endif /* AGENT_H */

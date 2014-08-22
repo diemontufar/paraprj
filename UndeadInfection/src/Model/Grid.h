@@ -17,7 +17,7 @@ private:
 
 public:
 	Grid();
-	void addAgent(int x, int y, Agent agent);
+	void addAgent(int x, int y, Agent* agent);
 	virtual ~Grid();
 };
 

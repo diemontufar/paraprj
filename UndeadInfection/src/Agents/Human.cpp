@@ -6,7 +6,6 @@
  */
 
 #include "Human.h"
-#include "Agent.h"
 #ifdef DEBUG
 #include "iostream"
 #endif
@@ -15,10 +14,19 @@ Human::Human(bool theGender, bool ifHasAGun):gender(theGender),hasAGun(ifHasAGun
 
 }
 
-void Agent::step(){
+void Human::step(){
    #ifdef DEBUG
-   cout << "Step called";
+   std::cout << "Step called"<<"\n";
    #endif
+   if( infected ){
+	   infectionTime++;
+	   if ( infectionTime >= INCUBATIONTIME ){
+           #ifdef DEBUG
+              std::cout << "Dead"<<"\n";
+           #endif
+		   dead = true;
+	   }
+   }
 }
 
 bool Human::getGender(){
@@ -32,7 +40,13 @@ bool Human::isHasAGun(){
 bool Human::isInfected(){
 	return infected;
 }
-AgentTypeEnum Agent::getType(){
+void Human::infect(){
+	infected = true;
+}
+bool Human::isDead(){
+	return dead;
+}
+AgentTypeEnum Human::getType(){
 	return human;
 }
 

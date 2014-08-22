@@ -7,12 +7,34 @@
 
 #include "Zombie.h"
 
-Zombie::Zombie() {
-	// TODO Auto-generated constructor stub
+#ifdef DEBUG
+#include "iostream"
+#endif
 
+Zombie::Zombie() {
+	decompositionTime = 0;
+	decomposed = false;
+}
+
+void Zombie::step(){
+   #ifdef DEBUG
+   std::cout << "Step called" << "\n";
+   #endif
+   decompositionTime++;
+   if (decompositionTime >= DECOMPOSITIONTIME){
+      #ifdef DEBUG
+         std::cout << "Dead" << "\n";
+      #endif
+      decomposed = true;
+   }
+}
+bool Zombie::isDecomposed(){
+	return decomposed;
+}
+AgentTypeEnum Zombie::getType(){
+	return zombie;
 }
 
 Zombie::~Zombie() {
-	// TODO Auto-generated destructor stub
 }
 
