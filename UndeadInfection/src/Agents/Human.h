@@ -9,8 +9,7 @@
 
 class Human: public Agent {
 private:
-	const int SPEED = 2;
-	const int INFECTIONTIME = 5;
+
 
     bool gender;
     bool infected;
