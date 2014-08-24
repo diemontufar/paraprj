@@ -16,3 +16,9 @@ Grid::~Grid() {
 	// TODO Auto-generated destructor stub
 }
 
+void Grid::addAgent(int x, int y, Agent* agent){
+
+}
+void Grid::moveAgent(int xcurr, int ycurr, Agent* agent){
+
+}

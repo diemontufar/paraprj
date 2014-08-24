@@ -10,11 +10,18 @@
 #include "../Agents/Agent.h"
 #include "../Agents/Human.h"
 #include "../Agents/Zombie.h"
+#include "Grid.h"
+#include "RandomGen.h"
+
+class Grid;
 
 class Cell {
 private:
 	Agent* currentAgent;
 	Agent* candidateAgent;
+	int x;
+	int y;
+	Grid* grid;
 
 	void resolveHumanHuman();
 	void resolveHumanZombie();
@@ -27,7 +34,9 @@ public:
 	void setCandidateAgent(Agent*);
 	Agent* getCurrentAgent();
 	Agent* getCandidateAgent();
+	void setGrid(Grid*);
 	void resolve();
+	void setCoordinates(int, int);
 };
 
 #endif /* CELL_H_ */

@@ -11,29 +11,116 @@
 #include "Agents/Zombie.h"
 #include "Agents/Agent.h"
 #include "Model/Cell.h"
+#include "Model/Grid.h"
 using namespace std;
 bool testHuman();
 bool testZombie();
 bool testInheritanceOfAgents();
 bool testZombieDecomposition();
 bool testHumanDeseaseIncubation();
+bool testHumanHumanClash();
+bool testHumanZombieClash();
+bool testHumanZombieClashWithGrid();
 bool testCell();
 void evalResult(bool result);
+//Inject mock grid
+//Inject mock random
+
+class MockGrid: public Grid{
+
+public:
+	Cell cells[3][3];
+
+	MockGrid(){
+		for ( int i = 0; i < 3; i++ ){
+			for ( int j = 0; j < 3; j++ ){
+				cells[i][j].setGrid(this);
+			}
+		}
+
+	}
+
+	void setAgent(int x, int y, Agent* a){
+		cells[x][y].setCandidateAgent(a);
+	}
+
+	Cell* getNeighbors(int x, int y){
+/*		Cell* returnCells = new Cell[8];
+		returnCells[0] = cells[0][0];
+		returnCells[1] = cells[0][1];
+		returnCells[2] = cells[0][2];
+		returnCells[3] = cells[1][0];
+		returnCells[4] = cells[1][2];
+		returnCells[5] = cells[2][0];
+		returnCells[6] = cells[2][1];
+		returnCells[7] = cells[2][2];
+		return returnCells;*/
+		return NULL;
+	}
+	void moveAgentToCell(int x, int y, Agent* agent){
+
+	}
+	void addAgent(Agent* agent){
+
+	}
+};
+
 
 int main(){
-   evalResult(testHuman());
-   evalResult(testZombie());
-   evalResult(testInheritanceOfAgents());
-   evalResult(testZombieDecomposition());
-   evalResult(testHumanDeseaseIncubation());
-   evalResult(testCell());
-   return 0;
+
+	evalResult(testHuman());
+	evalResult(testZombie());
+	evalResult(testInheritanceOfAgents());
+	evalResult(testZombieDecomposition());
+	evalResult(testHumanDeseaseIncubation());
+	evalResult(testCell());
+	evalResult(testHumanHumanClash());
+	evalResult(testHumanZombieClash());
+	evalResult(testHumanZombieClashWithGrid());
+	return 0;
 }
 void evalResult(bool result){
-	   if ( result == true )
-		   cout << "Success" << endl;
-	   else
-		   cout << "Fail" << endl;
+	if ( result == true )
+		cout << "Success" << endl;
+	else
+		cout << "Fail" << endl;
+}
+bool testHumanHumanClash(){
+	cout << "Testing Human-Human" << endl;
+	return true;
+}
+
+bool testHumanZombieClashWithGrid(){
+	cout << "Testing Human-Zombie with grid" << endl;
+	MockGrid mg;
+	Human h(true,false);
+	Zombie z;
+	mg.cells[1][1].setCurrentAgent(&h);
+	mg.cells[1][1].setCandidateAgent(&z);
+	mg.cells[1][1].resolve();
+	return true;
+}
+bool testHumanZombieClash(){
+	cout << "Testing Human-Zombie clash" << endl;
+	Cell c;
+	Human h1(true,false);
+	Zombie z;
+	cout << "Setting human" << endl;
+	c.setCurrentAgent(&h1);
+	cout << "Setting zombie" << endl;
+	c.setCandidateAgent(&z);
+	cout << "Resolving clash" << endl;
+	c.resolve();
+	cout << "Clash resolved infected: " << h1.isInfected() << "Shooteed: " << z.isShooted() << endl;
+	if ( !h1.isInfected() && !z.isShooted() )
+		return false;
+	Human h2(true,false);
+	c.setCandidateAgent(&z);
+	c.resolve();
+	if ( c.getCurrentAgent()==NULL || !dynamic_cast<Human*>(c.getCurrentAgent())->getGender())
+		return false;
+
+	return true;
 }
 bool testCell(){
 	cout << "Testing cell" << endl;
@@ -99,7 +186,7 @@ bool testInheritanceOfAgents(){
 	a = new Zombie();
 
 	if(a->getType()!=zombie)
-			return false;
+		return false;
 	return true;
 }
 bool testZombie(){
@@ -108,6 +195,17 @@ bool testZombie(){
 	if (zombieAgent.getType()!=zombie){
 		return false;
 	}
+	if (zombieAgent.isDecomposed()){
+		return false;
+	}
+	if (zombieAgent.isShooted()){
+		return false;
+	}
+	zombieAgent.shoot();
+	if (!zombieAgent.isShooted()){
+		return false;
+	}
+
 	return true;
 
 }
@@ -190,4 +288,4 @@ int main() {
 
 	return 0;
 }
-*/
+ */

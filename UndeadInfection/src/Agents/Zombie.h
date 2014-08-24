@@ -13,6 +13,7 @@
 class Zombie: public virtual Agent {
 private:
     short decompositionTime; //Number of ticks that have passed
+    bool shooted;
     bool decomposed;
 public:
 	Zombie();
@@ -20,6 +21,8 @@ public:
 	virtual void step();
 	virtual AgentTypeEnum getType();
 	bool isDecomposed();
+	bool isShooted();
+	void shoot();
 };
 
 #endif

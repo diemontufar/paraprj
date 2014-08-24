@@ -14,6 +14,7 @@
 Zombie::Zombie() {
 	decompositionTime = 0;
 	decomposed = false;
+	shooted = false;
 }
 
 void Zombie::step(){
@@ -31,6 +32,13 @@ void Zombie::step(){
 bool Zombie::isDecomposed(){
 	return decomposed;
 }
+bool Zombie::isShooted(){
+	return shooted;
+}
+void Zombie::shoot(){
+	shooted = true;
+}
+
 AgentTypeEnum Zombie::getType(){
 	return zombie;
 }

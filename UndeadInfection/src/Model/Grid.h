@@ -5,11 +5,14 @@
  *      Author: achaves
  */
 
-#include "Cell.h"
-#include "../Agents/Agent.h"
 
 #ifndef GRID_H_
 #define GRID_H_
+
+#include "Cell.h"
+#include "../Agents/Agent.h"
+
+class Cell;
 
 class Grid {
 private:
@@ -17,7 +20,8 @@ private:
 
 public:
 	Grid();
-	void addAgent(int x, int y, Agent* agent);
+	void addAgent( int, int, Agent* );
+	void moveAgent( int, int, Agent* );
 	virtual ~Grid();
 };
 

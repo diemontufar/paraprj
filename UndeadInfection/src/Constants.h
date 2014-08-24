@@ -14,6 +14,10 @@ static int const CELLCOLUMNSPERGRID = 10; //Number of coll columns per grid
 static const int ZOMBIESPEED = 1; //Zombie speed
 static const int DECOMPOSITIONTIME = 10;//Ticks that take the zombie to decompose
 
+static const float BIRTHPERCENTAGE = 40; //40%
+static const float HEADSHOTPERCENTAGE = 10; //40%
+static const float SUCESSFULBITEPERCENTAGE = 70; //40%
+
 #define DEBUG = true; //Enable more verbosity debug messages
 
 #endif
