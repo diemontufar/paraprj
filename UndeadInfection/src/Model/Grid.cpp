@@ -17,6 +17,16 @@ Grid::~Grid() {
 	// TODO Auto-generated destructor stub
 }
 
+void Grid::initialize(int nPeople, int nZombies){
+	for ( int i = 0; i < CELLROWSPERGRID; i++ ){
+		for ( int j = 0; j < CELLCOLUMNSPERGRID; j++ ){
+			cells[i][j]=new Cell();
+			cells[i][j]->setCurrentAgent(new Human(false,false));
+			cout << "i:  "<<i << "j:  "<<j <<"Initialized with humans: "<< endl;
+		}
+	}
+}
+
 void Grid::addAgent(int x, int y, Agent* agent){
 	cout << "x:  "<<x << "y:  "<<y<< endl;
 }

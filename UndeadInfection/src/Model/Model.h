@@ -17,8 +17,6 @@
 class Model {
 private:
 	Grid *grids[GRIDROWS][GRIDCOLUMNS];
-	int GRIDSPERROW = 3;
-	int GRIDSPERCOLUMN = 3;
 public:
 	Model();
 	virtual ~Model();
