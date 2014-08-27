@@ -18,14 +18,14 @@ Zombie::Zombie() {
 }
 
 void Zombie::step(){
-   #ifdef DEBUG
-   std::cout << "Step called" << "\n";
-   #endif
+//   #ifdef DEBUG
+//   std::cout << "Step called" << "\n";
+//   #endif
    decompositionTime++;
    if (decompositionTime >= DECOMPOSITIONTIME){
-      #ifdef DEBUG
-         std::cout << "Dead" << "\n";
-      #endif
+     // #ifdef DEBUG
+     //    std::cout << "Dead" << "\n";
+     // #endif
       decomposed = true;
    }
 }

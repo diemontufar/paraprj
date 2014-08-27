@@ -11,6 +11,7 @@
 #endif
 
 Cell::Cell(){
+	randomObj = new RandomGen();
 }
 Cell::~Cell() {
 }
@@ -51,10 +52,9 @@ void Cell::resolveHumanHuman(){
 	h1 = dynamic_cast<Human*>(candidateAgent);
 	h2 = dynamic_cast<Human*>(currentAgent);
 	if ((h1->getGender() && !h2->getGender()) || (!h1->getGender() && h2->getGender())) { //If they are male and woman
-		RandomGen random;
-		int result = random.getIntUniformRandomBetween(1,100);
+		int result = randomObj->getIntUniformRandomBetween(1,100);
 		if ( result < BIRTHPERCENTAGE ){ //They have a baby
-		   bool gender = ( random.getIntUniformRandomBetween(0,1) ? true:false );
+		   bool gender = ( randomObj->getIntUniformRandomBetween(0,1) ? true:false );
 		   Human baby(gender,false);
 		   grid->addAgent(0,0,&baby);
 		}
@@ -75,8 +75,10 @@ void Cell::resolveHumanZombie(){
 		z = dynamic_cast<Zombie*>(candidateAgent);
 	}
 	//Probability and cases, for now it is a rand
-	RandomGen random;
-	int dice_roll = random.getIntUniformRandomBetween(0,100);
+	int dice_roll = randomObj->getIntUniformRandomBetween(0,100);
+//#ifdef DEBUG
+//std::cout << "Dice roll: " << dice_roll << "\n";
+//#endif
 
 	if ( dice_roll <= HEADSHOTPERCENTAGE ){
 		z->shoot();
@@ -104,4 +106,8 @@ Agent* Cell::getCurrentAgent(){
 
 Agent* Cell::getCandidateAgent(){
 	return candidateAgent;
+}
+void Cell::setRandomObj(RandomGen* obj){
+	delete(randomObj);
+	randomObj = obj;
 }

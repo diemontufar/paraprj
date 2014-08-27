@@ -15,15 +15,15 @@ Human::Human(bool theGender, bool ifHasAGun):gender(theGender),hasAGun(ifHasAGun
 }
 
 void Human::step(){
-   #ifdef DEBUG
-   std::cout << "Step called"<<"\n";
-   #endif
+   //#ifdef DEBUG
+   //std::cout << "Step called"<<"\n";
+   //#endif
    if( infected ){
 	   infectionTime++;
 	   if ( infectionTime >= INCUBATIONTIME ){
-           #ifdef DEBUG
-              std::cout << "Dead"<<"\n";
-           #endif
+           //#ifdef DEBUG
+           //   std::cout << "Dead"<<"\n";
+           //#endif
 		   dead = true;
 	   }
    }

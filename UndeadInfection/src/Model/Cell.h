@@ -19,6 +19,7 @@ class Cell {
 private:
 	Agent* currentAgent;
 	Agent* candidateAgent;
+	RandomGen* randomObj;
 	int x;
 	int y;
 	Grid* grid;
@@ -37,6 +38,7 @@ public:
 	void setGrid(Grid*);
 	void resolve();
 	void setCoordinates(int, int);
+	void setRandomObj(RandomGen*);
 };
 
 #endif /* CELL_H_ */

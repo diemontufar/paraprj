@@ -12,6 +12,7 @@
 #include "Agents/Agent.h"
 #include "Model/Cell.h"
 #include "Model/Grid.h"
+#include "Model/RandomGen.h"
 using namespace std;
 bool testHuman();
 bool testZombie();
@@ -19,13 +20,26 @@ bool testInheritanceOfAgents();
 bool testZombieDecomposition();
 bool testHumanDeseaseIncubation();
 bool testHumanHumanClash();
-bool testHumanZombieClash();
+bool testHumanZombieClashZombieShooted();
+bool testHumanZombieClashHumanInfected();
 bool testHumanZombieClashWithGrid();
 bool testCell();
 void evalResult(bool result);
 //Inject mock grid
 //Inject mock random
-
+class MockRandom: public RandomGen{
+public:
+	int returnValue;
+	MockRandom(int value){
+		returnValue = value;
+	}
+	void setReturnValue(int value){
+		returnValue = value;
+	}
+	int getIntUniformRandomBetween(int start, int end) override{
+		return returnValue;
+	}
+};
 class MockGrid: public Grid{
 
 public:
@@ -44,8 +58,12 @@ public:
 		cells[x][y].setCandidateAgent(a);
 	}
 
+	void moveAgent(int x, int y, Agent* a){
+
+	}
+
 	Cell* getNeighbors(int x, int y){
-/*		Cell* returnCells = new Cell[8];
+		/*Cell* returnCells = new Cell[8];
 		returnCells[0] = cells[0][0];
 		returnCells[1] = cells[0][1];
 		returnCells[2] = cells[0][2];
@@ -75,7 +93,8 @@ int main(){
 	evalResult(testHumanDeseaseIncubation());
 	evalResult(testCell());
 	evalResult(testHumanHumanClash());
-	evalResult(testHumanZombieClash());
+	evalResult(testHumanZombieClashZombieShooted());
+	evalResult(testHumanZombieClashHumanInfected());
 	evalResult(testHumanZombieClashWithGrid());
 	return 0;
 }
@@ -100,26 +119,37 @@ bool testHumanZombieClashWithGrid(){
 	mg.cells[1][1].resolve();
 	return true;
 }
-bool testHumanZombieClash(){
-	cout << "Testing Human-Zombie clash" << endl;
+bool testHumanZombieClashHumanInfected(){
+	cout << "Testing Human-Zombie clash, human infected" << endl;
+	MockRandom rm2(40);
+	Cell c;
+	Zombie z;
+	Human h2(true,false);
+	c.setCurrentAgent(&h2);
+	c.setCandidateAgent(&z);
+	c.setRandomObj(&rm2);
+	c.resolve();
+	cout << "Clash resolved infected: " << h2.isInfected() << "Shooteed: " << z.isShooted() << endl;
+	c.resolve();
+	if ( !h2.isInfected() )
+		return false;
+	if ( c.getCurrentAgent()==NULL || !dynamic_cast<Human*>(c.getCurrentAgent())->getGender())
+		return false;
+	return true;
+}
+bool testHumanZombieClashZombieShooted(){
+	MockRandom rm(1);
+	cout << "Testing Human-Zombie clash, zombie shooted" << endl;
 	Cell c;
 	Human h1(true,false);
 	Zombie z;
-	cout << "Setting human" << endl;
+	c.setRandomObj(&rm);
 	c.setCurrentAgent(&h1);
-	cout << "Setting zombie" << endl;
 	c.setCandidateAgent(&z);
-	cout << "Resolving clash" << endl;
 	c.resolve();
 	cout << "Clash resolved infected: " << h1.isInfected() << "Shooteed: " << z.isShooted() << endl;
-	if ( !h1.isInfected() && !z.isShooted() )
+	if ( !z.isShooted() )
 		return false;
-	Human h2(true,false);
-	c.setCandidateAgent(&z);
-	c.resolve();
-	if ( c.getCurrentAgent()==NULL || !dynamic_cast<Human*>(c.getCurrentAgent())->getGender())
-		return false;
-
 	return true;
 }
 bool testCell(){
