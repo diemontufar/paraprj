@@ -9,6 +9,11 @@
 #include <iostream>
 using namespace std;
 Grid::Grid() {
+	cells =  new Cell*[CELLROWSPERGRID];
+	for (int i = 0; i < CELLROWSPERGRID; i++){
+		cells[i] =  new Cell[CELLCOLUMNSPERGRID];
+	}
+
 }
 
 Grid::~Grid() {
