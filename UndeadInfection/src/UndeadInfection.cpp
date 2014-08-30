@@ -206,7 +206,7 @@ bool testHumanDeseaseIncubation() {
 bool testZombieDecomposition() {
 	cout << "Testing step of zombies";
 	Zombie z;
-	for (int i = 0; i <= MINDECOMPOSITIONTIME + 1; i++) {
+	for (int i = 0; i <= DECOMPOSITIONTIME + 1; i++) {
 		z.step();
 	}
 	if (!z.isDecomposed()) {

@@ -22,7 +22,7 @@ void Zombie::step(){
 //   std::cout << "Step called" << "\n";
 //   #endif
    decompositionTime++;
-   if (decompositionTime >= MINDECOMPOSITIONTIME){
+   if (decompositionTime >= DECOMPOSITIONTIME){
      // #ifdef DEBUG
      //    std::cout << "Dead" << "\n";
      // #endif

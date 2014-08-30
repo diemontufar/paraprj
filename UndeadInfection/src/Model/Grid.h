@@ -26,6 +26,7 @@ public:
 	void moveAgent( int, int, Agent*,int ,int);
 	void removeAgent( int, int, Agent* );
 	void print();
+	void moveAgent( int, int, Agent* );
 	virtual ~Grid();
 };
 

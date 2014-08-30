@@ -13,6 +13,7 @@ Grid::Grid() {
 	//for (int i = 0; i < CELLROWSPERGRID; i++){
 		//cells[i] =  new Cell[CELLCOLUMNSPERGRID];
 	//}
+	// TODO Auto-generated constructor stub
 
 }
 
