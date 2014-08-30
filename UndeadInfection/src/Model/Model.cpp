@@ -6,6 +6,7 @@
  */
 
 #include "Model.h"
+#include <iostream>
 
 Model::Model() {
 
@@ -17,12 +18,9 @@ Model::~Model() {
 void Model::setup(){
 	for ( int i = 0; i < GRIDROWS; i++ ){
 		for (int j = 0; j < GRIDCOLUMNS; j++){
-			 Grid grid;
-			 //Get a rand
-			 Human h(false,false);
-//			 Agent a = new Human();
-			// grid.addAgent(5,5,h);
-			// grids[i][j] = grid;
+			 grids[i][j]=new Grid();
+			 Human *a = new Human(false,false);
+			 grids[i][j]->initialize(0,0);
 		}
 	}
 }

@@ -16,12 +16,14 @@ class Cell;
 
 class Grid {
 private:
-	Cell** cells;
+	Cell* cells[CELLROWSPERGRID][CELLCOLUMNSPERGRID];
 
 public:
 	Grid();
+	void initialize (int, int );
 	void addAgent( int, int, Agent* );
 	void moveAgent( int, int, Agent* );
+	void print();
 	virtual ~Grid();
 };
 

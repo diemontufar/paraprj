@@ -7,10 +7,12 @@
 //============================================================================
 
 #include <iostream>
+#include <stdio.h>
 #include "Agents/Human.h"
 #include "Agents/Zombie.h"
 #include "Agents/Agent.h"
 #include "Model/Cell.h"
+#include "Model/Model.h"
 #include "Model/Grid.h"
 #include "Model/RandomGen.h"
 using namespace std;
@@ -85,17 +87,19 @@ public:
 
 
 int main(){
-
-	evalResult(testHuman());
-	evalResult(testZombie());
-	evalResult(testInheritanceOfAgents());
-	evalResult(testZombieDecomposition());
-	evalResult(testHumanDeseaseIncubation());
-	evalResult(testCell());
-	evalResult(testHumanHumanClash());
-	evalResult(testHumanZombieClashZombieShooted());
-	evalResult(testHumanZombieClashHumanInfected());
-	evalResult(testHumanZombieClashWithGrid());
+	Model *m;
+	m=new Model();
+	m->setup();
+	//evalResult(testHuman());
+	//evalResult(testZombie());
+	//evalResult(testInheritanceOfAgents());
+	//evalResult(testZombieDecomposition());
+	//evalResult(testHumanDeseaseIncubation());
+	//evalResult(testCell());
+	//evalResult(testHumanHumanClash());
+	//evalResult(testHumanZombieClashZombieShooted());
+	//evalResult(testHumanZombieClashHumanInfected());
+	//evalResult(testHumanZombieClashWithGrid());
 	return 0;
 }
 void evalResult(bool result){
@@ -103,6 +107,16 @@ void evalResult(bool result){
 		cout << "Success" << endl;
 	else
 		cout << "Fail" << endl;
+}
+bool testGridInitializationWithHumans(){
+	Grid g;
+	for (int i = 0; i < CELLROWSPERGRID; i++){
+		for (int j = 0; j < CELLCOLUMNSPERGRID; j++){
+			g.addAgent(i,j,new Human(false,false));
+		}
+	}
+	g.print();
+	return true;
 }
 bool testHumanHumanClash(){
 	cout << "Testing Human-Human" << endl;

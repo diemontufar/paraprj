@@ -16,8 +16,7 @@
 
 class Model {
 private:
-	Grid grids[GRIDROWS][GRIDCOLUMNS];
-
+	Grid *grids[GRIDROWS][GRIDCOLUMNS];
 public:
 	Model();
 	virtual ~Model();
