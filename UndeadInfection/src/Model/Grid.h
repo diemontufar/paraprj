@@ -11,6 +11,7 @@
 
 #include "Cell.h"
 #include "../Agents/Agent.h"
+#include "../Utils/RandomGenerator.h"
 
 class Cell;
 
@@ -22,7 +23,8 @@ public:
 	Grid();
 	void initialize (int, int );
 	void addAgent( int, int, Agent* );
-	void moveAgent( int, int, Agent* );
+	void moveAgent( int, int, Agent*,int ,int);
+	void removeAgent( int, int, Agent* );
 	void print();
 	virtual ~Grid();
 };
