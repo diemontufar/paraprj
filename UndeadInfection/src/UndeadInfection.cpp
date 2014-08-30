@@ -108,16 +108,6 @@ void evalResult(bool result){
 	else
 		cout << "Fail" << endl;
 }
-bool testGridInitializationWithHumans(){
-	Grid g;
-	for (int i = 0; i < CELLROWSPERGRID; i++){
-		for (int j = 0; j < CELLCOLUMNSPERGRID; j++){
-			g.addAgent(i,j,new Human(false,false));
-		}
-	}
-	g.print();
-	return true;
-}
 bool testHumanHumanClash(){
 	cout << "Testing Human-Human" << endl;
 	return true;
