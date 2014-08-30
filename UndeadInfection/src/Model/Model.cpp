@@ -19,7 +19,6 @@ void Model::setup(){
 	for ( int i = 0; i < GRIDROWS; i++ ){
 		for (int j = 0; j < GRIDCOLUMNS; j++){
 			 grids[i][j]=new Grid();
-			 Human *a = new Human(false,false);
 			 grids[i][j]->initialize(0,0);
 		}
 	}

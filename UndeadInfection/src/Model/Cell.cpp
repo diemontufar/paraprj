@@ -60,7 +60,7 @@ void Cell::resolveHumanHuman(){
 		}
 	}
 	//Move human
-	grid->moveAgent(x,y,currentAgent);
+	grid->moveAgent(x,y,currentAgent,x,y);
 	currentAgent = candidateAgent;
 }
 void Cell::resolveHumanZombie(){

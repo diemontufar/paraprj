@@ -29,66 +29,65 @@ bool testCell();
 void evalResult(bool result);
 //Inject mock grid
 //Inject mock random
-class MockRandom: public RandomGen{
+class MockRandom: public RandomGen {
 public:
 	int returnValue;
-	MockRandom(int value){
+	MockRandom(int value) {
 		returnValue = value;
 	}
-	void setReturnValue(int value){
+	void setReturnValue(int value) {
 		returnValue = value;
 	}
-	int getIntUniformRandomBetween(int start, int end) override{
+	int getIntUniformRandomBetween(int start, int end) override {
 		return returnValue;
 	}
 };
-class MockGrid: public Grid{
+class MockGrid: public Grid {
 
 public:
 	Cell cells[3][3];
 
-	MockGrid(){
-		for ( int i = 0; i < 3; i++ ){
-			for ( int j = 0; j < 3; j++ ){
+	MockGrid() {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
 				cells[i][j].setGrid(this);
 			}
 		}
 
 	}
 
-	void setAgent(int x, int y, Agent* a){
+	void setAgent(int x, int y, Agent* a) {
 		cells[x][y].setCandidateAgent(a);
 	}
 
-	void moveAgent(int x, int y, Agent* a){
+	void moveAgent(int x, int y, Agent* a) {
 
 	}
 
-	Cell* getNeighbors(int x, int y){
+	Cell* getNeighbors(int x, int y) {
 		/*Cell* returnCells = new Cell[8];
-		returnCells[0] = cells[0][0];
-		returnCells[1] = cells[0][1];
-		returnCells[2] = cells[0][2];
-		returnCells[3] = cells[1][0];
-		returnCells[4] = cells[1][2];
-		returnCells[5] = cells[2][0];
-		returnCells[6] = cells[2][1];
-		returnCells[7] = cells[2][2];
-		return returnCells;*/
+		 returnCells[0] = cells[0][0];
+		 returnCells[1] = cells[0][1];
+		 returnCells[2] = cells[0][2];
+		 returnCells[3] = cells[1][0];
+		 returnCells[4] = cells[1][2];
+		 returnCells[5] = cells[2][0];
+		 returnCells[6] = cells[2][1];
+		 returnCells[7] = cells[2][2];
+		 return returnCells;*/
 		return NULL;
 	}
-	void moveAgentToCell(int x, int y, Agent* agent){
+	void moveAgentToCell(int x, int y, Agent* agent) {
 
 	}
-	void addAgent(Agent* agent){
+	void addAgent(Agent* agent) {
 
 	}
 };
 
-
-int main(){
+int main() {
 	Model *m;
-	m=new Model();
+	m = new Model();
 	m->setup();
 	//evalResult(testHuman());
 	//evalResult(testZombie());
@@ -102,164 +101,167 @@ int main(){
 	//evalResult(testHumanZombieClashWithGrid());
 	return 0;
 }
-void evalResult(bool result){
-	if ( result == true )
+void evalResult(bool result) {
+	if (result == true)
 		cout << "Success" << endl;
 	else
 		cout << "Fail" << endl;
 }
-bool testHumanHumanClash(){
+bool testHumanHumanClash() {
 	cout << "Testing Human-Human" << endl;
 	return true;
 }
 
-bool testHumanZombieClashWithGrid(){
+bool testHumanZombieClashWithGrid() {
 	cout << "Testing Human-Zombie with grid" << endl;
 	MockGrid mg;
-	Human h(true,false);
+	Human h(true, false);
 	Zombie z;
 	mg.cells[1][1].setCurrentAgent(&h);
 	mg.cells[1][1].setCandidateAgent(&z);
 	mg.cells[1][1].resolve();
 	return true;
 }
-bool testHumanZombieClashHumanInfected(){
+bool testHumanZombieClashHumanInfected() {
 	cout << "Testing Human-Zombie clash, human infected" << endl;
 	MockRandom rm2(40);
 	Cell c;
 	Zombie z;
-	Human h2(true,false);
+	Human h2(true, false);
 	c.setCurrentAgent(&h2);
 	c.setCandidateAgent(&z);
 	c.setRandomObj(&rm2);
 	c.resolve();
-	cout << "Clash resolved infected: " << h2.isInfected() << "Shooteed: " << z.isShooted() << endl;
+	cout << "Clash resolved infected: " << h2.isInfected() << "Shooteed: "
+			<< z.isShooted() << endl;
 	c.resolve();
-	if ( !h2.isInfected() )
+	if (!h2.isInfected())
 		return false;
-	if ( c.getCurrentAgent()==NULL || !dynamic_cast<Human*>(c.getCurrentAgent())->getGender())
+	if (c.getCurrentAgent() == NULL
+			|| !dynamic_cast<Human*>(c.getCurrentAgent())->getGender())
 		return false;
 	return true;
 }
-bool testHumanZombieClashZombieShooted(){
+bool testHumanZombieClashZombieShooted() {
 	MockRandom rm(1);
 	cout << "Testing Human-Zombie clash, zombie shooted" << endl;
 	Cell c;
-	Human h1(true,false);
+	Human h1(true, false);
 	Zombie z;
 	c.setRandomObj(&rm);
 	c.setCurrentAgent(&h1);
 	c.setCandidateAgent(&z);
 	c.resolve();
-	cout << "Clash resolved infected: " << h1.isInfected() << "Shooteed: " << z.isShooted() << endl;
-	if ( !z.isShooted() )
+	cout << "Clash resolved infected: " << h1.isInfected() << "Shooteed: "
+			<< z.isShooted() << endl;
+	if (!z.isShooted())
 		return false;
 	return true;
 }
-bool testCell(){
+bool testCell() {
 	cout << "Testing cell" << endl;
 	Cell cell;
-	Agent* humanAgent = new Human(true,false);
+	Agent* humanAgent = new Human(true, false);
 	Agent* zombieAgent = new Zombie();
 
 	cell.setCandidateAgent(humanAgent);
 	cell.setCurrentAgent(zombieAgent);
 
-	if ( (cell.getCandidateAgent())->getType()!=human ){
+	if ((cell.getCandidateAgent())->getType() != human) {
 		return false;
 	}
-	if ( cell.getCurrentAgent()->getType()!=zombie ){
+	if (cell.getCurrentAgent()->getType() != zombie) {
 		return false;
 	}
 	Human* h = dynamic_cast<Human*>(cell.getCandidateAgent());
-	if ( h->getGender()!=true ){
+	if (h->getGender() != true) {
 		return false;
 	}
-	if ( (*h).getGender()!=true ){
+	if ((*h).getGender() != true) {
 		return false;
 	}
 
 	Zombie* z = dynamic_cast<Zombie*>(cell.getCurrentAgent());
-	if ( z->isDecomposed() ){
+	if (z->isDecomposed()) {
 		return false;
 	}
-	if ( (*z).isDecomposed() ){
+	if ((*z).isDecomposed()) {
 		return false;
 	}
 
 	return true;
 }
-bool testHumanDeseaseIncubation(){
+bool testHumanDeseaseIncubation() {
 	cout << "Testing step of human";
-	Human h(false,false);
+	Human h(false, false);
 	h.infect();
-	for ( int i = 0; i <= INCUBATIONTIME+1; i++ ){
+	for (int i = 0; i <= INCUBATIONTIME + 1; i++) {
 		h.step();
 	}
-	if (!h.isDead()){
+	if (!h.isDead()) {
 		return false;
 	}
 	return true;
 }
-bool testZombieDecomposition(){
+bool testZombieDecomposition() {
 	cout << "Testing step of zombies";
 	Zombie z;
-	for ( int i = 0; i <= DECOMPOSITIONTIME+1; i++ ){
+	for (int i = 0; i <= MINDECOMPOSITIONTIME + 1; i++) {
 		z.step();
 	}
-	if (!z.isDecomposed()){
+	if (!z.isDecomposed()) {
 		return false;
 	}
 	return true;
 }
-bool testInheritanceOfAgents(){
+bool testInheritanceOfAgents() {
 	cout << "Testing inheritance of agents" << endl;
 	Agent* a = new Human(true, true);
-	if(a->getType()!=human)
+	if (a->getType() != human)
 		return false;
 	a = new Zombie();
 
-	if(a->getType()!=zombie)
+	if (a->getType() != zombie)
 		return false;
 	return true;
 }
-bool testZombie(){
+bool testZombie() {
 	cout << "Testing zombies" << endl;
 	Zombie zombieAgent;
-	if (zombieAgent.getType()!=zombie){
+	if (zombieAgent.getType() != zombie) {
 		return false;
 	}
-	if (zombieAgent.isDecomposed()){
+	if (zombieAgent.isDecomposed()) {
 		return false;
 	}
-	if (zombieAgent.isShooted()){
+	if (zombieAgent.isShooted()) {
 		return false;
 	}
 	zombieAgent.shoot();
-	if (!zombieAgent.isShooted()){
+	if (!zombieAgent.isShooted()) {
 		return false;
 	}
 
 	return true;
 
 }
-bool testHuman(){
+bool testHuman() {
 	cout << "Testing humans" << endl;
-	Human male(false,false);
+	Human male(false, false);
 
-	if (male.getGender()!=false)
+	if (male.getGender() != false)
 		return false;
-	if (male.isHasAGun()!=false)
+	if (male.isHasAGun() != false)
 		return false;
-	if (male.isInfected()!=false)
+	if (male.isInfected() != false)
 		return false;
 
-	Human female(true,true);
-	if (female.getGender()==false)
+	Human female(true, true);
+	if (female.getGender() == false)
 		return false;
-	if (female.isHasAGun()==false)
+	if (female.isHasAGun() == false)
 		return false;
-	if (female.isInfected()!=false)
+	if (female.isInfected() != false)
 		return false;
 	if (female.getType() != human)
 		return false;
@@ -267,59 +269,59 @@ bool testHuman(){
 	return true;
 }
 /* Main de Diego
-int main() {
+ int main() {
 
 
-	class Agent{
+ class Agent{
 
-	public:
-		int id;
-		int type;
+ public:
+ int id;
+ int type;
 
-	Agent(int idParam = 100, int typeParam = 200)
-		:id(idParam),type(typeParam){
+ Agent(int idParam = 100, int typeParam = 200)
+ :id(idParam),type(typeParam){
 
-	}
+ }
 
-	};
-
-
-
-	class Human : public Agent{
-
-	public:
-		int age;
-
-	Human(int ageParam = 400)
-		:age(ageParam){
-	}
-
-	};
+ };
 
 
-	Agent **grid = new Agent *[10] ;
 
-	for ( int i = 0; i < 10; i++ ){
-			for (int j = 0; j < 10; j++){
-				Human h(5);
-				h.id = i*j;
-				h.type = i+j;
-				grid[i] = new Agent[10];
-				grid[i][j] = h;
+ class Human : public Agent{
 
-			}
-		}
+ public:
+ int age;
+
+ Human(int ageParam = 400)
+ :age(ageParam){
+ }
+
+ };
 
 
-	for ( int i = 0; i < 10; i++ ){
-				for (int j = 0; j < 10; j++){
+ Agent **grid = new Agent *[10] ;
 
-					Human h = static_cast<Human&>(grid[i][j]);
+ for ( int i = 0; i < 10; i++ ){
+ for (int j = 0; j < 10; j++){
+ Human h(5);
+ h.id = i*j;
+ h.type = i+j;
+ grid[i] = new Agent[10];
+ grid[i][j] = h;
 
-					cout << "Humano en la posicion: " << i << "," << j << "=" << h.id << endl;
-				}
-			}
+ }
+ }
 
-	return 0;
-}
+
+ for ( int i = 0; i < 10; i++ ){
+ for (int j = 0; j < 10; j++){
+
+ Human h = static_cast<Human&>(grid[i][j]);
+
+ cout << "Humano en la posicion: " << i << "," << j << "=" << h.id << endl;
+ }
+ }
+
+ return 0;
+ }
  */
