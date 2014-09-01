@@ -26,6 +26,7 @@ bool testHumanZombieClashZombieShooted();
 bool testHumanZombieClashHumanInfected();
 bool testHumanZombieClashWithGrid();
 bool testCell();
+void runSimulation();
 void evalResult(bool result);
 //Inject mock grid
 //Inject mock random
@@ -86,20 +87,24 @@ public:
 };
 
 int main() {
+	evalResult(testHuman());
+	evalResult(testZombie());
+	evalResult(testInheritanceOfAgents());
+	evalResult(testZombieDecomposition());
+	evalResult(testHumanDeseaseIncubation());
+	evalResult(testCell());
+	evalResult(testHumanHumanClash());
+//	evalResult(testHumanZombieClashZombieShooted());
+	//evalResult(testHumanZombieClashHumanInfected());
+	//evalResult(testHumanZombieClashWithGrid());
+	runSimulation();
+	return 0;
+}
+void runSimulation(){
 	Model *m;
 	m = new Model();
 	m->setup();
-	//evalResult(testHuman());
-	//evalResult(testZombie());
-	//evalResult(testInheritanceOfAgents());
-	//evalResult(testZombieDecomposition());
-	//evalResult(testHumanDeseaseIncubation());
-	//evalResult(testCell());
-	//evalResult(testHumanHumanClash());
-	//evalResult(testHumanZombieClashZombieShooted());
-	//evalResult(testHumanZombieClashHumanInfected());
-	//evalResult(testHumanZombieClashWithGrid());
-	return 0;
+	m->run();
 }
 void evalResult(bool result) {
 	if (result == true)
@@ -119,7 +124,7 @@ bool testHumanZombieClashWithGrid() {
 	Zombie z;
 	mg.cells[1][1].setCurrentAgent(&h);
 	mg.cells[1][1].setCandidateAgent(&z);
-	mg.cells[1][1].resolve();
+	mg.cells[1][1].step();
 	return true;
 }
 bool testHumanZombieClashHumanInfected() {
@@ -131,10 +136,9 @@ bool testHumanZombieClashHumanInfected() {
 	c.setCurrentAgent(&h2);
 	c.setCandidateAgent(&z);
 	c.setRandomObj(&rm2);
-	c.resolve();
-	cout << "Clash resolved infected: " << h2.isInfected() << "Shooteed: "
-			<< z.isShooted() << endl;
-	c.resolve();
+	c.step();
+	cout << "Clash resolved infected: " << h2.isInfected() << "Shooteed: "<< z.isShooted() << endl;
+	c.step();
 	if (!h2.isInfected())
 		return false;
 	if (c.getCurrentAgent() == NULL
@@ -151,7 +155,7 @@ bool testHumanZombieClashZombieShooted() {
 	c.setRandomObj(&rm);
 	c.setCurrentAgent(&h1);
 	c.setCandidateAgent(&z);
-	c.resolve();
+	c.step();
 	cout << "Clash resolved infected: " << h1.isInfected() << "Shooteed: "
 			<< z.isShooted() << endl;
 	if (!z.isShooted())
@@ -268,6 +272,7 @@ bool testHuman() {
 
 	return true;
 }
+
 /* Main de Diego
  int main() {
 

@@ -18,12 +18,13 @@
 class Model {
 private:
 	Grid *grids[GRIDROWS][GRIDCOLUMNS];
+	void printState(int);
 public:
 	Model();
 	virtual ~Model();
 
 	void setup();
-	void step();
+	void run();
 
 };
 

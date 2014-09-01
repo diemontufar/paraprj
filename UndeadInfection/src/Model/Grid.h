@@ -23,10 +23,14 @@ public:
 	Grid();
 	void initialize (int, int );
 	void addAgent( int, int, Agent* );
-	void moveAgent( int, int, Agent*,int ,int);
+	void moveAgentCurrentToCurrent( int, int, Agent*,int ,int);
+	void moveAgentCurrentToCandidate( int, int, Agent*,int ,int);
+	void moveAgentCandidateToCurrent( int, int, Agent*,int ,int);
 	void removeAgent( int, int, Agent* );
 	void print();
+	void calculateAgents( int &humans, int &zombies );
 	void moveAgent( int, int, Agent* );
+	void step();
 	virtual ~Grid();
 };
 

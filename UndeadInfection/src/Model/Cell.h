@@ -36,9 +36,10 @@ public:
 	Agent* getCurrentAgent();
 	Agent* getCandidateAgent();
 	void setGrid(Grid*);
-	void resolve();
+	void step();
 	void setCoordinates(int, int);
 	void setRandomObj(RandomGen*);
+	void move();
 };
 
 #endif /* CELL_H_ */
