@@ -23,4 +23,7 @@ int RandomGen::getIntUniformRandomBetween(int start, int end){
 	int dice_roll = distribution(generator);
 	return dice_roll;
 }
+bool RandomGen::randomBool() {
+  return rand() % 2 == 1;
+}
 

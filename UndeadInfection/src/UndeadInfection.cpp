@@ -39,9 +39,6 @@ public:
 	void setReturnValue(int value) {
 		returnValue = value;
 	}
-	int getIntUniformRandomBetween(int start, int end) override {
-		return returnValue;
-	}
 };
 class MockGrid: public Grid {
 

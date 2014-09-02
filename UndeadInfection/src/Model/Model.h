@@ -10,7 +10,6 @@
 #include "../Agents/Agent.h"
 #include "../Agents/Human.h"
 #include "../Agents/Zombie.h"
-#include "../Utils/RandomGenerator.h"
 
 #ifndef MODEL_H_
 #define MODEL_H_

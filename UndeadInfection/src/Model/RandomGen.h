@@ -13,7 +13,9 @@ class RandomGen {
 public:
 	RandomGen();
 	virtual ~RandomGen();
-	virtual int getIntUniformRandomBetween(int start, int end);
+	//virtual int getIntUniformRandomBetween(int start, int end);
+	static int getIntUniformRandomBetween(int start, int end);
+	static bool randomBool();
 };
 
 #endif /* RANDOMGEN_H_ */

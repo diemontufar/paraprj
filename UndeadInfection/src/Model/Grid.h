@@ -11,7 +11,7 @@
 
 #include "Cell.h"
 #include "../Agents/Agent.h"
-#include "../Utils/RandomGenerator.h"
+#include "RandomGen.h"
 
 class Cell;
 
