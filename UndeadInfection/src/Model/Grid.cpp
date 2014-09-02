@@ -26,10 +26,16 @@ void Grid::initialize(int nPeople, int nZombies){
 			//todo:change algorithm so it is random and with pop limits
 			if (j<CELLCOLUMNSPERGRID/2){
 				cells[i][j]->setCurrentAgent(new Human(RandomGenerator::randomBool() ,RandomGenerator::randomBool()));
+				cells[i][j]->setCandidateAgent(nullptr);
 			}
-			else if (numZombies < 10){
+			else {if (numZombies < 10){
 				cells[i][j]->setCurrentAgent(new Zombie());
+				cells[i][j]->setCandidateAgent(nullptr);
 				numZombies++;
+			}
+			else
+				cells[i][j]->setCurrentAgent(nullptr);
+				cells[i][j]->setCandidateAgent(nullptr);
 			}
 			//cout << "i:  "<<i << "j:  "<<j <<"Initialized with humans: "<< endl;
 		}
@@ -72,7 +78,7 @@ void Grid::calculateAgents( int &humans, int &zombies ){
 	for ( int i = 0; i < CELLROWSPERGRID; i++ ){
 		for ( int j = 0; j < CELLCOLUMNSPERGRID; j++ ){
 			Agent* agent = cells[i][j]->getCurrentAgent();
-			if ( agent!= nullptr ){
+			if ( agent!= nullptr){
 				AgentTypeEnum currentType = agent->getType();
 
 				if (currentType == human)
