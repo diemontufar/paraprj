@@ -63,6 +63,7 @@ void Grid::moveAgentCurrentToCurrent(int x, int y, Agent* agent, int xtoMove, in
 		{
 			case 0:
 			cells[x][y]->setCurrentAgent(nullptr);
+			Counters::getInstance().newOutOfBounds();
 			break;
 			case 1:
 			if (y - 1 >= 0) {
@@ -113,6 +114,7 @@ void Grid::moveAgentCurrentToCandidate(int x, int y, Agent* agent, int xtoMove, 
 		{
 			case 0:
 			cells[x][y]->setCurrentAgent(nullptr);
+			Counters::getInstance().newOutOfBounds();
 			break;
 			case 1:
 			if (y - 1 >= 0)
@@ -163,6 +165,7 @@ void Grid::moveAgentCandidateToCurrent(int x, int y, Agent* agent, int xtoMove, 
 			{
 				case 0:
 					cells[x][y]->setCurrentAgent(nullptr);
+					Counters::getInstance().newOutOfBounds();
 				break;
 				case 1:
 				if (y - 1 >= 0)

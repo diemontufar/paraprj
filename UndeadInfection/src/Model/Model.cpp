@@ -41,7 +41,9 @@ void Model::printState(int tick){
 	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
 	std::cout << "- Deads: "<< Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
 	std::cout << " Converted: "<<Counters::getInstance().getConverted() << " Shooted: " <<Counters::getInstance().getShooted() ;
-	std::cout << " Zdead: "<<Counters::getInstance().getZDead()<<"\n";
+	std::cout << " Zdead: "<<Counters::getInstance().getZDead();
+	std::cout << " OutOfBounds: "<<Counters::getInstance().getOutOfBounds()<<"\n";
+
 #endif
 }
 void Model::run(){
