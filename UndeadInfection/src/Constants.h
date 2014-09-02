@@ -31,6 +31,6 @@ static const float SUCESSFULBITEPERCENTAGE = 90; //40%
 #define DEBUG = true;
 //#define DEBUGMODEL = true; //Enable more verbosity debug messages
 //#define DEBUGGRID = false;
-#define DEBUGCELL = true;
+//#define DEBUGCELL = true;
 
 #endif

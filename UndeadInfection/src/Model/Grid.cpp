@@ -35,9 +35,10 @@ void Grid::initialize(int nPeople, int nZombies) {
 					cells[i][j]->setCurrentAgent(new Zombie());
 					cells[i][j]->setCandidateAgent(nullptr);
 					numZombies++;
-				} else
+				} else {
 					cells[i][j]->setCurrentAgent(nullptr);
-				cells[i][j]->setCandidateAgent(nullptr);
+					cells[i][j]->setCandidateAgent(nullptr);
+				}
 			}
 			//cout << "i:  "<<i << "j:  "<<j <<"Initialized with humans: "<< endl;
 		}
@@ -48,6 +49,7 @@ void Grid::initialize(int nPeople, int nZombies) {
 void Grid::addAgent(int x, int y, Agent* agent) {
 	if (cells[x][y]->getCurrentAgent() == nullptr) {
 		cells[x][y]->setCurrentAgent(agent);
+		cells[x][y]->setCandidateAgent(nullptr);
 	}
 	//	cout << "added and agent at: "<<"x:  "<<x << "y:  "<<y<< endl;
 }
@@ -55,21 +57,24 @@ void Grid::moveAgentCurrentToCurrent(int x, int y, Agent* agent, int xtoMove, in
 	if (cells[xtoMove][ytoMove]->getCurrentAgent() == nullptr) {
 		cells[xtoMove][ytoMove]->setCurrentAgent(agent);
 		cells[x][y]->setCurrentAgent(nullptr);
-	} else {
+	}
+	else {
 		switch (RandomGen::getIntUniformRandomBetween(0, 8)) {
 		{
 			case 0:
+			cells[x][y]->setCurrentAgent(nullptr);
 			break;
 			case 1:
-			if (y - 1 >= 0)
+			if (y - 1 >= 0) {
 				this->moveAgentCurrentToCurrent(x, y, agent, x, y - 1); //Superior left cell
+			}
 			break;
 			case 2:
 			if (x - 1 >= 0)
 				this->moveAgentCurrentToCurrent(x, y, agent, x - 1, y); //Superior center
 			break;
 			case 3:
-			if (x - 1 >= 0)
+			if (x - 1 >= 0 && y + 1 < CELLCOLUMNSPERGRID)
 				this->moveAgentCurrentToCurrent(x, y, agent, x - 1, y + 1); //superior right
 			break;
 			case 4:
@@ -102,11 +107,12 @@ void Grid::moveAgentCurrentToCandidate(int x, int y, Agent* agent, int xtoMove, 
 	if (cells[xtoMove][ytoMove]->getCandidateAgent() == nullptr) {
 		cells[xtoMove][ytoMove]->setCandidateAgent(agent);
 		cells[x][y]->setCurrentAgent(nullptr);
-
-	} else {
+	}
+	else {
 		switch (RandomGen::getIntUniformRandomBetween(0, 8)) {
 		{
 			case 0:
+			cells[x][y]->setCurrentAgent(nullptr);
 			break;
 			case 1:
 			if (y - 1 >= 0)
@@ -152,6 +158,48 @@ void Grid::moveAgentCandidateToCurrent(int x, int y, Agent* agent, int xtoMove, 
 		cells[xtoMove][ytoMove]->setCurrentAgent(agent);
 		cells[x][y]->setCandidateAgent(nullptr);
 	}
+	else {
+			switch (RandomGen::getIntUniformRandomBetween(0, 8)) {
+			{
+				case 0:
+					cells[x][y]->setCurrentAgent(nullptr);
+				break;
+				case 1:
+				if (y - 1 >= 0)
+					this->moveAgentCandidateToCurrent(x, y, agent, x, y - 1); //Superior left cell
+				break;
+				case 2:
+				if (x - 1 >= 0)
+					this->moveAgentCandidateToCurrent(x, y, agent, x - 1, y); //Superior center
+				break;
+				case 3:
+				if (x - 1 >= 0)
+					this->moveAgentCandidateToCurrent(x, y, agent, x - 1, y + 1); //superior right
+				break;
+				case 4:
+				if (y + 1 < CELLCOLUMNSPERGRID)
+					this->moveAgentCandidateToCurrent(x, y, agent, x, y + 1); //Center center
+				break;
+				case 5:
+				if (x + 1 < CELLROWSPERGRID && y + 1 < CELLCOLUMNSPERGRID)
+					this->moveAgentCandidateToCurrent(x, y, agent, x + 1, y + 1); //Inferior right
+				break;
+				case 6:
+				if (x + 1 < CELLROWSPERGRID)
+					this->moveAgentCandidateToCurrent(x, y, agent, x + 1, y); //Inferior center
+				break;
+				case 7:
+				if (x + 1 < CELLROWSPERGRID && y - 1 > 0)
+					this->moveAgentCandidateToCurrent(x, y, agent, x + 1, y - 1); //Inferior left
+				break;
+				case 8:
+				if (y - 1 > 0)
+					this->moveAgentCandidateToCurrent(x, y, agent, x, y - 1); //Center left
+				break;
+			}
+			}
+
+		}
 	//cout << "moved candidate2current agent from: "<<x << ","<<y << " to: " << xtoMove << "," << ytoMove << endl;
 }
 void Grid::removeAgent(int x, int y, Agent* agent) {
