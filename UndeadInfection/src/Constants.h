@@ -2,7 +2,7 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-static const long NUMTICKS = 2000; //Number of ticks
+static const long NUMTICKS = 5000; //Number of ticks
 
 static const int HUMANSPEED = 2; //Human speed
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human

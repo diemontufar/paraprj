@@ -146,7 +146,7 @@ void Cell::resolveHumanZombie(){
 #ifdef DEBUGCELL
 		std::cout << "Moving Current Human to another cell " <<"\n";
 #endif
-			grid->moveAgentCurrentToCandidate(x,y,currentAgent,5,5);
+			grid->moveAgentCurrentToCurrent(x,y,currentAgent,5,5);
 #ifdef DEBUGCELL
 		std::cout << "Moved" <<"\n";
 #endif
@@ -167,7 +167,7 @@ void Cell::resolveHumanZombie(){
 #ifdef DEBUGCELL
 		std::cout << "Moving current zombie to another cell " <<"\n";
 #endif
-			grid->moveAgentCurrentToCandidate(x,y,currentAgent,6,6);
+			grid->moveAgentCurrentToCurrent(x,y,currentAgent,6,6);
 		}
 		else{
 #ifdef DEBUGCELL

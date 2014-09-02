@@ -63,9 +63,9 @@ void Model::run(){
 				grids[i][j]->step();
 			}
 		}
-		if ( i%100 == 0 ){
+		//if ( i%100 == 0 ){
 			printState(i);
-		}
+		//}
 	}
 	printState(NUMTICKS);
 }
