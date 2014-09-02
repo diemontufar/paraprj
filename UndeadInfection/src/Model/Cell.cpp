@@ -6,6 +6,7 @@
  */
 
 #include "Cell.h"
+#include "../Counters.h"
 #ifdef DEBUGCELL
 #include "iostream"
 #endif
@@ -27,11 +28,14 @@ void Cell::step(){
 	if ( candidateAgent != nullptr ) candidateAgent->step();
 	//Check if someone is dead or shooted
 	if ( currentAgent != nullptr && currentAgent->getType() == human && (dynamic_cast<Human*>(currentAgent))->isDead() ){ //Its a zombie!
+		Counters::getInstance().newDead();
+		Counters::getInstance().newConversion();
 		grid->removeAgent(x ,y, currentAgent);
 		grid->addAgent(x,y,new Zombie());
 	}
 	if ( currentAgent != nullptr && currentAgent->getType() == zombie &&
 			(dynamic_cast<Zombie*>(currentAgent)->isShooted() || (dynamic_cast<Zombie*>(currentAgent))->isDecomposed()) ){ //Remove zombie
+		Counters::getInstance().newZombieDead();
 		grid->removeAgent(x ,y, currentAgent);
 	}
 
@@ -42,6 +46,7 @@ void Cell::step(){
 		return;
 
 	if ( currentAgent != nullptr && candidateAgent != nullptr ){//There is someone in the cell, lets check
+
 		AgentTypeEnum currentType = currentAgent->getType();
 		AgentTypeEnum candidateType = candidateAgent->getType();
 
@@ -139,6 +144,7 @@ void Cell::resolveHumanZombie(){
 
 	if ( dice_roll <= HEADSHOTPERCENTAGE ){
 		z->shoot();
+		Counters::getInstance().newShooted();
 #ifdef DEBUGCELL
 		std::cout << "Zombie shooted " <<"\n";
 #endif
@@ -160,6 +166,7 @@ void Cell::resolveHumanZombie(){
 	}
 	else if ( dice_roll <= SUCESSFULBITEPERCENTAGE ){
 		h->infect();
+		Counters::getInstance().newInfected();
 #ifdef DEBUGCELL
 		std::cout << "Human infected " <<"\n";
 #endif

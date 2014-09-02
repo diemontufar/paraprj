@@ -12,6 +12,7 @@
 #include "../Agents/Zombie.h"
 #include "Grid.h"
 #include "RandomGen.h"
+#include "../Counters.h"
 
 class Grid;
 

@@ -38,7 +38,10 @@ void Model::printState(int tick){
 		}
 	}
 #ifdef DEBUG
-	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies << "\n";
+	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
+	std::cout << "- Deads: "<< Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
+	std::cout << " Converted: "<<Counters::getInstance().getConverted() << " Shooted: " <<Counters::getInstance().getShooted() ;
+	std::cout << " Zdead: "<<Counters::getInstance().getZDead()<<"\n";
 #endif
 }
 void Model::run(){
@@ -65,6 +68,7 @@ void Model::run(){
 		}
 		//if ( i%100 == 0 ){
 			printState(i);
+			Counters::getInstance().resetCounters();
 		//}
 	}
 	printState(NUMTICKS);
