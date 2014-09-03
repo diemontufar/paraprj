@@ -19,12 +19,12 @@ class Cell;
 
 class Grid {
 private:
-	Agent* gridA[CELLROWSPERGRID+2][CELLCOLUMNSPERGRID+2];
-	Agent* gridB[CELLROWSPERGRID+2][CELLCOLUMNSPERGRID+2];
+	Agent* gridA[GRIDROWS+2][GRIDCOLUMNS+2];
+	Agent* gridB[GRIDROWS+2][GRIDCOLUMNS+2];
 	RandomGen* randomObj;
 
 	void printState(int);
-
+	void merge();
 public:
 	Grid();
 	void initialize (int, int );

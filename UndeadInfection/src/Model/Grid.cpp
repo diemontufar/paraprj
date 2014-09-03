@@ -22,10 +22,17 @@ Grid::~Grid() {
 void Grid::printState(int tick){
 	int humans = 0;
 	int zombies = 0;
-	for (int i = 0; i < CELLROWSPERGRID; i++) {
-		for (int j = 0; j < CELLCOLUMNSPERGRID; j++) {
+	for (int i = 1; i <= GRIDROWS; i++) {
+		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			Agent* agent = gridA[i][j];
-			if (agent != nullptr) {
+#ifdef DEBUGGRID
+	std::cout << "printState inspect Agent" << i << "," << j << "\n";
+#endif
+			if ( agent != nullptr ) {
+#ifdef DEBUGGRID
+	std::cout << "printState Agent" << agent << "\n";
+#endif
+
 				AgentTypeEnum currentType = agent->getType();
 
 				if (currentType == human)
@@ -36,10 +43,10 @@ void Grid::printState(int tick){
 		}
 	}
 #ifdef DEBUG
-	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
-	std::cout << "- Deads: "<< Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
-	std::cout << " Converted: "<<Counters::getInstance().getConverted() << " Shooted: " <<Counters::getInstance().getShooted() ;
-	std::cout << " Zdead: "<<Counters::getInstance().getZDead()<<"\n";
+	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies << "\n";
+	//std::cout << "- Deads: "<< Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
+	//std::cout << " Converted: "<<Counters::getInstance().getConverted() << " Shooted: " <<Counters::getInstance().getShooted() ;
+	//std::cout << " Zdead: "<<Counters::getInstance().getZDead()<<"\n";
 #endif
 }
 
@@ -47,8 +54,8 @@ void Grid::initialize(int nPeople, int nZombies) {
 	int numZombies = 0;
 	int numHumans = 0;
 
-	for (int i = 0; i < CELLROWSPERGRID; i++) {
-		for (int j = 0; j < CELLCOLUMNSPERGRID; j++) {
+	for (int i = 1; i <= GRIDROWS; i++) {
+		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridB[i][j] = nullptr;
 			//todo:change algorithm so it is random and with pop limits
 			if (numHumans < DARWINPOPDENSITY && RandomGen::randomBool()) {
@@ -62,9 +69,10 @@ void Grid::initialize(int nPeople, int nZombies) {
 					gridA[i][j] = nullptr;
 				}
 			}
-			//cout << "i:  "<<i << "j:  "<<j <<"Initialized with humans: "<< endl;
+			//cout << "i:  "<<i << "j:  "<<j <<"numInitialized with humans: "<< endl;
 		}
 	}
+	cout << "Initialized with humans: "<< numHumans << "- Zombies: " << numZombies<< endl;
 }
 
 //Todo: check adjacencies and move
@@ -78,6 +86,13 @@ void Grid::addAgent(int x, int y, Agent* agent) {
 void Grid::removeAgent(int x, int y, Agent* agent) {
 	//cells[x][y]->setCurrentAgent(nullptr);
 }
+void Grid::merge(){
+	for (int i = 1; i <= GRIDROWS; i++) {
+		for (int j = 1; j <= GRIDCOLUMNS; j++){
+			gridA[i][j] = gridB[i][j];
+		}
+	}
+}
 void Grid::run() {
 	printState(0);
 #ifdef DEBUGGRID
@@ -86,7 +101,7 @@ void Grid::run() {
 
 	for (int n = 0; n < NUMTICKS; n++) {
 #ifdef DEBUGGRID
-		std::cout << "Iterating ticks "<< i <<"\n";
+		std::cout << "Iterating ticks "<< n <<"\n";
 #endif
 
 		for (int i = 1; i <= GRIDROWS; i++) {
@@ -103,13 +118,13 @@ void Grid::run() {
 					Agent* agent = gridA[i][j];
 					gridA[i][j] = nullptr;
 					double move = drand48();
-					if (move < 1.0*MOVE) {
+					if (move < 1.0*MOVE  && gridA[i-1][j] == nullptr && gridB[i-1][j] == nullptr) {
 						gridB[i-1][j] = agent;
-					} else if (move < 2.0*MOVE) {
+					} else if (move < 2.0*MOVE && gridA[i+1][j] == nullptr && gridB[i+1][j] == nullptr) {
 						gridB[i+1][j] = agent;
-					} else if (move < 3.0*MOVE) {
+					} else if (move < 3.0*MOVE && gridA[i][j-1] == nullptr && gridB[i][j-1] == nullptr) {
 						gridB[i][j-1] = agent;
-					} else if (move < 4.0*MOVE) {
+					} else if (move < 4.0*MOVE && gridA[i][j+1] == nullptr && gridB[i][j+1] == nullptr) {
 						gridB[i][j+1] = agent;
 					} else {
 						gridB[i][j] = agent;
@@ -120,11 +135,11 @@ void Grid::run() {
 		}
 		swap(gridA,gridB);
 		//if ( n%100 == 0 ){
-		printState(n);
+		printState(n+1);
 		//    			Counters::getInstance().resetCounters();
 		//}
 	}
-	printState(NUMTICKS);
+	printState(NUMTICKS+1);
 }
 	/*void Cell::step(){
 
