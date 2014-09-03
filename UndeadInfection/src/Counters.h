@@ -15,8 +15,9 @@ public:
 		static Counters instance;
 		return instance;
 	}
-	void resetCounters(){dead=shooted=infected=0;}
+	void resetCounters(){dead=shooted=infected=outOfBounds=0;}
 	void newDead(){dead++;}
+	void newOutOfBounds(){outOfBounds++;}
 	void newZombieDead(){zDead++;}
 	void newShooted(){shooted++;}
 	void newInfected(){infected++;}
@@ -26,14 +27,16 @@ public:
 	int getInfected(){return infected;}
 	int getConverted(){return converted;}
 	int getZDead(){return zDead;}
+	int getOutOfBounds(){return outOfBounds;}
 private:
 	int dead;
 	int shooted;
 	int infected;
 	int converted;
 	int zDead;
+	int outOfBounds;
 
-	Counters(){dead=shooted=infected=converted=zDead=0;};
+	Counters(){dead=shooted=infected=converted=zDead=outOfBounds=0;};
 	Counters(Counters const&);
 	void operator=(Counters const&);
 };
