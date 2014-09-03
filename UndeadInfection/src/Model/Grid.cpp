@@ -7,208 +7,24 @@
 
 #include "Grid.h"
 #include <iostream>
+#ifdef DEBUG
+#include <iostream>
+#endif
+
 using namespace std;
 Grid::Grid() {
+	randomObj = new RandomGen();
 }
 
 Grid::~Grid() {
 	// TODO Auto-generated destructor stub
 }
-
-void Grid::initialize(int nPeople, int nZombies) {
-	int numZombies = 0;
-	int numHumans = 0;
+void Grid::printState(int tick){
+	int humans = 0;
+	int zombies = 0;
 	for (int i = 0; i < CELLROWSPERGRID; i++) {
 		for (int j = 0; j < CELLCOLUMNSPERGRID; j++) {
-			cells[i][j] = new Cell();
-			cells[i][j]->setGrid(this);
-			cells[i][j]->setCoordinates(i, j);
-
-			//todo:change algorithm so it is random and with pop limits
-
-			if (numHumans < DARWINPOPDENSITY && RandomGen::randomBool()) {
-				cells[i][j]->setCurrentAgent(new Human(RandomGen::randomBool(), RandomGen::randomBool()));
-				cells[i][j]->setCandidateAgent(nullptr);
-				numHumans++;
-			} else {
-				if (numZombies < NUMBEROFZOMBIES && RandomGen::randomBool()) {
-					cells[i][j]->setCurrentAgent(new Zombie());
-					cells[i][j]->setCandidateAgent(nullptr);
-					numZombies++;
-				} else {
-					cells[i][j]->setCurrentAgent(nullptr);
-					cells[i][j]->setCandidateAgent(nullptr);
-				}
-			}
-			//cout << "i:  "<<i << "j:  "<<j <<"Initialized with humans: "<< endl;
-		}
-	}
-}
-
-//Todo: check adjacencies and move
-void Grid::addAgent(int x, int y, Agent* agent) {
-	if (cells[x][y]->getCurrentAgent() == nullptr) {
-		cells[x][y]->setCurrentAgent(agent);
-		cells[x][y]->setCandidateAgent(nullptr);
-	}
-	//	cout << "added and agent at: "<<"x:  "<<x << "y:  "<<y<< endl;
-}
-void Grid::moveAgentCurrentToCurrent(int x, int y, Agent* agent, int xtoMove, int ytoMove) {
-	if (cells[xtoMove][ytoMove]->getCurrentAgent() == nullptr) {
-		cells[xtoMove][ytoMove]->setCurrentAgent(agent);
-		cells[x][y]->setCurrentAgent(nullptr);
-	}
-	else {
-		switch (RandomGen::getIntUniformRandomBetween(0, 8)) {
-		{
-			case 0:
-			cells[x][y]->setCurrentAgent(nullptr);
-			break;
-			case 1:
-			if (y - 1 >= 0) {
-				this->moveAgentCurrentToCurrent(x, y, agent, x, y - 1); //Superior left cell
-			}
-			break;
-			case 2:
-			if (x - 1 >= 0)
-				this->moveAgentCurrentToCurrent(x, y, agent, x - 1, y); //Superior center
-			break;
-			case 3:
-			if (x - 1 >= 0 && y + 1 < CELLCOLUMNSPERGRID)
-				this->moveAgentCurrentToCurrent(x, y, agent, x - 1, y + 1); //superior right
-			break;
-			case 4:
-			if (y + 1 < CELLCOLUMNSPERGRID)
-				this->moveAgentCurrentToCurrent(x, y, agent, x, y + 1); //Center center
-			break;
-			case 5:
-			if (x + 1 < CELLROWSPERGRID && y + 1 < CELLCOLUMNSPERGRID)
-				this->moveAgentCurrentToCurrent(x, y, agent, x + 1, y + 1); //Inferior right
-			break;
-			case 6:
-			if (x + 1 < CELLROWSPERGRID)
-				this->moveAgentCurrentToCurrent(x, y, agent, x + 1, y); //Inferior center
-			break;
-			case 7:
-			if (x + 1 < CELLROWSPERGRID && y - 1 > 0)
-				this->moveAgentCurrentToCurrent(x, y, agent, x + 1, y - 1); //Inferior left
-			break;
-			case 8:
-			if (y - 1 > 0)
-				this->moveAgentCurrentToCurrent(x, y, agent, x, y - 1); //Center left
-			break;
-		}
-		}
-
-	}
-	//cout << "moved current2current agent from: "<<x << ","<<y << " to: " << xtoMove << "," << ytoMove << endl;
-}
-void Grid::moveAgentCurrentToCandidate(int x, int y, Agent* agent, int xtoMove, int ytoMove) {
-	if (cells[xtoMove][ytoMove]->getCandidateAgent() == nullptr) {
-		cells[xtoMove][ytoMove]->setCandidateAgent(agent);
-		cells[x][y]->setCurrentAgent(nullptr);
-	}
-	else {
-		switch (RandomGen::getIntUniformRandomBetween(0, 8)) {
-		{
-			case 0:
-			cells[x][y]->setCurrentAgent(nullptr);
-			break;
-			case 1:
-			if (y - 1 >= 0)
-				this->moveAgentCurrentToCandidate(x, y, agent, x, y - 1); //Superior left cell
-			break;
-			case 2:
-			if (x - 1 >= 0)
-				this->moveAgentCurrentToCandidate(x, y, agent, x - 1, y); //Superior center
-			break;
-			case 3:
-			if (x - 1 >= 0)
-				this->moveAgentCurrentToCandidate(x, y, agent, x - 1, y + 1); //superior right
-			break;
-			case 4:
-			if (y + 1 < CELLCOLUMNSPERGRID)
-				this->moveAgentCurrentToCandidate(x, y, agent, x, y + 1); //Center center
-			break;
-			case 5:
-			if (x + 1 < CELLROWSPERGRID && y + 1 < CELLCOLUMNSPERGRID)
-				this->moveAgentCurrentToCandidate(x, y, agent, x + 1, y + 1); //Inferior right
-			break;
-			case 6:
-			if (x + 1 < CELLROWSPERGRID)
-				this->moveAgentCurrentToCandidate(x, y, agent, x + 1, y); //Inferior center
-			break;
-			case 7:
-			if (x + 1 < CELLROWSPERGRID && y - 1 > 0)
-				this->moveAgentCurrentToCandidate(x, y, agent, x + 1, y - 1); //Inferior left
-			break;
-			case 8:
-			if (y - 1 > 0)
-				this->moveAgentCurrentToCandidate(x, y, agent, x, y - 1); //Center left
-			break;
-		}
-		}
-
-	}
-
-	//cout << "moved current2candidate agent from: "<<x << ","<<y << " to: " << xtoMove << "," << ytoMove << endl;
-}
-void Grid::moveAgentCandidateToCurrent(int x, int y, Agent* agent, int xtoMove, int ytoMove) {
-	if (cells[xtoMove][ytoMove]->getCurrentAgent() == nullptr) {
-		cells[xtoMove][ytoMove]->setCurrentAgent(agent);
-		cells[x][y]->setCandidateAgent(nullptr);
-	}
-	else {
-			switch (RandomGen::getIntUniformRandomBetween(0, 8)) {
-			{
-				case 0:
-					cells[x][y]->setCurrentAgent(nullptr);
-				break;
-				case 1:
-				if (y - 1 >= 0)
-					this->moveAgentCandidateToCurrent(x, y, agent, x, y - 1); //Superior left cell
-				break;
-				case 2:
-				if (x - 1 >= 0)
-					this->moveAgentCandidateToCurrent(x, y, agent, x - 1, y); //Superior center
-				break;
-				case 3:
-				if (x - 1 >= 0)
-					this->moveAgentCandidateToCurrent(x, y, agent, x - 1, y + 1); //superior right
-				break;
-				case 4:
-				if (y + 1 < CELLCOLUMNSPERGRID)
-					this->moveAgentCandidateToCurrent(x, y, agent, x, y + 1); //Center center
-				break;
-				case 5:
-				if (x + 1 < CELLROWSPERGRID && y + 1 < CELLCOLUMNSPERGRID)
-					this->moveAgentCandidateToCurrent(x, y, agent, x + 1, y + 1); //Inferior right
-				break;
-				case 6:
-				if (x + 1 < CELLROWSPERGRID)
-					this->moveAgentCandidateToCurrent(x, y, agent, x + 1, y); //Inferior center
-				break;
-				case 7:
-				if (x + 1 < CELLROWSPERGRID && y - 1 > 0)
-					this->moveAgentCandidateToCurrent(x, y, agent, x + 1, y - 1); //Inferior left
-				break;
-				case 8:
-				if (y - 1 > 0)
-					this->moveAgentCandidateToCurrent(x, y, agent, x, y - 1); //Center left
-				break;
-			}
-			}
-
-		}
-	//cout << "moved candidate2current agent from: "<<x << ","<<y << " to: " << xtoMove << "," << ytoMove << endl;
-}
-void Grid::removeAgent(int x, int y, Agent* agent) {
-	cells[x][y]->setCurrentAgent(nullptr);
-}
-void Grid::calculateAgents(int &humans, int &zombies) {
-	for (int i = 0; i < CELLROWSPERGRID; i++) {
-		for (int j = 0; j < CELLCOLUMNSPERGRID; j++) {
-			Agent* agent = cells[i][j]->getCurrentAgent();
+			Agent* agent = gridA[i][j];
 			if (agent != nullptr) {
 				AgentTypeEnum currentType = agent->getType();
 
@@ -219,23 +35,224 @@ void Grid::calculateAgents(int &humans, int &zombies) {
 			}
 		}
 	}
+#ifdef DEBUG
+	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
+	std::cout << "- Deads: "<< Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
+	std::cout << " Converted: "<<Counters::getInstance().getConverted() << " Shooted: " <<Counters::getInstance().getShooted() ;
+	std::cout << " Zdead: "<<Counters::getInstance().getZDead()<<"\n";
+#endif
 }
-void Grid::step() {
+
+void Grid::initialize(int nPeople, int nZombies) {
+	int numZombies = 0;
+	int numHumans = 0;
+
 	for (int i = 0; i < CELLROWSPERGRID; i++) {
 		for (int j = 0; j < CELLCOLUMNSPERGRID; j++) {
-#ifdef DEBUGGRID
-			cout << "Moving cells in Grid " << i << "," << j << endl;
-#endif
-			cells[i][j]->move();
+			gridB[i][j] = nullptr;
+			//todo:change algorithm so it is random and with pop limits
+			if (numHumans < DARWINPOPDENSITY && RandomGen::randomBool()) {
+				gridA[i][j] = new Human(RandomGen::randomBool(), RandomGen::randomBool());
+				numHumans++;
+			} else {
+				if (numZombies < NUMBEROFZOMBIES && RandomGen::randomBool()) {
+					gridA[i][j] = new Zombie();
+					numZombies++;
+				} else {
+					gridA[i][j] = nullptr;
+				}
+			}
+			//cout << "i:  "<<i << "j:  "<<j <<"Initialized with humans: "<< endl;
 		}
 	}
-	for (int i = 0; i < CELLROWSPERGRID; i++) {
-		for (int j = 0; j < CELLCOLUMNSPERGRID; j++) {
+}
+
+//Todo: check adjacencies and move
+void Grid::addAgent(int x, int y, Agent* agent) {
+	/*	if (cells[x][y]->getCurrentAgent() == nullptr) {
+		cells[x][y]->setCurrentAgent(agent);
+		cells[x][y]->setCandidateAgent(nullptr);
+	}
+	//	cout << "added and agent at: "<<"x:  "<<x << "y:  "<<y<< endl;*/
+}
+void Grid::removeAgent(int x, int y, Agent* agent) {
+	//cells[x][y]->setCurrentAgent(nullptr);
+}
+void Grid::run() {
+	printState(0);
 #ifdef DEBUGGRID
-			cout << "Calling steps in Grid " << i << "," << j << endl;
+	std::cout << "Run called"<<"\n";
 #endif
-			cells[i][j]->step();
+
+	for (int n = 0; n < NUMTICKS; n++) {
+#ifdef DEBUGGRID
+		std::cout << "Iterating ticks "<< i <<"\n";
+#endif
+
+		for (int i = 1; i <= GRIDROWS; i++) {
+#ifdef DEBUGGRID
+			std::cout << "Iterating Grid rows: "<< i <<"\n";
+#endif
+
+			for (int j = 1; j <= GRIDCOLUMNS; j++){
+#ifdef DEBUGGRID
+				std::cout << "Iterating Grid columns: "<< j <<"\n";
+#endif
+
+				if (gridA[i][j] != nullptr) {
+					Agent* agent = gridA[i][j];
+					gridA[i][j] = nullptr;
+					double move = drand48();
+					if (move < 1.0*MOVE) {
+						gridB[i-1][j] = agent;
+					} else if (move < 2.0*MOVE) {
+						gridB[i+1][j] = agent;
+					} else if (move < 3.0*MOVE) {
+						gridB[i][j-1] = agent;
+					} else if (move < 4.0*MOVE) {
+						gridB[i][j+1] = agent;
+					} else {
+						gridB[i][j] = agent;
+					}
+
+				}
+			}
 		}
+		swap(gridA,gridB);
+		//if ( n%100 == 0 ){
+		printState(n);
+		//    			Counters::getInstance().resetCounters();
+		//}
+	}
+	printState(NUMTICKS);
+}
+	/*void Cell::step(){
+
+	if ( currentAgent != nullptr ) currentAgent->step();
+	if ( candidateAgent != nullptr ) candidateAgent->step();
+	//Check if someone is dead or shooted
+	if ( currentAgent != nullptr && currentAgent->getType() == human && (dynamic_cast<Human*>(currentAgent))->isDead() ){ //Its a zombie!
+		Counters::getInstance().newDead();
+		Counters::getInstance().newConversion();
+		grid->removeAgent(x ,y, currentAgent);
+		grid->addAgent(x,y,new Zombie());
+	}
+	if ( currentAgent != nullptr && currentAgent->getType() == zombie &&
+			(dynamic_cast<Zombie*>(currentAgent)->isShooted() || (dynamic_cast<Zombie*>(currentAgent))->isDecomposed()) ){ //Remove zombie
+		Counters::getInstance().newZombieDead();
+		grid->removeAgent(x ,y, currentAgent);
 	}
 
+
+	if (currentAgent == nullptr && candidateAgent == nullptr)//Empty cell do nothing
+		return;
+	if (currentAgent != nullptr && candidateAgent == nullptr)//Nothing to do
+		return;
+
+	if ( currentAgent != nullptr && candidateAgent != nullptr ){//There is someone in the cell, lets check
+
+		AgentTypeEnum currentType = currentAgent->getType();
+		AgentTypeEnum candidateType = candidateAgent->getType();
+
+		if ( currentType == human && candidateType == human ){
+			resolveHumanHuman();
+		}
+		else if (currentType==zombie && candidateType == zombie){
+			resolveZombieZombie();
+		}
+		else{
+			resolveHumanZombie();
+		}
+	}
+	else{ //The cell is empty accept the candidate
+		currentAgent = candidateAgent;
+		candidateAgent = nullptr;
+	}
 }
+void Cell::resolveHumanHuman(){
+	Human* h1;
+	Human* h2;
+	h1 = dynamic_cast<Human*>(candidateAgent);
+	h2 = dynamic_cast<Human*>(currentAgent);
+	if ((h1->getGender() && !h2->getGender()) || (!h1->getGender() && h2->getGender())) { //If they are male and woman
+		int result = randomObj->getIntUniformRandomBetween(1,100);
+		if ( result < BIRTHPERCENTAGE ){ //They have a baby
+			bool gender = ( randomObj->getIntUniformRandomBetween(0,1) ? true:false );
+			Human baby(gender,false);
+			//grid->addAgent(0,0,&baby);
+		}
+	}
+	//Move human
+	grid->moveAgentCurrentToCurrent(x,y,currentAgent,3,3);
+	currentAgent = candidateAgent;
+}
+void Cell::resolveHumanZombie(){
+	Human* h;
+	Zombie* z;
+	if ( currentAgent->getType() == zombie ){
+		h = dynamic_cast<Human*>(candidateAgent);
+		z = dynamic_cast<Zombie*>(currentAgent);
+	}
+	else{
+		h = dynamic_cast<Human*>(currentAgent);
+		z = dynamic_cast<Zombie*>(candidateAgent);
+	}
+	//Probability and cases, for now it is a rand
+	int dice_roll = randomObj->getIntUniformRandomBetween(0,100);
+	//#ifdef DEBUGCELL
+	//std::cout << "Dice roll: " << dice_roll << "\n";
+	//#endif
+
+	if ( dice_roll <= HEADSHOTPERCENTAGE ){
+		z->shoot();
+		Counters::getInstance().newShooted();
+#ifdef DEBUGCELL
+		std::cout << "Zombie shooted " <<"\n";
+#endif
+		if ( currentAgent->getType() == human ){
+#ifdef DEBUGCELL
+		std::cout << "Moving Current Human to another cell " <<"\n";
+#endif
+			grid->moveAgentCurrentToCurrent(x,y,currentAgent,5,5);
+#ifdef DEBUGCELL
+		std::cout << "Moved" <<"\n";
+#endif
+		}
+		else{
+#ifdef DEBUGCELL
+		std::cout << "Moving Candidate Human to another cell " <<"\n";
+#endif
+		    grid->moveAgentCandidateToCurrent(x,y,currentAgent,5,5);
+		}
+	}
+	else if ( dice_roll <= SUCESSFULBITEPERCENTAGE ){
+		h->infect();
+		Counters::getInstance().newInfected();
+#ifdef DEBUGCELL
+		std::cout << "Human infected " <<"\n";
+#endif
+		if ( currentAgent->getType() == zombie ){
+#ifdef DEBUGCELL
+		std::cout << "Moving current zombie to another cell " <<"\n";
+#endif
+			grid->moveAgentCurrentToCurrent(x,y,currentAgent,6,6);
+		}
+		else{
+#ifdef DEBUGCELL
+		std::cout << "Moving candidate zombie to another cell " <<"\n";
+#endif
+			grid->moveAgentCandidateToCurrent(x,y,currentAgent,7,7);
+		}
+	}
+}
+void Cell::resolveZombieZombie(){
+	//Move zombie to another location
+}
+	 */
+
+	void Grid::setRandomObj(RandomGen* obj){
+		delete(randomObj);
+		randomObj = obj;
+	}
+
+
