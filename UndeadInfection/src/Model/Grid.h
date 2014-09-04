@@ -14,6 +14,9 @@
 #include "../Agents/Zombie.h"
 #include "../Counters.h"
 #include "RandomGen.h"
+#include "Random.h"
+#include <iostream>
+#include <stdlib.h>
 
 class Cell;
 

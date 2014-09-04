@@ -13,7 +13,11 @@
 #include "Agents/Agent.h"
 #include "Model/Grid.h"
 #include "Model/RandomGen.h"
+#include "Model/Random.h"
+#include <time.h>
+
 using namespace std;
+
 bool testHuman();
 bool testZombie();
 bool testInheritanceOfAgents();
@@ -49,6 +53,11 @@ int main() {
 	return 0;
 }
 void runSimulation(){
+
+	//Necessary to evaluate random values correctly.
+	//TODO: consider process id when using MPI
+	srand(int(time(NULL)));
+
 	Grid g;
 	g.initialize(5,5);
 	g.run();
@@ -66,7 +75,7 @@ bool testHumanHumanClash() {
 
 bool testHumanDeseaseIncubation() {
 	cout << "Testing step of human";
-	Human h(false, false);
+	Human h(false,Random::random(100)+1, false);
 	h.infect();
 	for (int i = 0; i <= INCUBATIONTIME + 1; i++) {
 		h.step();
@@ -89,7 +98,7 @@ bool testZombieDecomposition() {
 }
 bool testInheritanceOfAgents() {
 	cout << "Testing inheritance of agents" << endl;
-	Agent* a = new Human(true, true);
+	Agent* a = new Human(true,Random::random(100)+1, true);
 	if (a->getType() != human)
 		return false;
 	a = new Zombie();
@@ -120,7 +129,7 @@ bool testZombie() {
 }
 bool testHuman() {
 	cout << "Testing humans" << endl;
-	Human male(false, false);
+	Human male(false,Random::random(100)+1, false);
 
 	if (male.getGender() != false)
 		return false;
@@ -129,7 +138,7 @@ bool testHuman() {
 	if (male.isInfected() != false)
 		return false;
 
-	Human female(true, true);
+	Human female(true,Random::random(100)+1, true);
 	if (female.getGender() == false)
 		return false;
 	if (female.isHasAGun() == false)

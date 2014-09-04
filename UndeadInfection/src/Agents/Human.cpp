@@ -10,7 +10,13 @@
 #include "iostream"
 #endif
 
-Human::Human(bool theGender, bool ifHasAGun):gender(theGender),hasAGun(ifHasAGun),infected(false) {
+Human::Human(bool theGender,int theAge, bool ifHasAGun):
+		gender(theGender),
+		age(theAge),
+		hasAGun(ifHasAGun),
+		infected(false),
+		infectionTime(0),
+		dead(false) {
 
 }
 
@@ -31,6 +37,10 @@ void Human::step(){
 
 bool Human::getGender(){
 	return gender;
+}
+
+int Human::getAge(){
+	return age;
 }
 
 bool Human::isHasAGun(){

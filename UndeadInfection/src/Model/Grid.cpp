@@ -6,7 +6,7 @@
  */
 
 #include "Grid.h"
-#include <iostream>
+
 #ifdef DEBUG
 #include <iostream>
 #endif
@@ -58,8 +58,13 @@ void Grid::initialize(int nPeople, int nZombies) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridB[i][j] = nullptr;
 			//todo:change algorithm so it is random and with pop limits
-			if (numHumans < DARWINPOPDENSITY && RandomGen::randomBool()) {
-				gridA[i][j] = new Human(RandomGen::randomBool(), RandomGen::randomBool());
+			if (numHumans < DARWINPOPDENSITY && Random::randomBool()) {
+
+				int age = Random::random(100)+1;
+				bool gender = Random::random() < GENDERRATIO ? true : false;
+				bool hasAGun = Random::random() < GUNDENSITY ? true : false;
+
+				gridA[i][j] = new Human(gender,age,hasAGun);
 				numHumans++;
 			} else {
 				if (numZombies < NUMBEROFZOMBIES && RandomGen::randomBool()) {
@@ -117,7 +122,7 @@ void Grid::run() {
 				if (gridA[i][j] != nullptr) {
 					Agent* agent = gridA[i][j];
 					gridA[i][j] = nullptr;
-					double move = drand48();
+					double move = Random::random();
 					if (move < 1.0*MOVE  && gridA[i-1][j] == nullptr && gridB[i-1][j] == nullptr) {
 						gridB[i-1][j] = agent;
 					} else if (move < 2.0*MOVE && gridA[i+1][j] == nullptr && gridB[i+1][j] == nullptr) {
