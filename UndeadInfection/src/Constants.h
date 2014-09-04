@@ -20,6 +20,7 @@
  */
 
 static const long NUMTICKS = 1000; //Number of ticks
+static const long YEARTICKS = 365; //Ticks in 1 year
 
 static const int HUMANSPEED = 2; //Human speed
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human

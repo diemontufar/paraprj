@@ -20,6 +20,7 @@ private:
     bool hasAGun; //Whether the human has a gun or not
     bool dead;
     short int infectionTime; //How much ticks have passed since the human has been exposed
+    short int yearTime; //How much ticks have passed to complete a year
 
 public:
 	Human(bool gender,int age, bool hasAGun);

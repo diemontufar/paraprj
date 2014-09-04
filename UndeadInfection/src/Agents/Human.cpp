@@ -16,6 +16,7 @@ Human::Human(bool theGender,int theAge, bool ifHasAGun):
 		hasAGun(ifHasAGun),
 		infected(false),
 		infectionTime(0),
+		yearTime(0),
 		dead(false) {
 
 }
@@ -32,6 +33,11 @@ void Human::step(){
            //#endif
 		   dead = true;
 	   }
+   }
+   yearTime++;
+   if (yearTime == YEARTICKS){
+	   age++;
+	   yearTime = 0;
    }
 }
 
