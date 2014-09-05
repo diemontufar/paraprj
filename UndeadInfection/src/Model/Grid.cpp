@@ -43,10 +43,10 @@ void Grid::printState(int tick) {
 		}
 	}
 #ifdef DEBUG
-	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies << "\n";
-	//std::cout << "- Deads: "<< Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
-	//std::cout << " Converted: "<<Counters::getInstance().getConverted() << " Shooted: " <<Counters::getInstance().getShooted() ;
-	//std::cout << " Zdead: "<<Counters::getInstance().getZDead()<<"\n";
+	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
+	std::cout << "- Deads: "<< Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
+	std::cout << " Converted: "<<Counters::getInstance().getConverted() << " Shooted: " <<Counters::getInstance().getShooted() ;
+	std::cout << " Zdead: "<<Counters::getInstance().getZDead()<<"\n";
 #endif
 }
 
@@ -126,6 +126,7 @@ void Grid::run() {
 					//Code to remove decomposed agents
 					if ((agent->getType() == zombie) && (dynamic_cast<Zombie*>(agent)->isDecomposed() || dynamic_cast<Zombie*>(agent)->isShooted())) {
 						//Delete?
+						Counters::getInstance().newZombieDead();
 						agent = nullptr;
 					}
 
@@ -217,7 +218,7 @@ void Grid::run() {
 		swap(gridA, gridB);
 		//if ( n%100 == 0 ){
 		printState(n + 1);
-		//    			Counters::getInstance().resetCounters();
+		Counters::getInstance().resetCounters();
 		//}
 	}
 	printState(NUMTICKS + 1);
@@ -230,10 +231,10 @@ void Grid::resolveHumanZombie(Agent* agentHuman, Agent* agentZombie) {
 
 	if (dice_roll <= HEADSHOTPERCENTAGE) {
 		z->shoot();
-		//Counters::getInstance().newShooted();
+		Counters::getInstance().newShooted();
 	} else if (dice_roll <= SUCESSFULBITEPERCENTAGE) {
 		h->infect();
-		//Counters::getInstance().newInfected();
+		Counters::getInstance().newInfected();
 	}
 }
 /*void Cell::step(){

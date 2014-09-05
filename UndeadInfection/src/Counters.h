@@ -15,7 +15,7 @@ public:
 		static Counters instance;
 		return instance;
 	}
-	void resetCounters(){dead=shooted=infected=outOfBounds=0;}
+	void resetCounters(){dead=shooted=infected=zDead=outOfBounds=0;}
 	void newDead(){dead++;}
 	void newOutOfBounds(){outOfBounds++;}
 	void newZombieDead(){zDead++;}
