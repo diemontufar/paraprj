@@ -119,23 +119,16 @@ void Grid::run() {
 		for (int i = 1; i <= GRIDROWS; i++) {
 			for (int j = 1; j <= GRIDCOLUMNS; j++){
 
-
 				if (gridA[i][j] != nullptr) {
 					Agent* agent = gridA[i][j];
-					agent->step();
-
-					//Code to remove decomposed agents
-					if ((agent->getType()==zombie) && dynamic_cast<Zombie*>(agent)->isDecomposed()){
-						agent = nullptr;
-					}
-
-
 					gridA[i][j] = nullptr;
 					double move = Random::random();
 					agent->step();
 					//Code to remove decomposed agents
-					if ((agent->getType()==zombie) && dynamic_cast<Zombie*>(agent)->isDecomposed()){
+					if ((agent->getType()==zombie) && (dynamic_cast<Zombie*>(agent)->isDecomposed()||dynamic_cast<Zombie*>(agent)->isShooted())){
+						//Delete?
 						agent = nullptr;
+						break;
 					}
 
 
@@ -181,30 +174,35 @@ void Grid::run() {
 				gridB[GRIDROWS+1][j] = nullptr;
 			}
 		}
+		//Resolve
 		for (int i = 1; i <= GRIDROWS; i++) {
 			for (int j = 1; j <= GRIDCOLUMNS; j++){
 				Agent* agentA = gridB[i][j];
-				AgentTypeEnum typeA = agentA->getType();
-				if (typeA == human){
-					if (i>2 && gridB[i-1][j]!=nullptr){ //Someone up
-						Agent* agentB = gridB[i-1][j];
-						AgentTypeEnum typeB = agentB->getType();
-						if ( typeB == zombie ){
-							resolveHumanZombie(agentA, agentB);
+				if (agentA!=nullptr){
+
+					AgentTypeEnum typeA = agentA->getType();
+					if (typeA == human){
+						if (i>2 && gridB[i-1][j]!=nullptr){ //Someone up
+							Agent* agentB = gridB[i-1][j];
+							AgentTypeEnum typeB = agentB->getType();
+							if ( typeB == zombie ){
+								resolveHumanZombie(agentA, agentB);
+							}
 						}
-					}
-					if (j<GRIDROWS && gridB[i][j+1]!=nullptr){ //Someone on the right
+						if (j<GRIDROWS && gridB[i][j+1]!=nullptr){ //Someone on the right
 
-					}
-					if (i<GRIDROWS && gridB[i+1][j] != nullptr){ //Down
+						}
+						if (i<GRIDROWS && gridB[i+1][j] != nullptr){ //Down
 
-					}
-					if (j>2 && gridB[i][j-1]!=nullptr){//Left
+						}
+						if (j>2 && gridB[i][j-1]!=nullptr){//Left
 
+						}
 					}
 				}
 			}
 		}
+
 		swap(gridA,gridB);
 		//if ( n%100 == 0 ){
 		printState(n+1);
