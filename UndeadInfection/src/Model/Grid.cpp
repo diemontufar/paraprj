@@ -130,10 +130,19 @@ void Grid::run() {
 				std::cout << "Iterating Grid columns: "<< j <<"\n";
 #endif
 
+
+
 				if (gridA[i][j] != nullptr) {
 					Agent* agent = gridA[i][j];
 					gridA[i][j] = nullptr;
 					double move = Random::random();
+					agent->step();
+					//Code to remove decomposed agents
+					if ((agent->getType()==zombie) && dynamic_cast<Zombie*>(agent)->isDecomposed()){
+						agent = nullptr;
+					}
+
+
 					if (move < 1.0*MOVE  && gridA[i-1][j] == nullptr && gridB[i-1][j] == nullptr) {
 						gridB[i-1][j] = agent;
 					} else if (move < 2.0*MOVE && gridA[i+1][j] == nullptr && gridB[i+1][j] == nullptr) {
@@ -145,6 +154,8 @@ void Grid::run() {
 					} else {
 						gridB[i][j] = agent;
 					}
+
+
 				}
 				//Boundary condition
 				for (int i = 1; i <= GRIDROWS; i++){
