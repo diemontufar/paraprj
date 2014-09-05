@@ -28,6 +28,7 @@ private:
 
 	void printState(int);
 	void merge();
+	void resolveHumanZombie(Agent*, Agent*);
 public:
 	Grid();
 	void initialize (int, int );

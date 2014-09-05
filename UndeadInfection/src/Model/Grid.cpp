@@ -26,11 +26,11 @@ void Grid::printState(int tick){
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			Agent* agent = gridA[i][j];
 #ifdef DEBUGGRID
-	std::cout << "printState inspect Agent" << i << "," << j << "\n";
+			std::cout << "printState inspect Agent" << i << "," << j << "\n";
 #endif
 			if ( agent != nullptr ) {
 #ifdef DEBUGGRID
-	std::cout << "printState Agent" << agent << "\n";
+				std::cout << "printState Agent" << agent << "\n";
 #endif
 
 				AgentTypeEnum currentType = agent->getType();
@@ -53,19 +53,19 @@ void Grid::printState(int tick){
 void Grid::initialize(int nPeople, int nZombies) {
 	int numZombies = 0;
 	int numHumans = 0;
-    for (int i = 0; i <= GRIDROWS+1; i++){
-    	gridA[i][0] = nullptr;
-    	gridB[i][0] = nullptr;
-    	gridA[i][GRIDCOLUMNS+1] = nullptr;
-    	gridB[i][GRIDCOLUMNS+1] = nullptr;
-    }
-    for (int j = 0; j <= GRIDCOLUMNS+1; j++){
-    	gridA[0][j] = nullptr;
-    	gridB[0][j] = nullptr;
-    	gridA[GRIDROWS+1][j] = nullptr;
-    	gridB[GRIDROWS+1][j] = nullptr;
-    }
-    for (int i = 1; i <= GRIDROWS; i++) {
+	for (int i = 0; i <= GRIDROWS+1; i++){
+		gridA[i][0] = nullptr;
+		gridB[i][0] = nullptr;
+		gridA[i][GRIDCOLUMNS+1] = nullptr;
+		gridB[i][GRIDCOLUMNS+1] = nullptr;
+	}
+	for (int j = 0; j <= GRIDCOLUMNS+1; j++){
+		gridA[0][j] = nullptr;
+		gridB[0][j] = nullptr;
+		gridA[GRIDROWS+1][j] = nullptr;
+		gridB[GRIDROWS+1][j] = nullptr;
+	}
+	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridB[i][j] = nullptr;
 			//todo:change algorithm so it is random and with pop limits
@@ -116,24 +116,20 @@ void Grid::run() {
 #endif
 
 	for (int n = 0; n < NUMTICKS; n++) {
-#ifdef DEBUGGRID
-		std::cout << "Iterating ticks "<< n <<"\n";
-#endif
-
 		for (int i = 1; i <= GRIDROWS; i++) {
-#ifdef DEBUGGRID
-			std::cout << "Iterating Grid rows: "<< i <<"\n";
-#endif
-
 			for (int j = 1; j <= GRIDCOLUMNS; j++){
-#ifdef DEBUGGRID
-				std::cout << "Iterating Grid columns: "<< j <<"\n";
-#endif
-
 
 
 				if (gridA[i][j] != nullptr) {
 					Agent* agent = gridA[i][j];
+					agent->step();
+
+					//Code to remove decomposed agents
+					if ((agent->getType()==zombie) && dynamic_cast<Zombie*>(agent)->isDecomposed()){
+						agent = nullptr;
+					}
+
+
 					gridA[i][j] = nullptr;
 					double move = Random::random();
 					agent->step();
@@ -143,40 +139,68 @@ void Grid::run() {
 					}
 
 
-					if (move < 1.0*MOVE  && gridA[i-1][j] == nullptr && gridB[i-1][j] == nullptr) {
-						gridB[i-1][j] = agent;
-					} else if (move < 2.0*MOVE && gridA[i+1][j] == nullptr && gridB[i+1][j] == nullptr) {
-						gridB[i+1][j] = agent;
-					} else if (move < 3.0*MOVE && gridA[i][j-1] == nullptr && gridB[i][j-1] == nullptr) {
-						gridB[i][j-1] = agent;
-					} else if (move < 4.0*MOVE && gridA[i][j+1] == nullptr && gridB[i][j+1] == nullptr) {
-						gridB[i][j+1] = agent;
-					} else {
+					int desti = 0;
+					int destj = 0;
+
+					if (move < 1.0*MOVE){ desti = i-1; destj = j; }
+					else if (move < 2.0*MOVE){ desti = i+1; destj = j; }
+					else if (move < 3.0*MOVE){ desti = i; destj = j-1; }
+					else if (move < 4.0*MOVE){ desti = i; destj = j+1; }
+					else { desti = i; destj = j; }
+
+					if ( gridA[desti][destj]==nullptr && gridB[desti][destj] ==nullptr){
+						gridB[desti][destj] = agent;
+					}
+					else{
 						gridB[i][j] = agent;
 					}
 
 
 				}
-				//Boundary condition
-				for (int i = 1; i <= GRIDROWS; i++){
-					if (gridB[i][0]!=nullptr){
-						Agent* a = gridB[i][0];
-						gridB[i][1] = a;
-						gridB[i][0] = nullptr;
+			}
+		}
+		//Boundary condition
+		for (int i = 1; i <= GRIDROWS; i++){
+			if (gridB[i][0]!=nullptr){
+				Agent* a = gridB[i][0];
+				gridB[i][1] = a;
+				gridB[i][0] = nullptr;
+			}
+			if (gridB[i][GRIDCOLUMNS+1]!=nullptr){
+				gridB[i][GRIDCOLUMNS] = gridB[i][GRIDCOLUMNS+1];
+				gridB[i][GRIDCOLUMNS+1] = nullptr;
+			}
+		}
+		for (int j = 1; j <= GRIDCOLUMNS; j++){
+			if (gridB[0][j]!=nullptr){
+				gridB[1][j] = gridB[0][j];
+				gridB[0][j] = nullptr;
+			}
+			if (gridB[GRIDROWS+1][j]!=nullptr){
+				gridB[GRIDROWS][j] = gridB[GRIDROWS+1][j];
+				gridB[GRIDROWS+1][j] = nullptr;
+			}
+		}
+		for (int i = 1; i <= GRIDROWS; i++) {
+			for (int j = 1; j <= GRIDCOLUMNS; j++){
+				Agent* agentA = gridB[i][j];
+				AgentTypeEnum typeA = agentA->getType();
+				if (typeA == human){
+					if (i>2 && gridB[i-1][j]!=nullptr){ //Someone up
+						Agent* agentB = gridB[i-1][j];
+						AgentTypeEnum typeB = agentB->getType();
+						if ( typeB == zombie ){
+							resolveHumanZombie(agentA, agentB);
+						}
 					}
-					if (gridB[i][GRIDCOLUMNS+1]!=nullptr){
-						gridB[i][GRIDCOLUMNS] = gridB[i][GRIDCOLUMNS+1];
-						gridB[i][GRIDCOLUMNS+1] = nullptr;
+					if (j<GRIDROWS && gridB[i][j+1]!=nullptr){ //Someone on the right
+
 					}
-				}
-				for (int j = 1; j <= GRIDCOLUMNS; j++){
-					if (gridB[0][j]!=nullptr){
-						gridB[1][j] = gridB[0][j];
-						gridB[0][j] = nullptr;
+					if (i<GRIDROWS && gridB[i+1][j] != nullptr){ //Down
+
 					}
-					if (gridB[GRIDROWS+1][j]!=nullptr){
-						gridB[GRIDROWS][j] = gridB[GRIDROWS+1][j];
-						gridB[GRIDROWS+1][j] = nullptr;
+					if (j>2 && gridB[i][j-1]!=nullptr){//Left
+
 					}
 				}
 			}
@@ -189,7 +213,22 @@ void Grid::run() {
 	}
 	printState(NUMTICKS+1);
 }
-	/*void Cell::step(){
+void Grid::resolveHumanZombie(Agent* agentHuman, Agent* agentZombie){
+	Human* h = dynamic_cast<Human*>(agentHuman);
+	Zombie* z = dynamic_cast<Zombie*>(agentZombie);
+	//Probability and cases, for now it is a rand
+	int dice_roll = randomObj->getIntUniformRandomBetween(0,100);
+
+	if ( dice_roll <= HEADSHOTPERCENTAGE ){
+		z->shoot();
+		//Counters::getInstance().newShooted();
+	}
+	else if ( dice_roll <= SUCESSFULBITEPERCENTAGE ){
+		h->infect();
+		//Counters::getInstance().newInfected();
+	}
+}
+/*void Cell::step(){
 
 	if ( currentAgent != nullptr ) currentAgent->step();
 	if ( candidateAgent != nullptr ) candidateAgent->step();
@@ -311,11 +350,11 @@ void Cell::resolveHumanZombie(){
 void Cell::resolveZombieZombie(){
 	//Move zombie to another location
 }
-	 */
+ */
 
-	void Grid::setRandomObj(RandomGen* obj){
-		delete(randomObj);
-		randomObj = obj;
-	}
+void Grid::setRandomObj(RandomGen* obj){
+	delete(randomObj);
+	randomObj = obj;
+}
 
 
