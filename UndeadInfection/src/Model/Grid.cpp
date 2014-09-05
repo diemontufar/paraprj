@@ -53,8 +53,19 @@ void Grid::printState(int tick){
 void Grid::initialize(int nPeople, int nZombies) {
 	int numZombies = 0;
 	int numHumans = 0;
-
-	for (int i = 1; i <= GRIDROWS; i++) {
+    for (int i = 0; i <= GRIDROWS+1; i++){
+    	gridA[i][0] = nullptr;
+    	gridB[i][0] = nullptr;
+    	gridA[i][GRIDCOLUMNS+1] = nullptr;
+    	gridB[i][GRIDCOLUMNS+1] = nullptr;
+    }
+    for (int j = 0; j <= GRIDCOLUMNS+1; j++){
+    	gridA[0][j] = nullptr;
+    	gridB[0][j] = nullptr;
+    	gridA[GRIDROWS+1][j] = nullptr;
+    	gridB[GRIDROWS+1][j] = nullptr;
+    }
+    for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridB[i][j] = nullptr;
 			//todo:change algorithm so it is random and with pop limits
@@ -134,7 +145,28 @@ void Grid::run() {
 					} else {
 						gridB[i][j] = agent;
 					}
-
+				}
+				//Boundary condition
+				for (int i = 1; i <= GRIDROWS; i++){
+					if (gridB[i][0]!=nullptr){
+						Agent* a = gridB[i][0];
+						gridB[i][1] = a;
+						gridB[i][0] = nullptr;
+					}
+					if (gridB[i][GRIDCOLUMNS+1]!=nullptr){
+						gridB[i][GRIDCOLUMNS] = gridB[i][GRIDCOLUMNS+1];
+						gridB[i][GRIDCOLUMNS+1] = nullptr;
+					}
+				}
+				for (int j = 1; j <= GRIDCOLUMNS; j++){
+					if (gridB[0][j]!=nullptr){
+						gridB[1][j] = gridB[0][j];
+						gridB[0][j] = nullptr;
+					}
+					if (gridB[GRIDROWS+1][j]!=nullptr){
+						gridB[GRIDROWS][j] = gridB[GRIDROWS+1][j];
+						gridB[GRIDROWS+1][j] = nullptr;
+					}
 				}
 			}
 		}
