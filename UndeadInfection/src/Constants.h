@@ -47,6 +47,6 @@ static const float SUCESSFULBITEPERCENTAGE = 90; //40%
 #define MOVE    0.1 //Probability of a move in each direction
 
 #define DEBUG = true;
-//#define DEBUGGRID = false;
+#define DEBUGGRID = false;
 
 #endif

@@ -26,6 +26,7 @@ private:
 	Agent* gridB[GRIDROWS+2][GRIDCOLUMNS+2];
 	RandomGen* randomObj;
 
+	void printMatrix(int);
 	void printState(int);
 	void merge();
 	void resolveHumanZombie(Agent*, Agent*);

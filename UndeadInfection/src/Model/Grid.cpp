@@ -19,6 +19,37 @@ Grid::Grid() {
 Grid::~Grid() {
 	// TODO Auto-generated destructor stub
 }
+void Grid::printMatrix(int tick){
+	cout << endl;
+
+	cout << "|";
+	for (int j = 0; j <= GRIDCOLUMNS+1; j++) {
+		cout << j <<(j<=9?" |":"|");
+	}
+	cout <<endl;
+	for (int i = 0; i <= GRIDROWS+1; i++) {
+		for (int j = 0; j <= GRIDCOLUMNS+1; j++) {
+			cout << "---";
+		}
+		cout<<endl;
+		for (int j = 0; j <= GRIDCOLUMNS+1; j++) {
+			if (j == 1)
+				cout << "|";
+			Agent* agent = gridA[i][j];
+			if (agent != nullptr) {
+				AgentTypeEnum currentType = agent->getType();
+				if (currentType == human)
+					cout << "H |";
+				else
+					cout << "Z |";
+			}
+			else{
+				cout << "  |";
+			}
+		}
+		cout << endl;
+	}
+}
 void Grid::printState(int tick) {
 	int humans = 0;
 	int zombies = 0;
@@ -26,11 +57,11 @@ void Grid::printState(int tick) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			Agent* agent = gridA[i][j];
 #ifdef DEBUGGRID
-			std::cout << "printState inspect Agent" << i << "," << j << "\n";
+			//std::cout << "printState inspect Agent" << i << "," << j << "\n";
 #endif
 			if (agent != nullptr) {
 #ifdef DEBUGGRID
-				std::cout << "printState Agent" << agent << "\n";
+				//std::cout << "printState Agent" << agent << "\n";
 #endif
 
 				AgentTypeEnum currentType = agent->getType();
@@ -46,7 +77,7 @@ void Grid::printState(int tick) {
 	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
 	std::cout << "- Deads: "<< Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
 	std::cout << " Converted: "<<Counters::getInstance().getConverted() << " Shooted: " <<Counters::getInstance().getShooted() ;
-	std::cout << " Zdead: "<<Counters::getInstance().getZDead()<<"\n";
+	std::cout << " Zdead: "<<Counters::getInstance().getZDead() << "Ghost cases: " << Counters::getInstance().getGhostCase() <<"\n";
 #endif
 }
 
@@ -111,6 +142,7 @@ void Grid::merge() {
 }
 void Grid::run() {
 	printState(0);
+//	printMatrix(0);
 #ifdef DEBUGGRID
 	std::cout << "Run called"<<"\n";
 #endif
@@ -156,6 +188,10 @@ void Grid::run() {
 
 						if (gridA[desti][destj] == nullptr && gridB[desti][destj] == nullptr) {
 							gridB[desti][destj] = agent;
+#ifdef DEBUGGRID
+	std::cerr << "Tick: " << (n+1) << "Human moved from" << i <<","<< j << " to "<< desti <<","<< destj<<"\n";
+#endif
+
 						} else {
 							gridB[i][j] = agent;
 						}
@@ -166,24 +202,40 @@ void Grid::run() {
 		}
 		//Boundary condition
 		for (int i = 1; i <= GRIDROWS; i++) {
-			if (gridB[i][0] != nullptr) {
+			if ( gridB[i][0] != nullptr && gridB[i][1] == nullptr ) {
 				Agent* a = gridB[i][0];
 				gridB[i][1] = a;
 				gridB[i][0] = nullptr;
 			}
-			if (gridB[i][GRIDCOLUMNS + 1] != nullptr) {
+			else if (gridB[i][0] != nullptr && gridB[i][1] != nullptr){
+				gridB[i][0] = nullptr;
+				Counters::getInstance().newGhostCase();
+			}
+			if ( gridB[i][GRIDCOLUMNS + 1] != nullptr && gridB[i][GRIDCOLUMNS] == nullptr ) {
 				gridB[i][GRIDCOLUMNS] = gridB[i][GRIDCOLUMNS + 1];
 				gridB[i][GRIDCOLUMNS + 1] = nullptr;
 			}
+			else if (gridB[i][GRIDCOLUMNS + 1] != nullptr && gridB[i][GRIDCOLUMNS] != nullptr){
+				gridB[i][GRIDCOLUMNS + 1] = nullptr;
+				Counters::getInstance().newGhostCase();
+			}
 		}
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
-			if (gridB[0][j] != nullptr) {
+			if ( gridB[0][j] != nullptr && gridB[1][j]==nullptr ) {
 				gridB[1][j] = gridB[0][j];
 				gridB[0][j] = nullptr;
 			}
-			if (gridB[GRIDROWS + 1][j] != nullptr) {
+			else if ( gridB[0][j] != nullptr && gridB[1][j]!=nullptr ){
+				gridB[0][j] = nullptr;
+				Counters::getInstance().newGhostCase();
+			}
+			if (gridB[GRIDROWS + 1][j] != nullptr && gridB[GRIDROWS][j] == nullptr) {
 				gridB[GRIDROWS][j] = gridB[GRIDROWS + 1][j];
 				gridB[GRIDROWS + 1][j] = nullptr;
+			}
+			else if (gridB[GRIDROWS + 1][j] != nullptr && gridB[GRIDROWS][j] != nullptr){
+				gridB[GRIDROWS + 1][j] = nullptr;
+				Counters::getInstance().newGhostCase();
 			}
 		}
 		//Resolve
@@ -218,6 +270,7 @@ void Grid::run() {
 		swap(gridA, gridB);
 		//if ( n%100 == 0 ){
 		printState(n + 1);
+	//	printMatrix(n+1);
 		Counters::getInstance().resetCounters();
 		//}
 	}
