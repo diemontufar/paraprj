@@ -19,20 +19,20 @@ Grid::Grid() {
 Grid::~Grid() {
 	// TODO Auto-generated destructor stub
 }
-void Grid::printMatrix(int tick){
+void Grid::printMatrix(int tick) {
 	cout << endl;
 
 	cout << "|";
-	for (int j = 0; j <= GRIDCOLUMNS+1; j++) {
-		cout << j <<(j<=9?" |":"|");
+	for (int j = 0; j <= GRIDCOLUMNS + 1; j++) {
+		cout << j << (j <= 9 ? " |" : "|");
 	}
-	cout <<endl;
-	for (int i = 0; i <= GRIDROWS+1; i++) {
-		for (int j = 0; j <= GRIDCOLUMNS+1; j++) {
+	cout << endl;
+	for (int i = 0; i <= GRIDROWS + 1; i++) {
+		for (int j = 0; j <= GRIDCOLUMNS + 1; j++) {
 			cout << "---";
 		}
-		cout<<endl;
-		for (int j = 0; j <= GRIDCOLUMNS+1; j++) {
+		cout << endl;
+		for (int j = 0; j <= GRIDCOLUMNS + 1; j++) {
 			if (j == 1)
 				cout << "|";
 			Agent* agent = gridA[i][j];
@@ -42,8 +42,7 @@ void Grid::printMatrix(int tick){
 					cout << "H |";
 				else
 					cout << "Z |";
-			}
-			else{
+			} else {
 				cout << "  |";
 			}
 		}
@@ -75,9 +74,10 @@ void Grid::printState(int tick) {
 	}
 #ifdef DEBUG
 	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
-	std::cout << "- Deads: "<< Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
-	std::cout << " Converted: "<<Counters::getInstance().getConverted() << " Shooted: " <<Counters::getInstance().getShooted() ;
-	std::cout << " Zdead: "<<Counters::getInstance().getZDead() << "Ghost cases: " << Counters::getInstance().getGhostCase() <<"\n";
+	std::cout << "- Deads: " << Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
+	std::cout << " Converted: " << Counters::getInstance().getConverted() << " Shooted: " << Counters::getInstance().getShooted();
+	std::cout << " Zdead: " << Counters::getInstance().getZDead() << "Ghost cases: " << Counters::getInstance().getGhostCase();
+	std::cout << " Natural deaths: " << Counters::getInstance().getHumanDead() << "\n";
 #endif
 }
 
@@ -102,7 +102,7 @@ void Grid::initialize(int nPeople, int nZombies) {
 			//todo:change algorithm so it is random and with pop limits
 			if (numHumans < DARWINPOPDENSITY && Random::randomBool()) {
 
-				int age = Random::random(100) + 1;
+				int age = Random::random(MINLIFEEXPECTANCY-1);
 				bool gender = Random::random() < GENDERRATIO ? true : false;
 				bool hasAGun = Random::random() < GUNDENSITY ? true : false;
 
@@ -144,7 +144,7 @@ void Grid::run() {
 	printState(0);
 //	printMatrix(0);
 #ifdef DEBUGGRID
-	std::cout << "Run called"<<"\n";
+	std::cout << "Run called" << "\n";
 #endif
 
 	for (int n = 0; n < NUMTICKS; n++) {
@@ -160,6 +160,12 @@ void Grid::run() {
 						//Delete?
 						Counters::getInstance().newZombieDead();
 						agent = nullptr;
+					} else {
+						if ((agent->getType() == human) && (dynamic_cast<Human*>(agent)->isNaturalDead())) {
+							//Delete?
+							Counters::getInstance().newHumanDead();
+							agent = nullptr;
+						}
 					}
 
 					//Agent already dead no comparisons required
@@ -188,9 +194,9 @@ void Grid::run() {
 
 						if (gridA[desti][destj] == nullptr && gridB[desti][destj] == nullptr) {
 							gridB[desti][destj] = agent;
-#ifdef DEBUGGRID
-	std::cerr << "Tick: " << (n+1) << "Human moved from" << i <<","<< j << " to "<< desti <<","<< destj<<"\n";
-#endif
+//#ifdef DEBUGGRID
+							//std::cerr << "Tick: " << (n+1) << "Human moved from" << i <<","<< j << " to "<< desti <<","<< destj<<"\n";
+//#endif
 
 						} else {
 							gridB[i][j] = agent;
@@ -202,42 +208,39 @@ void Grid::run() {
 		}
 		//Boundary condition
 		for (int i = 1; i <= GRIDROWS; i++) {
-			if ( gridB[i][0] != nullptr && gridB[i][1] == nullptr ) {
+			if (gridB[i][0] != nullptr && gridB[i][1] == nullptr) {
 				Agent* a = gridB[i][0];
 				gridB[i][1] = a;
 				gridB[i][0] = nullptr;
-			}
-			else if (gridB[i][0] != nullptr && gridB[i][1] != nullptr){
+			} else if (gridB[i][0] != nullptr && gridB[i][1] != nullptr) {
 				gridB[i][0] = nullptr;
 				Counters::getInstance().newGhostCase();
 			}
-			if ( gridB[i][GRIDCOLUMNS + 1] != nullptr && gridB[i][GRIDCOLUMNS] == nullptr ) {
+			if (gridB[i][GRIDCOLUMNS + 1] != nullptr && gridB[i][GRIDCOLUMNS] == nullptr) {
 				gridB[i][GRIDCOLUMNS] = gridB[i][GRIDCOLUMNS + 1];
 				gridB[i][GRIDCOLUMNS + 1] = nullptr;
-			}
-			else if (gridB[i][GRIDCOLUMNS + 1] != nullptr && gridB[i][GRIDCOLUMNS] != nullptr){
+			} else if (gridB[i][GRIDCOLUMNS + 1] != nullptr && gridB[i][GRIDCOLUMNS] != nullptr) {
 				gridB[i][GRIDCOLUMNS + 1] = nullptr;
 				Counters::getInstance().newGhostCase();
 			}
 		}
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
-			if ( gridB[0][j] != nullptr && gridB[1][j]==nullptr ) {
+			if (gridB[0][j] != nullptr && gridB[1][j] == nullptr) {
 				gridB[1][j] = gridB[0][j];
 				gridB[0][j] = nullptr;
-			}
-			else if ( gridB[0][j] != nullptr && gridB[1][j]!=nullptr ){
+			} else if (gridB[0][j] != nullptr && gridB[1][j] != nullptr) {
 				gridB[0][j] = nullptr;
 				Counters::getInstance().newGhostCase();
 			}
 			if (gridB[GRIDROWS + 1][j] != nullptr && gridB[GRIDROWS][j] == nullptr) {
 				gridB[GRIDROWS][j] = gridB[GRIDROWS + 1][j];
 				gridB[GRIDROWS + 1][j] = nullptr;
-			}
-			else if (gridB[GRIDROWS + 1][j] != nullptr && gridB[GRIDROWS][j] != nullptr){
+			} else if (gridB[GRIDROWS + 1][j] != nullptr && gridB[GRIDROWS][j] != nullptr) {
 				gridB[GRIDROWS + 1][j] = nullptr;
 				Counters::getInstance().newGhostCase();
 			}
 		}
+
 		//Resolve
 		for (int i = 1; i <= GRIDROWS; i++) {
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
@@ -270,7 +273,7 @@ void Grid::run() {
 		swap(gridA, gridB);
 		//if ( n%100 == 0 ){
 		printState(n + 1);
-	//	printMatrix(n+1);
+		//	printMatrix(n+1);
 		Counters::getInstance().resetCounters();
 		//}
 	}

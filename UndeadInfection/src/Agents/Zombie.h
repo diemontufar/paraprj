@@ -9,12 +9,14 @@
 #ifndef ZOMBIE_H_
 #define ZOMBIE_H_
 #include "Agent.h"
+#include "../Model/RandomGen.h"
 
 class Zombie: public virtual Agent {
 private:
     short decompositionTime; //Number of ticks that have passed
     bool shooted;
     bool decomposed;
+    short lifeTime;
 public:
 	Zombie();
 	virtual ~Zombie();

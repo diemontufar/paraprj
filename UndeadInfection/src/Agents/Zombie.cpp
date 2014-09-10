@@ -15,6 +15,7 @@ Zombie::Zombie() {
 	decompositionTime = 0;
 	decomposed = false;
 	shooted = false;
+	lifeTime=RandomGen::getIntUniformRandomBetween(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
 }
 
 void Zombie::step(){
@@ -22,7 +23,7 @@ void Zombie::step(){
 //   std::cout << "Step called" << "\n";
 //   #endif
    decompositionTime++;
-   if (decompositionTime >= MINDECOMPOSITIONTIME){
+   if (decompositionTime >= lifeTime){
      // #ifdef DEBUG
      //    std::cout << "Dead" << "\n";
      // #endif

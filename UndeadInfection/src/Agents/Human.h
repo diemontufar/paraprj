@@ -10,6 +10,7 @@
 #ifndef HUMAN_H_
 #define HUMAN_H_
 #include "Agent.h"
+#include "../Model/RandomGen.h"
 
 class Human: public Agent {
 private:
@@ -18,16 +19,18 @@ private:
     int age;
     bool infected; //Whether the human is infected or not
     bool hasAGun; //Whether the human has a gun or not
-    bool dead;
+    bool deadByConversion;
+    bool naturalDead;
     short int infectionTime; //How much ticks have passed since the human has been exposed
     short int yearTime; //How much ticks have passed to complete a year
-
+    short int lifeExpectancy; // How much time the human will live
 public:
 	Human(bool gender,int age, bool hasAGun);
 	bool getGender();
 	int getAge();
 	bool isHasAGun();
 	bool isInfected();
+	bool isNaturalDead();
 	bool isDead();
 	void infect();
 	virtual ~Human();

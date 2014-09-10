@@ -19,8 +19,8 @@
  * Probability weapon: 0.3
  */
 
-static const long NUMTICKS = 2000; //Number of ticks
-static const long YEARTICKS = 365; //Ticks in 1 year
+static const long NUMTICKS = 100; //Number of ticks
+static const long YEARTICKS = 3; //Ticks in 1 year
 
 static const int HUMANSPEED = 2; //Human speed
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human
@@ -29,8 +29,13 @@ static int const GRIDROWS = 10; //Number of row grids
 static int const GRIDCOLUMNS = 10;//Number of column grids
 
 static const int ZOMBIESPEED = 1; //Zombie speed
-static const int MINDECOMPOSITIONTIME = 5*365;//Ticks that take the zombie to decompose
-static const int MAXDECOMPOSITIONTIME = 11*365;//Ticks that take the zombie to decompose
+static const int MINDECOMPOSITIONTIME = 10;//Ticks that take the zombie to decompose
+static const int MAXDECOMPOSITIONTIME = 15;//Ticks that take the zombie to decompose
+
+static const int MINLIFEEXPECTANCY = 25;//minimum human life expectancy
+//static const int MINLIFEEXPECTANCY = 65*365;//minimum human life expectancy
+static const int MAXLIFEEXPECTANCY= 35;//maximum human life expectancy
+//static const int MAXLIFEEXPECTANCY= 90*365;//maximum human life expectancy
 
 static const float DARWINPOPDENSITY = 48;
 static const float NUMBEROFZOMBIES = 10;

@@ -17,7 +17,9 @@ Human::Human(bool theGender,int theAge, bool ifHasAGun):
 		infected(false),
 		infectionTime(0),
 		yearTime(0),
-		dead(false) {
+		deadByConversion(false),
+		naturalDead (false),
+		lifeExpectancy (RandomGen::getIntUniformRandomBetween(MINLIFEEXPECTANCY,MAXLIFEEXPECTANCY)){
 
 }
 
@@ -31,7 +33,7 @@ void Human::step(){
            //#ifdef DEBUG
            //   std::cout << "Dead"<<"\n";
            //#endif
-		   dead = true;
+		   deadByConversion = true;
 	   }
    }
    yearTime++;
@@ -39,6 +41,9 @@ void Human::step(){
 	   age++;
 	   yearTime = 0;
    }
+   if (age>lifeExpectancy){
+   		   naturalDead=true;
+   	   }
 }
 
 bool Human::getGender(){
@@ -53,6 +58,11 @@ bool Human::isHasAGun(){
 	return hasAGun;
 
 }
+bool Human::isNaturalDead(){
+	return naturalDead;
+
+}
+
 bool Human::isInfected(){
 	return infected;
 }
@@ -60,7 +70,7 @@ void Human::infect(){
 	infected = true;
 }
 bool Human::isDead(){
-	return dead;
+	return deadByConversion;
 }
 AgentTypeEnum Human::getType(){
 	return human;
