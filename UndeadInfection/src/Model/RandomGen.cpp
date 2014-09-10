@@ -22,7 +22,7 @@ int RandomGen::getIntUniformRandomBetween(int start, int end){
 	//std::default_random_engine generator(rd());
 	//std::uniform_int_distribution<int> distribution(start,end);
 	//int dice_roll = distribution(generator);
-	return rand() % end;
+	return start + (rand() % end);
 	//return dice_roll;
 }
 bool RandomGen::randomBool() {
