@@ -19,7 +19,7 @@
  * Probability weapon: 0.3
  */
 
-static const long NUMTICKS = 100; //Number of ticks
+static const long NUMTICKS = 3000; //Number of ticks
 static const long YEARTICKS = 3; //Ticks in 1 year
 
 static const int HUMANSPEED = 2; //Human speed
@@ -37,17 +37,18 @@ static const int MINLIFEEXPECTANCY = 25;//minimum human life expectancy
 static const int MAXLIFEEXPECTANCY= 35;//maximum human life expectancy
 //static const int MAXLIFEEXPECTANCY= 90*365;//maximum human life expectancy
 
-static const float DARWINPOPDENSITY = 48;
+static const float DARWINPOPDENSITY = 100;
 static const float NUMBEROFZOMBIES = 10;
 //static const float DARWINPOPDENSITY = 926/2;
 static const float NTPOPDENSITY = 0.17;
 static const float GENDERRATIO = 0.483; //Women vs Men
 
 static const float GUNDENSITY = 0.3; //19.13
-static const float BIRTHPERCENTAGE = 10.75; //
+static const float BIRTHPERCENTAGE = 0.5;
+//static const float BIRTHPERCENTAGE = 864.0/23000000.0; //
 
-static const float HEADSHOTPERCENTAGE = 20; //40%
-static const float SUCESSFULBITEPERCENTAGE = 90; //40%
+static const float HEADSHOTPERCENTAGE = 10; //40%
+static const float SUCESSFULBITEPERCENTAGE = 30; //40%
 
 #define MOVE    0.1 //Probability of a move in each direction
 

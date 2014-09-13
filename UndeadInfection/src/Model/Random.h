@@ -18,6 +18,7 @@ public:
     static double random();
     static int random(int range);
     static bool randomBool();
+    static bool randomBoolTrueBiased();
 };
 
 

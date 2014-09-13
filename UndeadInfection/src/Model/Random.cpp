@@ -33,3 +33,6 @@ int Random::random(int range) {
 bool Random::randomBool() {
   return rand() % 2 == 1;
 }
+bool Random::randomBoolTrueBiased() {
+  return rand() % 4 < 3;
+}

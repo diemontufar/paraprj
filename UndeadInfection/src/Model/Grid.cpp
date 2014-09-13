@@ -76,8 +76,8 @@ void Grid::printState(int tick) {
 	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
 	std::cout << "- Deads: " << Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
 	std::cout << " Converted: " << Counters::getInstance().getConverted() << " Shooted: " << Counters::getInstance().getShooted();
-	std::cout << " Zdead: " << Counters::getInstance().getZDead() << "Ghost cases: " << Counters::getInstance().getGhostCase();
-	std::cout << " Natural deaths: " << Counters::getInstance().getHumanDead() << "\n";
+	std::cout << " Zdead: " << Counters::getInstance().getZDead() << " Ghost cases: " << Counters::getInstance().getGhostCase();
+	std::cout << " Natural deaths: " << Counters::getInstance().getHumanDead() << " Born: " << Counters::getInstance().getBorn() << "\n";
 #endif
 }
 
@@ -100,9 +100,9 @@ void Grid::initialize(int nPeople, int nZombies) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridB[i][j] = nullptr;
 			//todo:change algorithm so it is random and with pop limits
-			if (numHumans < DARWINPOPDENSITY && Random::randomBool()) {
+			if (numHumans < DARWINPOPDENSITY && Random::randomBoolTrueBiased()) {
 
-				int age = Random::random(MINLIFEEXPECTANCY-1);
+				int age = Random::random(MINLIFEEXPECTANCY - 1);
 				bool gender = Random::random() < GENDERRATIO ? true : false;
 				bool hasAGun = Random::random() < GUNDENSITY ? true : false;
 
@@ -142,7 +142,7 @@ void Grid::merge() {
 }
 void Grid::run() {
 	printState(0);
-//	printMatrix(0);
+	printMatrix(0);
 #ifdef DEBUGGRID
 	std::cout << "Run called" << "\n";
 #endif
@@ -165,6 +165,11 @@ void Grid::run() {
 							//Delete?
 							Counters::getInstance().newHumanDead();
 							agent = nullptr;
+						} else {
+							if ((agent->getType() == human) && (dynamic_cast<Human*>(agent)->isInfected())) {
+								//Counters::getInstance().newHumanDead();
+								agent = new Zombie;
+							}
 						}
 					}
 
@@ -250,20 +255,16 @@ void Grid::run() {
 					AgentTypeEnum typeA = agentA->getType();
 					if (typeA == human) {
 						if (i > 2 && gridB[i - 1][j] != nullptr) { //Someone up
-							Agent* agentB = gridB[i - 1][j];
-							AgentTypeEnum typeB = agentB->getType();
-							if (typeB == zombie) {
-								resolveHumanZombie(agentA, agentB);
-							}
+							resolveGridHumanZombie(agentA,i - 1,j);
 						}
 						if (j < GRIDROWS && gridB[i][j + 1] != nullptr) { //Someone on the right
-
+							resolveGridHumanZombie(agentA,i,j + 1);
 						}
 						if (i < GRIDROWS && gridB[i + 1][j] != nullptr) { //Down
-
+							resolveGridHumanZombie(agentA,i + 1,j);
 						}
 						if (j > 2 && gridB[i][j - 1] != nullptr) { //Left
-
+							resolveGridHumanZombie(agentA,i,j - 1);
 						}
 					}
 				}
@@ -271,13 +272,39 @@ void Grid::run() {
 		}
 
 		swap(gridA, gridB);
+
+		//Apply new births
+		for (int i = 1; i <= GRIDROWS; i++) {
+			for (int j = 1; j <= GRIDCOLUMNS; j++) {
+				if ( gridA[i][j] == nullptr ){ //Empty cell
+					//Roll a dice
+					double move = Random::random();
+					if ( move < BIRTHPERCENTAGE ){
+						//Its a baby!
+						bool gender = Random::random() < GENDERRATIO ? true : false;
+						bool hasAGun = Random::random() < GUNDENSITY ? true : false;
+						gridA[i][j] = new Human(gender, 1, hasAGun);
+						Counters::getInstance().newBorn();
+					}
+				}
+			}
+		}
+
 		//if ( n%100 == 0 ){
 		printState(n + 1);
-		//	printMatrix(n+1);
+		printMatrix(n + 1);
 		Counters::getInstance().resetCounters();
 		//}
 	}
 	printState(NUMTICKS + 1);
+}
+void Grid::resolveGridHumanZombie(Agent* agentA,int i, int j) {
+	Agent* agentB = gridB[i][j];
+	AgentTypeEnum typeB = agentB->getType();
+	if (typeB == zombie) {
+		resolveHumanZombie(agentA, agentB);
+	}
+
 }
 void Grid::resolveHumanZombie(Agent* agentHuman, Agent* agentZombie) {
 	Human* h = dynamic_cast<Human*>(agentHuman);

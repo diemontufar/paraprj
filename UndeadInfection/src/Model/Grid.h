@@ -30,6 +30,7 @@ private:
 	void printState(int);
 	void merge();
 	void resolveHumanZombie(Agent*, Agent*);
+	void resolveGridHumanZombie(Agent* agent,int i, int j);
 public:
 	Grid();
 	void initialize (int, int );
