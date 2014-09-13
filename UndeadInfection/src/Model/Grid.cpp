@@ -155,6 +155,7 @@ void Grid::run() {
 					gridA[i][j] = nullptr;
 					double move = Random::random();
 					agent->step();
+
 					//Code to remove decomposed agents
 					if ((agent->getType() == zombie) && (dynamic_cast<Zombie*>(agent)->isDecomposed() || dynamic_cast<Zombie*>(agent)->isShooted())) {
 						//Delete?
@@ -229,6 +230,7 @@ void Grid::run() {
 				Counters::getInstance().newGhostCase();
 			}
 		}
+
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			if (gridB[0][j] != nullptr && gridB[1][j] == nullptr) {
 				gridB[1][j] = gridB[0][j];
