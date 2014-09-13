@@ -76,8 +76,8 @@ void Grid::printState(int tick) {
 	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
 	std::cout << "- Deads: " << Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
 	std::cout << " Converted: " << Counters::getInstance().getConverted() << " Shooted: " << Counters::getInstance().getShooted();
-	std::cout << " Zdead: " << Counters::getInstance().getZDead() << "Ghost cases: " << Counters::getInstance().getGhostCase();
-	std::cout << " Natural deaths: " << Counters::getInstance().getHumanDead() << "\n";
+	std::cout << " Zdead: " << Counters::getInstance().getZDead() << " Ghost cases: " << Counters::getInstance().getGhostCase();
+	std::cout << " Natural deaths: " << Counters::getInstance().getHumanDead() << " Born: " << Counters::getInstance().getBorn() << "\n";
 #endif
 }
 
@@ -155,6 +155,7 @@ void Grid::run() {
 					gridA[i][j] = nullptr;
 					double move = Random::random();
 					agent->step();
+
 					//Code to remove decomposed agents
 					if ((agent->getType() == zombie) && (dynamic_cast<Zombie*>(agent)->isDecomposed() || dynamic_cast<Zombie*>(agent)->isShooted())) {
 						//Delete?
@@ -224,6 +225,7 @@ void Grid::run() {
 				Counters::getInstance().newGhostCase();
 			}
 		}
+
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			if (gridB[0][j] != nullptr && gridB[1][j] == nullptr) {
 				gridB[1][j] = gridB[0][j];
@@ -271,6 +273,24 @@ void Grid::run() {
 		}
 
 		swap(gridA, gridB);
+
+		//Apply new births
+		for (int i = 1; i <= GRIDROWS; i++) {
+			for (int j = 1; j <= GRIDCOLUMNS; j++) {
+				if ( gridA[i][j] == nullptr ){ //Empty cell
+					//Roll a dice
+					double move = Random::random();
+					if ( move < BIRTHPERCENTAGE ){
+						//Its a baby!
+						bool gender = Random::random() < GENDERRATIO ? true : false;
+						bool hasAGun = Random::random() < GUNDENSITY ? true : false;
+						gridA[i][j] = new Human(gender, 1, hasAGun);
+						Counters::getInstance().newBorn();
+					}
+				}
+			}
+		}
+
 		//if ( n%100 == 0 ){
 		printState(n + 1);
 		//	printMatrix(n+1);
