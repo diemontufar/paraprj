@@ -17,6 +17,7 @@
 #include "Random.h"
 #include <iostream>
 #include <stdlib.h>
+#include <omp.h>
 
 class Cell;
 

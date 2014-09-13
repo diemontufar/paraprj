@@ -6,7 +6,6 @@
  */
 
 #include "Grid.h"
-
 #ifdef DEBUG
 #include <iostream>
 #endif
@@ -19,6 +18,26 @@ Grid::Grid() {
 Grid::~Grid() {
 	// TODO Auto-generated destructor stub
 }
+#if defined(_OPENMP)
+void lock(int i, bool *locks) {
+	for (bool locked = false; locked == false; /*NOP*/) {
+#pragma omp critical (LockRegion)
+		{
+			locked = !locks[i-1] && !locks[i] && !locks[i+1];
+			if (locked) {
+				locks[i-1] = true; locks[i] = true; locks[i+1] = true;
+			}
+		}
+	}
+}
+void unlock(int i, bool *locks) {
+#pragma omp critical (LockRegion)
+	{
+		locks[i-1] = false; locks[i] = false; locks[i+1] = false;
+	}
+}
+#endif
+
 void Grid::printMatrix(int tick) {
 	cout << endl;
 
@@ -141,14 +160,27 @@ void Grid::merge() {
 	}
 }
 void Grid::run() {
+	bool *locks = new bool[GRIDCOLUMNS + 2];
+    #if defined(_OPENMP)
+	double		wtime		= omp_get_wtime();			// Record the starting time
+	int			N_Threads	= omp_get_max_threads();
+    #endif
+
+	for (int i = 0; i < GRIDCOLUMNS + 2; i++) locks[i] = false;
 	printState(0);
 	//printMatrix(0);
 #ifdef DEBUGGRID
 	std::cout << "Run called" << "\n";
 #endif
-
+    //Time loop
 	for (int n = 0; n < NUMTICKS; n++) {
+        #if defined(_OPENMP)
+        #pragma omp parallel for default(shared)
+        #endif
 		for (int i = 1; i <= GRIDROWS; i++) {
+			#if defined (_OPENMP)
+			lock(i, locks);
+			#endif
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				if (gridA[i][j] != nullptr) {
 					Agent* agent = gridA[i][j];
@@ -168,7 +200,7 @@ void Grid::run() {
 							agent = nullptr;
 						} else {
 							if ((agent->getType() == human) && (dynamic_cast<Human*>(agent)->isInfected())) {
-								//Counters::getInstance().newHumanDead();
+								Counters::getInstance().newConversion();
 								agent = new Zombie;
 							}
 						}
@@ -200,9 +232,9 @@ void Grid::run() {
 
 						if (gridA[desti][destj] == nullptr && gridB[desti][destj] == nullptr) {
 							gridB[desti][destj] = agent;
-//#ifdef DEBUGGRID
+							//#ifdef DEBUGGRID
 							//std::cerr << "Tick: " << (n+1) << "Human moved from" << i <<","<< j << " to "<< desti <<","<< destj<<"\n";
-//#endif
+							//#endif
 
 						} else {
 							gridB[i][j] = agent;
@@ -211,7 +243,12 @@ void Grid::run() {
 					}
 				}
 			}
+			#if defined(_OPENMP)
+			unlock(i,locks);
+			#endif
+
 		}
+
 		//Boundary condition
 		for (int i = 1; i <= GRIDROWS; i++) {
 			if (gridB[i][0] != nullptr && gridB[i][1] == nullptr) {
@@ -292,13 +329,17 @@ void Grid::run() {
 			}
 		}
 
-		//if ( n%100 == 0 ){
-		printState(n + 1);
-		//printMatrix(n + 1);
-		Counters::getInstance().resetCounters();
-		//}
+		if ( n%100 == 0 ){
+			printState(n + 1);
+			//printMatrix(n + 1);
+			Counters::getInstance().resetCounters();
+		}
 	}
 	printState(NUMTICKS + 1);
+#if defined(_OPENMP)
+	wtime	= omp_get_wtime() - wtime;	// Record the end time and calculate elapsed time
+	cout << "Simulation took " << wtime/NUMTICKS << " seconds per time step with " << N_Threads << " threads" << endl;
+#endif
 }
 void Grid::resolveGridHumanZombie(Agent* agentA,int i, int j) {
 	Agent* agentB = gridB[i][j];
