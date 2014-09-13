@@ -56,7 +56,7 @@ void runSimulation(){
 
 	//Necessary to evaluate random values correctly.
 	//TODO: consider process id when using MPI
-	srand(int(time(NULL)));
+	//srand(int(time(NULL)));
 
 	Grid g;
 	g.initialize(5,5);

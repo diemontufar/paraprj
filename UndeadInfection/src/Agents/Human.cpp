@@ -10,69 +10,64 @@
 #include "iostream"
 #endif
 
-Human::Human(bool theGender,int theAge, bool ifHasAGun):
-		gender(theGender),
-		age(theAge),
-		hasAGun(ifHasAGun),
-		infected(false),
-		infectionTime(0),
-		yearTime(0),
-		deadByConversion(false),
-		naturalDead (false),
-		lifeExpectancy (RandomGen::getIntUniformRandomBetween(MINLIFEEXPECTANCY,MAXLIFEEXPECTANCY)){
+Human::Human(bool theGender, int theAge, bool ifHasAGun) :
+		gender(theGender), age(theAge), hasAGun(ifHasAGun), infected(false), infectionTime(0), yearTime(0), deadByConversion(false), naturalDead(false), lifeExpectancy(
+				RandomGen::getIntUniformRandomBetween(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY)) {
 
 }
 
-void Human::step(){
-   //#ifdef DEBUG
-   //std::cout << "Step called"<<"\n";
-   //#endif
-   if( infected ){
-	   infectionTime++;
-	   if ( infectionTime >= INCUBATIONTIME ){
-           //#ifdef DEBUG
-           //   std::cout << "Dead"<<"\n";
-           //#endif
-		   deadByConversion = true;
-	   }
-   }
-   yearTime++;
-   if (yearTime == YEARTICKS){
-	   age++;
-	   yearTime = 0;
-   }
-   if (age>lifeExpectancy){
-   		   naturalDead=true;
-   	   }
+void Human::step() {
+	//#ifdef DEBUG
+	//std::cout << "Step called"<<"\n";
+	//#endif
+	if (infected) {
+		infectionTime++;
+		if (infectionTime >= INCUBATIONTIME) {
+			//#ifdef DEBUG
+			//   std::cout << "Dead"<<"\n";
+			//#endif
+			deadByConversion = true;
+		}
+	}
+	yearTime++;
+	if (yearTime == YEARTICKS) {
+		age++;
+		yearTime = 0;
+	}
+	double move = Random::random();
+	if (move < DEATHRATE) {
+		//if (age>lifeExpectancy){
+		naturalDead = true;
+	}
 }
 
-bool Human::getGender(){
+bool Human::getGender() {
 	return gender;
 }
 
-int Human::getAge(){
+int Human::getAge() {
 	return age;
 }
 
-bool Human::isHasAGun(){
+bool Human::isHasAGun() {
 	return hasAGun;
 
 }
-bool Human::isNaturalDead(){
+bool Human::isNaturalDead() {
 	return naturalDead;
 
 }
 
-bool Human::isInfected(){
+bool Human::isInfected() {
 	return infected;
 }
-void Human::infect(){
+void Human::infect() {
 	infected = true;
 }
-bool Human::isDead(){
+bool Human::isDead() {
 	return deadByConversion;
 }
-AgentTypeEnum Human::getType(){
+AgentTypeEnum Human::getType() {
 	return human;
 }
 

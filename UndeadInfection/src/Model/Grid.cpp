@@ -142,7 +142,7 @@ void Grid::merge() {
 }
 void Grid::run() {
 	printState(0);
-	printMatrix(0);
+	//printMatrix(0);
 #ifdef DEBUGGRID
 	std::cout << "Run called" << "\n";
 #endif
@@ -294,7 +294,7 @@ void Grid::run() {
 
 		//if ( n%100 == 0 ){
 		printState(n + 1);
-		printMatrix(n + 1);
+		//printMatrix(n + 1);
 		Counters::getInstance().resetCounters();
 		//}
 	}
