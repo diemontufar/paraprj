@@ -122,7 +122,7 @@ void Grid::initialize(int nPeople, int nZombies) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridB[i][j] = NULL;
 			//todo:change algorithm so it is random and with pop limits
-			if (numHumans < DARWINPOPDENSITY && Random::randomBoolTrueBiased()) {
+			if (numHumans < DARWINPOPDENSITY && Random::randomBoolFalseBiasedN()) {
 
 				int age = Random::random(MINLIFEEXPECTANCY - 1);
 				bool gender = Random::random() < GENDERRATIO ? true : false;
@@ -131,7 +131,7 @@ void Grid::initialize(int nPeople, int nZombies) {
 				gridA[i][j] = new Human(gender, age, hasAGun);
 				numHumans++;
 			} else {
-				if (numZombies < NUMBEROFZOMBIES && Random::randomBool()) {
+				if (numZombies < NUMBEROFZOMBIES && Random::randomBoolFalseBiasedZN()) {
 					gridA[i][j] = new Zombie();
 					numZombies++;
 				} else {

@@ -24,11 +24,13 @@ static const long NUMTICKS = 3650; //Number of ticks 125*365
 static const long YEARTICKS = 365; //Ticks in 1 year 365
 
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human
+//static int const GRIDROWS = 51; //Number of row grids
+//static int const GRIDCOLUMNS = 51;//Number of column grids
 static int const GRIDROWS = 512; //Number of row grids
 static int const GRIDCOLUMNS = 512;//Number of column grids
 
 static const int MINDECOMPOSITIONTIME = 14;//Ticks that take the zombie to decompose
-static const int MAXDECOMPOSITIONTIME = 17;//Ticks that take the zombie to decompose
+static const int MAXDECOMPOSITIONTIME = 28;//Ticks that take the zombie to decompose
 
 static const int MINLIFEEXPECTANCY = 65;//minimum human life expectancy
 static const int MAXLIFEEXPECTANCY= 75;//maximum human life expectancy
@@ -37,7 +39,8 @@ static const float DEATHRATE = 403.0/23000000.0;
 
 static const float NUMBEROFZOMBIES = 10;
 static const float NTPOPDENSITY = 0.17/2.0;
-static const float DARWINPOPDENSITY = 500.0*500.0*NTPOPDENSITY;
+//static const float DARWINPOPDENSITY = 50.0*50.0*NTPOPDENSITY;
+static const float DARWINPOPDENSITY = 500*500*NTPOPDENSITY;
 
 static const float GENDERRATIO = 0.483; //Women vs Men
 
@@ -46,9 +49,9 @@ static const float BIRTHSPERDAY = 847.0; //
 static const  float AUSPOP = 23000000.0;
 
 
-static const float HEADSHOTPERCENTAGE = 0.15; //40%
-static const float SUCESSFULBITEPERCENTAGE = 15; //40%
-#define MOVE    0.1 //Probability of a move in each direction
+static const float HEADSHOTPERCENTAGE = 0.10; //40%
+static const float SUCESSFULBITEPERCENTAGE = 70; //40%
+#define MOVE    0.2 //Probability of a move in each direction
 
 #define DEBUG = true;
 #define DEBUGGRID = false;

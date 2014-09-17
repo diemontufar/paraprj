@@ -20,6 +20,8 @@ public:
     static int random(int start, int end);
     static bool randomBool();
     static bool randomBoolTrueBiased();
+    static bool randomBoolFalseBiasedN();
+    static bool randomBoolFalseBiasedZN();
 };
 
 
