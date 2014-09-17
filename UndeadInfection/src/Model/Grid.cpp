@@ -11,9 +11,7 @@
 #endif
 
 using namespace std;
-Grid::Grid() {
-	randomObj = new RandomGen();
-}
+Grid::Grid() {}
 
 Grid::~Grid() {
 	// TODO Auto-generated destructor stub
@@ -133,7 +131,7 @@ void Grid::initialize(int nPeople, int nZombies) {
 				gridA[i][j] = new Human(gender, age, hasAGun);
 				numHumans++;
 			} else {
-				if (numZombies < NUMBEROFZOMBIES && RandomGen::randomBool()) {
+				if (numZombies < NUMBEROFZOMBIES && Random::randomBool()) {
 					gridA[i][j] = new Zombie();
 					numZombies++;
 				} else {
@@ -374,7 +372,7 @@ void Grid::resolveHumanZombie(Agent* agentHuman, Agent* agentZombie) {
 	Human* h = dynamic_cast<Human*>(agentHuman);
 	Zombie* z = dynamic_cast<Zombie*>(agentZombie);
 	//Probability and cases, for now it is a rand
-	int dice_roll = randomObj->getIntUniformRandomBetween(0, 100);
+	int dice_roll = Random::random(0,100);
 
 	if (dice_roll <= HEADSHOTPERCENTAGE) {
 		z->shoot();
@@ -385,8 +383,5 @@ void Grid::resolveHumanZombie(Agent* agentHuman, Agent* agentZombie) {
 	}
 }
 
-void Grid::setRandomObj(RandomGen* obj) {
-	delete (randomObj);
-	randomObj = obj;
-}
+
 

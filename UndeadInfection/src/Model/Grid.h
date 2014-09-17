@@ -13,7 +13,6 @@
 #include "../Agents/Human.h"
 #include "../Agents/Zombie.h"
 #include "../Counters.h"
-#include "RandomGen.h"
 #include "Random.h"
 #include <iostream>
 #include <stdlib.h>
@@ -28,8 +27,6 @@ private:
 	Agent*** gridA;
 	Agent*** gridB;
 
-	RandomGen* randomObj;
-
 	void printMatrix(int);
 	void printState(int);
 	void merge();
@@ -43,7 +40,6 @@ public:
 	void removeAgent( int, int, Agent* );
 
 	void moveAgent( int, int, Agent* );
-	void setRandomObj(RandomGen*);
 	void run();
 	virtual ~Grid();
 };

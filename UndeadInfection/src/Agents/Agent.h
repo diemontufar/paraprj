@@ -7,7 +7,7 @@
 #ifndef AGENT_H_
 #define AGENT_H_
 
-#include "../Constants.h"
+#include "../Parameters.h"
 
 enum AgentTypeEnum {human,zombie,typeUndef};
 class Agent{

@@ -17,6 +17,7 @@ public:
     virtual ~Random();
     static double random();
     static int random(int range);
+    static int random(int start, int end);
     static bool randomBool();
     static bool randomBoolTrueBiased();
 };

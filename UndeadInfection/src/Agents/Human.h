@@ -10,7 +10,6 @@
 #ifndef HUMAN_H_
 #define HUMAN_H_
 #include "Agent.h"
-#include "../Model/RandomGen.h"
 #include "../Model/Random.h"
 
 class Human: public Agent {
