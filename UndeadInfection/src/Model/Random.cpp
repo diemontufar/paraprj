@@ -36,10 +36,10 @@ bool Random::randomBoolTrueBiased() {
   return rand() % 4 < 3;
 }
 bool Random::randomBoolFalseBiasedN() {
-	//return rand() % 1000 > 814;
-	return rand() % 1000 > 900;
+	return rand() % 10000 > 9000;
+	//return rand() % 1000 > 900;
 }
 bool Random::randomBoolFalseBiasedZN() {
   //return rand() % 10000 > 9990;
-  return rand() % 1000 > 995;
+  return rand() % 10000 > 9998;
 }

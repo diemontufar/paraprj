@@ -50,7 +50,7 @@ static const  float AUSPOP = 23000000.0;
 
 
 static const float HEADSHOTPERCENTAGE = 0.10; //40%
-static const float SUCESSFULBITEPERCENTAGE = 70; //40%
+static const float SUCESSFULBITEPERCENTAGE = 90; //40%
 #define MOVE    0.2 //Probability of a move in each direction
 
 #define DEBUG = true;
