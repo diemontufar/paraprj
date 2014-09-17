@@ -23,8 +23,8 @@ static const long NUMTICKS = 45625; //Number of ticks 125*365
 static const long YEARTICKS = 365; //Ticks in 1 year 365
 
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human
-static int const GRIDROWS = 500; //Number of row grids
-static int const GRIDCOLUMNS = 500;//Number of column grids
+static int const GRIDROWS =1000; //Number of row grids
+static int const GRIDCOLUMNS = 1500;//Number of column grids
 
 
 static const int ZOMBIESPEED = 1; //Zombie speed
