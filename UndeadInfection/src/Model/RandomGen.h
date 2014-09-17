@@ -7,7 +7,6 @@
 
 #ifndef RANDOMGEN_H_
 #define RANDOMGEN_H_
-#include <random>
 
 class RandomGen {
 public:

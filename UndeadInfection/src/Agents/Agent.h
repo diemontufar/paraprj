@@ -20,7 +20,7 @@ public:
 
 	//Virtual destructor
 	Agent();
-	virtual ~Agent();
+   ~Agent();
 
 	//Forward the agent one step method
 	virtual void step()=0;

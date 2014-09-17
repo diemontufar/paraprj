@@ -23,8 +23,11 @@ class Cell;
 
 class Grid {
 private:
-	Agent* gridA[GRIDROWS+2][GRIDCOLUMNS+2];
-	Agent* gridB[GRIDROWS+2][GRIDCOLUMNS+2];
+	//Agent* gridA[GRIDROWS+2][GRIDCOLUMNS+2];
+	//Agent* gridB[GRIDROWS+2][GRIDCOLUMNS+2];
+	Agent*** gridA;
+	Agent*** gridB;
+
 	RandomGen* randomObj;
 
 	void printMatrix(int);
@@ -32,6 +35,7 @@ private:
 	void merge();
 	void resolveHumanZombie(Agent*, Agent*);
 	void resolveGridHumanZombie(Agent* agent,int i, int j);
+	void calculatePopulationAndFreeCells(float &population, float &freecells);
 public:
 	Grid();
 	void initialize (int, int );
