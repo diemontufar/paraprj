@@ -9,7 +9,7 @@
 #ifndef ZOMBIE_H_
 #define ZOMBIE_H_
 #include "Agent.h"
-#include "../Model/RandomGen.h"
+#include "../Model/Random.h"
 
 class Zombie: public virtual Agent {
 private:

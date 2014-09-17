@@ -15,7 +15,7 @@ Zombie::Zombie() {
 	decompositionTime = 0;
 	decomposed = false;
 	shooted = false;
-	lifeTime=RandomGen::getIntUniformRandomBetween(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
+	lifeTime=Random::random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
 }
 
 void Zombie::step(){

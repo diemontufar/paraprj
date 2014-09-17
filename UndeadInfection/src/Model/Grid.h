@@ -13,24 +13,26 @@
 #include "../Agents/Human.h"
 #include "../Agents/Zombie.h"
 #include "../Counters.h"
-#include "RandomGen.h"
 #include "Random.h"
 #include <iostream>
 #include <stdlib.h>
+#include <omp.h>
 
 class Cell;
 
 class Grid {
 private:
-	Agent* gridA[GRIDROWS+2][GRIDCOLUMNS+2];
-	Agent* gridB[GRIDROWS+2][GRIDCOLUMNS+2];
-	RandomGen* randomObj;
+	//Agent* gridA[GRIDROWS+2][GRIDCOLUMNS+2];
+	//Agent* gridB[GRIDROWS+2][GRIDCOLUMNS+2];
+	Agent*** gridA;
+	Agent*** gridB;
 
 	void printMatrix(int);
 	void printState(int);
 	void merge();
 	void resolveHumanZombie(Agent*, Agent*);
 	void resolveGridHumanZombie(Agent* agent,int i, int j);
+	void calculatePopulationAndFreeCells(float &population, float &freecells);
 public:
 	Grid();
 	void initialize (int, int );
@@ -38,7 +40,6 @@ public:
 	void removeAgent( int, int, Agent* );
 
 	void moveAgent( int, int, Agent* );
-	void setRandomObj(RandomGen*);
 	void run();
 	virtual ~Grid();
 };

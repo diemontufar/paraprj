@@ -12,7 +12,7 @@
 
 Human::Human(bool theGender, int theAge, bool ifHasAGun) :
 		gender(theGender), age(theAge), hasAGun(ifHasAGun), infected(false), infectionTime(0), yearTime(0), deadByConversion(false), naturalDead(false), lifeExpectancy(
-				RandomGen::getIntUniformRandomBetween(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY)) {
+				Random::random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY)) {
 
 }
 
