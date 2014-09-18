@@ -35,7 +35,8 @@ void Human::step() {
 		yearTime = 0;
 	}
 	double move = Random::random();
-	if (move < DEATHRATE) {
+	if (move < DEATHRATEAU) {
+		//if (move < DEATHRATE) {
 		//if (age>lifeExpectancy){
 		naturalDead = true;
 	}

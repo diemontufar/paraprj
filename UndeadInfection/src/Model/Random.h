@@ -16,12 +16,14 @@ public:
     Random();
     virtual ~Random();
     static double random();
+    static void resetSeed();
     static int random(int range);
     static int random(int start, int end);
     static bool randomBool();
     static bool randomBoolTrueBiased();
     static bool randomBoolFalseBiasedN();
     static bool randomBoolFalseBiasedZN();
+
 };
 
 

@@ -36,6 +36,8 @@ int main() {
 	//evalResult(testHumanZombieClashZombieShooted());
 	//evalResult(testHumanZombieClashHumanInfected());
 	//evalResult(testHumanZombieClashWithGrid());
+	//we reinitialize the seed
+	Random::resetSeed();
 	runSimulation();
 	return 0;
 }

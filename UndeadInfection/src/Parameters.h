@@ -37,21 +37,27 @@ static const int MAXLIFEEXPECTANCY= 75;//maximum human life expectancy
 static const float DEATHRATE = 403.0/23000000.0;
 
 
+static const  float AUSPOP = 23000000.0;
 static const float NUMBEROFZOMBIES = 10;
 static const float NTPOPDENSITY = 0.17/2.0;
 //static const float DARWINPOPDENSITY = 50.0*50.0*NTPOPDENSITY;
 static const float DARWINPOPDENSITY = 500*500*NTPOPDENSITY;
+static const float DEATHSAU= 2.620; // http://www.healthinfonet.ecu.edu.au/health-facts/overviews/mortality
+static const float DEATHRATEAU= DEATHSAU/AUSPOP;
+static const float DEATHRATENT = 500*500*NTPOPDENSITY*DEATHRATEAU;
+
 
 static const float GENDERRATIO = 0.483; //Women vs Men
 
 static const float GUNDENSITY = 0.2; //19.13
-static const float BIRTHSPERDAY = 847.0; //
-static const  float AUSPOP = 23000000.0;
+//static const float BIRTHSPERDAY = 847.0;
+static const float BIRTHSPERDAYNT = 6; //10,75 ~ 11 /2 = 6 http://www.abs.gov.au/ausstats/abs@.nsf/latestProducts/3301.0Media%20Release12012 sum 3 years and divide by 3
+
 
 
 static const float HEADSHOTPERCENTAGE = 0.10; //40%
-static const float SUCESSFULBITEPERCENTAGE = 90; //40%
-#define MOVE    0.2 //Probability of a move in each direction
+static const float SUCESSFULBITEPERCENTAGE =50; //40%
+#define MOVE    0.25 //Probability of a move in each direction
 
 #define DEBUG = true;
 #define DEBUGGRID = false;

@@ -184,6 +184,7 @@ void Grid::run() {
 #endif
     //Time loop
 	for (int n = 0; n < NUMTICKS; n++) {
+		Random::resetSeed();
         #if defined(_OPENMP)
         #pragma omp parallel for default(none) shared (locks)
         #endif
@@ -327,7 +328,8 @@ void Grid::run() {
 		float pop=0;
 		float freeCells=0;
 		calculatePopulationAndFreeCells(pop, freeCells);
-		double prob = BIRTHSPERDAY*pop/AUSPOP;
+		//Number of humans that must be given to birth in a given tick
+		double prob = BIRTHSPERDAYNT;
 		prob = prob/freeCells;
 
 		for (int i = 1; i <= GRIDROWS; i++) {
@@ -335,8 +337,10 @@ void Grid::run() {
 				if ( gridA[i][j] == NULL ){ //Empty cell
 					//Roll a dice
 					double move = Random::random();
-					if ( move < prob ){
+
+					if ( move <= prob ){
 						//Its a baby!
+						//cout<< "Random: "<< move <<"Chance: "<<prob <<endl;
 						bool gender = Random::random() < GENDERRATIO ? true : false;
 						bool hasAGun = Random::random() < GUNDENSITY ? true : false;
 						gridA[i][j] = new Human(gender, 1, hasAGun);

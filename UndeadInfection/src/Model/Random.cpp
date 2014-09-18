@@ -6,15 +6,30 @@
  */
 
 #include "Random.h"
+#include<time.h>
 #include <cstdlib>
 
-Random::Random(){}
+Random::Random(){
+	srand ( time(NULL) );
+}
+
 
 Random::~Random(){}
 
+void Random::resetSeed(){
+	srand ( time(NULL) );
+}
+
 /* Generates random number < 1, works for probabilities */
 double Random::random() {
-	return ((double) rand() / (RAND_MAX));
+
+
+	double rng=(double) rand();
+	double maxrange=(double)RAND_MAX;
+	//if (rng==0)
+		//rng=0.000000001;
+	double rand01=(rng) / (maxrange);
+	return (rand01);
 }
 
 /* Generates random number from 0 to range*/
