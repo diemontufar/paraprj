@@ -8,7 +8,6 @@
 #define AGENT_H_
 
 #include "../Parameters.h"
-#include "../Model/Random.h"
 #include <assert.h>
 
 enum AgentTypeEnum {human,zombie,typeUndef};
@@ -36,8 +35,8 @@ private:
 
 public:
 	//Virtual destructor
-	Agent(AgentTypeEnum type);
-	Agent(bool gender,int age, bool hasAGun, AgentTypeEnum type);
+	Agent(int lifeTime, AgentTypeEnum type); //Constructor for zombies
+	Agent(bool gender,int age, bool hasAGun, int lifeExpectancy, AgentTypeEnum type);
 
    ~Agent();
 
@@ -48,6 +47,7 @@ public:
 	bool isHasAGun();
 	bool isInfected();
 	bool isNaturalDead();
+	void markAsDead();
 	bool isDead();
 	void infect();
 

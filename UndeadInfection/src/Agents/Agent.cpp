@@ -6,15 +6,16 @@
  */
 
 #include "Agent.h"
-Agent::Agent(AgentTypeEnum theType){
+Agent::Agent(int theLifeTime, AgentTypeEnum theType){
 	assert (theType!=human);
 	type = theType;
 	decompositionTime = 0;
 	decomposed = false;
 	shooted = false;
-	lifeTime=Random::random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
+	lifeTime = theLifeTime;
+	//lifeTime=Random::random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
 }
-Agent::Agent(bool theGender,int theAge, bool isHasAGun, AgentTypeEnum theType){
+Agent::Agent(bool theGender,int theAge, bool isHasAGun, int theLifeExpectancy, AgentTypeEnum theType){
 	assert (theType!=zombie);
 	type = theType;
 	infected = false;
@@ -26,7 +27,8 @@ Agent::Agent(bool theGender,int theAge, bool isHasAGun, AgentTypeEnum theType){
 	yearTime = 0;
 	deadByConversion = false;
 	naturalDead = false;
-	lifeExpectancy=Random::random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
+	lifeExpectancy = theLifeExpectancy;
+	//lifeExpectancy=Random::random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
 }
 Agent::~Agent() {
 }
@@ -54,12 +56,6 @@ void Agent::step() {
 			age++;
 			yearTime = 0;
 		}
-		double move = Random::random();
-		if (move < DEATHRATEAU) {
-			//if (move < DEATHRATE) {
-			//if (age>lifeExpectancy){
-			naturalDead = true;
-		}
 	}
 	else if (type==zombie){
 		decompositionTime++;
@@ -72,6 +68,10 @@ void Agent::step() {
 	}
 }
 
+void Agent::markAsDead(){
+	assert(type==human);
+	naturalDead = true;
+}
 bool Agent::getGender() {
 	assert(type==human);
 	return gender;

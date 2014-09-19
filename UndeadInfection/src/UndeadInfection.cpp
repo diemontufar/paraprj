@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include "Agents/Agent.h"
 #include "Model/Grid.h"
-#include "Model/Random.h"
+#include "Model/RandomClass.h"
 #include <time.h>
 
 using namespace std;
@@ -35,7 +35,6 @@ int main() {
 	//evalResult(testHumanZombieClashHumanInfected());
 	//evalResult(testHumanZombieClashWithGrid());
 	//we reinitialize the seed
-	Random::resetSeed();
 	runSimulation();
 	return 0;
 }
@@ -44,8 +43,6 @@ void runSimulation(){
 
 	//Necessary to evaluate random values correctly.
 	//TODO: consider process id when using MPI
-	srand(int(time(NULL)));
-
 	Grid g;
 	g.run();
 }
@@ -64,7 +61,8 @@ bool testHumanHumanClash() {
 
 bool testHumanDeseaseIncubation() {
 	cout << "Testing step of human";
-	Agent h(false,Random::random(100)+1, false, human);
+	RandomClass random(0);
+	Agent h(false,random.random(100)+1, false, 80, human);
 	h.infect();
 	for (int i = 0; i <= INCUBATIONTIME + 1; i++) {
 		h.step();
@@ -77,7 +75,7 @@ bool testHumanDeseaseIncubation() {
 
 bool testZombieDecomposition() {
 	cout << "Testing step of zombies";
-	Agent z(zombie);
+	Agent z(MINDECOMPOSITIONTIME,zombie);
 	for (int i = 0; i <= MINDECOMPOSITIONTIME + 1; i++) {
 		z.step();
 	}
@@ -89,10 +87,10 @@ bool testZombieDecomposition() {
 
 bool testInheritanceOfAgents() {
 	cout << "Testing inheritance of agents" << endl;
-	Agent* a = new Agent(true,Random::random(100)+1, true, human);
+	Agent* a = new Agent(true,1, true, 70, human);
 	if (a->getType() != human)
 		return false;
-	a = new Agent(zombie);
+	a = new Agent(5,zombie);
 
 	if (a->getType() != zombie)
 		return false;
@@ -101,7 +99,7 @@ bool testInheritanceOfAgents() {
 
 bool testZombie() {
 	cout << "Testing zombies" << endl;
-	Agent zombieAgent(zombie);
+	Agent zombieAgent(5,zombie);
 	if (zombieAgent.getType() != zombie) {
 		return false;
 	}
@@ -122,7 +120,7 @@ bool testZombie() {
 
 bool testHuman() {
 	cout << "Testing humans" << endl;
-	Agent male(false,Random::random(100)+1, false, human);
+	Agent male(false,60, false, 80, human);
 
 	if (male.getGender() != false)
 		return false;
@@ -131,7 +129,7 @@ bool testHuman() {
 	if (male.isInfected() != false)
 		return false;
 
-	Agent female(true,Random::random(100)+1, true, human);
+	Agent female(true,100, true, 80, human);
 	if (female.getGender() == false)
 		return false;
 	if (female.isHasAGun() == false)
