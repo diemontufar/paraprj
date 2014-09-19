@@ -127,11 +127,11 @@ void Grid::initialize(	Agent*** gridA, Agent*** gridB ) {
 				bool gender = Random::random() < GENDERRATIO ? true : false;
 				bool hasAGun = Random::random() < GUNDENSITY ? true : false;
 
-				gridA[i][j] = new Human(gender, age, hasAGun);
+				gridA[i][j] = new Agent(gender, age, hasAGun, human);
 				numHumans++;
 			} else {
 				if (numZombies < NUMBEROFZOMBIES && Random::randomBoolFalseBiasedZN()) {
-					gridA[i][j] = new Zombie();
+					gridA[i][j] = new Agent(zombie);
 					numZombies++;
 				} else {
 					gridA[i][j] = NULL;
@@ -186,19 +186,19 @@ void Grid::run() {
 					agent->step();
 
 					//Code to remove decomposed agents
-					if ((agent->getType() == zombie) && (dynamic_cast<Zombie*>(agent)->isDecomposed() || dynamic_cast<Zombie*>(agent)->isShooted())) {
+					if ((agent->getType() == zombie) && (agent->isDecomposed() || agent->isShooted())) {
 						//Delete?
 						Counters::getInstance().newZombieDead();
 						agent = NULL;
 					} else {
-						if ((agent->getType() == human) && (dynamic_cast<Human*>(agent)->isNaturalDead())) {
+						if ( agent->getType() == human && agent->isNaturalDead() ) {
 							//Delete?
 							Counters::getInstance().newHumanDead();
 							agent = NULL;
 						} else {
-							if ((agent->getType() == human) && (dynamic_cast<Human*>(agent)->isInfected())) {
+							if ( agent->getType() == human && agent->isInfected() ) {
 								Counters::getInstance().newConversion();
-								agent = new Zombie;
+								agent = new Agent(zombie);
 							}
 						}
 					}
@@ -328,7 +328,7 @@ void Grid::run() {
 						//cout<< "Random: "<< move <<"Chance: "<<prob <<endl;
 						bool gender = Random::random() < GENDERRATIO ? true : false;
 						bool hasAGun = Random::random() < GUNDENSITY ? true : false;
-						gridA[i][j] = new Human(gender, 1, hasAGun);
+						gridA[i][j] = new Agent(gender, 1, hasAGun, human);
 						Counters::getInstance().newBorn();
 					}
 				}
@@ -357,17 +357,15 @@ void Grid::resolveGridHumanZombie(Agent* agentA,int i, int j, Agent*** gridB) {
 	}
 
 }
-void Grid::resolveHumanZombie(Agent* agentHuman, Agent* agentZombie) {
-	Human* h = dynamic_cast<Human*>(agentHuman);
-	Zombie* z = dynamic_cast<Zombie*>(agentZombie);
+void Grid::resolveHumanZombie(Agent* human, Agent* zombie) {
 	//Probability and cases, for now it is a rand
 	int dice_roll = Random::random(0,100);
 
 	if (dice_roll <= HEADSHOTPERCENTAGE) {
-		z->shoot();
+		zombie->shoot();
 		Counters::getInstance().newShooted();
 	} else if (dice_roll <= SUCESSFULBITEPERCENTAGE) {
-		h->infect();
+		human->infect();
 		Counters::getInstance().newInfected();
 	}
 }

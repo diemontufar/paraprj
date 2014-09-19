@@ -8,8 +8,6 @@
 
 #include <iostream>
 #include <stdio.h>
-#include "Agents/Human.h"
-#include "Agents/Zombie.h"
 #include "Agents/Agent.h"
 #include "Model/Grid.h"
 #include "Model/Random.h"
@@ -66,7 +64,7 @@ bool testHumanHumanClash() {
 
 bool testHumanDeseaseIncubation() {
 	cout << "Testing step of human";
-	Human h(false,Random::random(100)+1, false);
+	Agent h(false,Random::random(100)+1, false, human);
 	h.infect();
 	for (int i = 0; i <= INCUBATIONTIME + 1; i++) {
 		h.step();
@@ -79,7 +77,7 @@ bool testHumanDeseaseIncubation() {
 
 bool testZombieDecomposition() {
 	cout << "Testing step of zombies";
-	Zombie z;
+	Agent z(zombie);
 	for (int i = 0; i <= MINDECOMPOSITIONTIME + 1; i++) {
 		z.step();
 	}
@@ -91,10 +89,10 @@ bool testZombieDecomposition() {
 
 bool testInheritanceOfAgents() {
 	cout << "Testing inheritance of agents" << endl;
-	Agent* a = new Human(true,Random::random(100)+1, true);
+	Agent* a = new Agent(true,Random::random(100)+1, true, human);
 	if (a->getType() != human)
 		return false;
-	a = new Zombie();
+	a = new Agent(zombie);
 
 	if (a->getType() != zombie)
 		return false;
@@ -103,7 +101,7 @@ bool testInheritanceOfAgents() {
 
 bool testZombie() {
 	cout << "Testing zombies" << endl;
-	Zombie zombieAgent;
+	Agent zombieAgent(zombie);
 	if (zombieAgent.getType() != zombie) {
 		return false;
 	}
@@ -124,7 +122,7 @@ bool testZombie() {
 
 bool testHuman() {
 	cout << "Testing humans" << endl;
-	Human male(false,Random::random(100)+1, false);
+	Agent male(false,Random::random(100)+1, false, human);
 
 	if (male.getGender() != false)
 		return false;
@@ -133,7 +131,7 @@ bool testHuman() {
 	if (male.isInfected() != false)
 		return false;
 
-	Human female(true,Random::random(100)+1, true);
+	Agent female(true,Random::random(100)+1, true, human);
 	if (female.getGender() == false)
 		return false;
 	if (female.isHasAGun() == false)

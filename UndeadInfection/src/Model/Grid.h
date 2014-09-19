@@ -10,8 +10,6 @@
 #define GRID_H_
 
 #include "../Agents/Agent.h"
-#include "../Agents/Human.h"
-#include "../Agents/Zombie.h"
 #include "../Counters.h"
 #include "Random.h"
 #include <iostream>

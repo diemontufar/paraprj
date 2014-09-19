@@ -8,24 +8,54 @@
 #define AGENT_H_
 
 #include "../Parameters.h"
+#include "../Model/Random.h"
+#include <assert.h>
 
 enum AgentTypeEnum {human,zombie,typeUndef};
 class Agent{
 
 private:
-	int id;
 	AgentTypeEnum type;
+    //Human attr
+	bool gender; //True is male, false is female
+    int age;
+    bool infected; //Whether the human is infected or not
+    bool hasAGun; //Whether the human has a gun or not
+    bool deadByConversion;
+    bool naturalDead;
+    short int infectionTime; //How much ticks have passed since the human has been exposed
+    short int yearTime; //How much ticks have passed to complete a year
+    short int lifeExpectancy; // How much time the human will live
+
+    //Zombies attr
+    short decompositionTime; //Number of ticks that have passed
+    bool shooted;
+    bool decomposed;
+    short lifeTime;
+
 
 public:
-
 	//Virtual destructor
-	Agent();
+	Agent(AgentTypeEnum type);
+	Agent(bool gender,int age, bool hasAGun, AgentTypeEnum type);
+
    ~Agent();
 
 	//Forward the agent one step method
-	virtual void step()=0;
+	void step();
+	bool getGender();
+	int getAge();
+	bool isHasAGun();
+	bool isInfected();
+	bool isNaturalDead();
+	bool isDead();
+	void infect();
 
-	virtual AgentTypeEnum getType()=0;
+	bool isDecomposed();
+	bool isShooted();
+	void shoot();
+
+	AgentTypeEnum getType();
 
 };
 #endif /* AGENT_H */
