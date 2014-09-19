@@ -49,7 +49,6 @@ void runSimulation(){
 	srand(int(time(NULL)));
 
 	Grid g;
-	g.initialize(5,5);
 	g.run();
 }
 

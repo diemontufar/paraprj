@@ -36,7 +36,7 @@ void unlock(int i, bool *locks) {
 }
 #endif
 
-void Grid::printMatrix(int tick) {
+void Grid::printMatrix(int tick, Agent*** gridA) {
 	cout << endl;
 
 	cout << "|";
@@ -66,7 +66,7 @@ void Grid::printMatrix(int tick) {
 		cout << endl;
 	}
 }
-void Grid::calculatePopulationAndFreeCells(float &population, float &freecells){
+void Grid::calculatePopulationAndFreeCells(float &population, float &freecells, Agent*** gridA){
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			Agent* agent = gridA[i][j];
@@ -77,22 +77,17 @@ void Grid::calculatePopulationAndFreeCells(float &population, float &freecells){
 		}
 	}
 }
-void Grid::printState(int tick) {
+void Grid::printState(int tick, Agent*** gridA) {
 	int humans = 0;
 	int zombies = 0;
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
+#ifdef DEBUG
+//			std::cout << "printState inspect Agent" << i << "," << j << "\n";
+#endif
 			Agent* agent = gridA[i][j];
-#ifdef DEBUGGRID
-			//std::cout << "printState inspect Agent" << i << "," << j << "\n";
-#endif
 			if (agent != NULL) {
-#ifdef DEBUGGRID
-				//std::cout << "printState Agent" << agent << "\n";
-#endif
-
 				AgentTypeEnum currentType = agent->getType();
-
 				if (currentType == human)
 					humans++;
 				else
@@ -108,17 +103,21 @@ void Grid::printState(int tick) {
 	std::cout << " Natural deaths: " << Counters::getInstance().getHumanDead() << " Born: " << Counters::getInstance().getBorn() << "\n";
 #endif
 }
-
-void Grid::initialize(int nPeople, int nZombies) {
+Agent*** Grid::createMesh (){
+	Agent*** grid = new Agent**[GRIDROWS+2];
+	for (int i = 0; i <= GRIDROWS+1; i++) {
+		grid[i] = new Agent*[GRIDCOLUMNS+2];
+		for (int j = 0; j <= GRIDCOLUMNS+1; j++) {
+		   grid[i][j] = NULL;
+		}
+	}
+	return grid;
+}
+void Grid::initialize(	Agent*** gridA, Agent*** gridB ) {
 	int numZombies = 0;
 	int numHumans = 0;
 
-	gridA = new Agent**[GRIDROWS+2];
-	gridB = new Agent**[GRIDROWS+2];
 	for (int i = 1; i <= GRIDROWS; i++) {
-		gridA[i] = new Agent*[GRIDCOLUMNS+2];
-		gridB[i] = new Agent*[GRIDCOLUMNS+2];
-
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridB[i][j] = NULL;
 			//todo:change algorithm so it is random and with pop limits
@@ -141,28 +140,10 @@ void Grid::initialize(int nPeople, int nZombies) {
 			//cout << "i:  "<<i << "j:  "<<j <<"numInitialized with humans: "<< endl;
 		}
 	}
-	//Creating and cleaning halo
-	gridA[0] = new Agent*[GRIDCOLUMNS+2];
-	gridB[0] = new Agent*[GRIDCOLUMNS+2];
-	gridA[GRIDROWS+1] = new Agent*[GRIDCOLUMNS+2];
-	gridB[GRIDROWS+1] = new Agent*[GRIDCOLUMNS+2];
-
-	for (int i = 0; i <= GRIDROWS + 1; i++) {
-		gridA[i][0] = NULL;
-		gridB[i][0] = NULL;
-		gridA[i][GRIDCOLUMNS + 1] = NULL;
-		gridB[i][GRIDCOLUMNS + 1] = NULL;
-	}
-	for (int j = 0; j <= GRIDCOLUMNS + 1; j++) {
-		gridA[0][j] = NULL;
-		gridB[0][j] = NULL;
-		gridA[GRIDROWS + 1][j] = NULL;
-		gridB[GRIDROWS + 1][j] = NULL;
-	}
 	cout << "Initialized with humans: " << numHumans << "- Zombies: " << numZombies << endl;
 }
 
-void Grid::merge() {
+void Grid::merge(Agent*** gridA, Agent*** gridB) {
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridA[i][j] = gridB[i][j];
@@ -170,14 +151,19 @@ void Grid::merge() {
 	}
 }
 void Grid::run() {
+	Agent*** gridA = createMesh();
+	Agent*** gridB = createMesh();
 	bool *locks = new bool[GRIDCOLUMNS + 2];
+	initialize(gridA, gridB);
+
     #if defined(_OPENMP)
 	double		wtime		= omp_get_wtime();			// Record the starting time
 	int			N_Threads	= omp_get_max_threads();
     #endif
 
 	for (int i = 0; i < GRIDCOLUMNS + 2; i++) locks[i] = false;
-	printState(0);
+
+	printState(0, gridA);
 	//printMatrix(0);
 #ifdef DEBUGGRID
 	std::cout << "Run called" << "\n";
@@ -186,7 +172,7 @@ void Grid::run() {
 	for (int n = 0; n < NUMTICKS; n++) {
 		Random::resetSeed();
         #if defined(_OPENMP)
-        #pragma omp parallel for default(none) shared (locks)
+        #pragma omp parallel for default(none) shared (locks, gridA, gridB)
         #endif
 		for (int i = 1; i <= GRIDROWS; i++) {
 			#if defined (_OPENMP)
@@ -218,7 +204,6 @@ void Grid::run() {
 					}
 
 					//Agent already dead no comparisons required
-
 					if (agent != NULL) {
 
 						int desti = 0;
@@ -296,7 +281,7 @@ void Grid::run() {
 			}
 		}
 
-		//Resolve
+		//Resolveb
 		for (int i = 1; i <= GRIDROWS; i++) {
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				Agent* agentA = gridB[i][j];
@@ -305,17 +290,17 @@ void Grid::run() {
 					AgentTypeEnum typeA = agentA->getType();
 					if (typeA == human) {
 						if (i > 2 && gridB[i - 1][j] != NULL) { //Someone up
-							resolveGridHumanZombie(agentA,i - 1,j);
+							resolveGridHumanZombie(agentA,i - 1,j, gridB);
 						}
 						if (j < GRIDROWS && gridB[i][j + 1] != NULL) { //Someone on the right
-							resolveGridHumanZombie(agentA,i,j + 1);
+							resolveGridHumanZombie(agentA,i,j + 1, gridB);
 						}
 						if (i < GRIDROWS && gridB[i + 1][j] != NULL) { //Down
 
-							resolveGridHumanZombie(agentA,i + 1,j);
+							resolveGridHumanZombie(agentA,i + 1,j, gridB);
 						}
 						if (j > 2 && gridB[i][j - 1] != NULL) { //Left
-							resolveGridHumanZombie(agentA,i,j - 1);
+							resolveGridHumanZombie(agentA,i,j - 1, gridB);
 						}
 					}
 				}
@@ -327,7 +312,7 @@ void Grid::run() {
 		//Apply new births
 		float pop=0;
 		float freeCells=0;
-		calculatePopulationAndFreeCells(pop, freeCells);
+		calculatePopulationAndFreeCells(pop, freeCells, gridA);
 		//Number of humans that must be given to birth in a given tick
 		double prob = BIRTHSPERDAYNT;
 		prob = prob/freeCells;
@@ -353,18 +338,18 @@ void Grid::run() {
 
 
 		if ( n%50 == 0 ){
-			printState(n + 1);
+			printState(n + 1, gridA);
 			//printMatrix(n + 1);
 			Counters::getInstance().resetCounters();
 		}
 	}
-	printState(NUMTICKS + 1);
+	printState(NUMTICKS + 1, gridA);
 #if defined(_OPENMP)
 	wtime	= omp_get_wtime() - wtime;	// Record the end time and calculate elapsed time
 	cout << "Simulation took " << wtime/NUMTICKS << " seconds per time step with " << N_Threads << " threads" << endl;
 #endif
 }
-void Grid::resolveGridHumanZombie(Agent* agentA,int i, int j) {
+void Grid::resolveGridHumanZombie(Agent* agentA,int i, int j, Agent*** gridB) {
 	Agent* agentB = gridB[i][j];
 	AgentTypeEnum typeB = agentB->getType();
 	if (typeB == zombie) {

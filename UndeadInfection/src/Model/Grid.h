@@ -22,20 +22,17 @@ class Cell;
 
 class Grid {
 private:
-	//Agent* gridA[GRIDROWS+2][GRIDCOLUMNS+2];
-	//Agent* gridB[GRIDROWS+2][GRIDCOLUMNS+2];
-	Agent*** gridA;
-	Agent*** gridB;
 
-	void printMatrix(int);
-	void printState(int);
-	void merge();
+	void printMatrix(int, Agent***);
+	void printState(int, Agent***);
+	void merge(Agent***, Agent***);
 	void resolveHumanZombie(Agent*, Agent*);
-	void resolveGridHumanZombie(Agent* agent,int i, int j);
-	void calculatePopulationAndFreeCells(float &population, float &freecells);
+	void resolveGridHumanZombie(Agent* agent,int i, int j, Agent***);
+	void calculatePopulationAndFreeCells(float &population, float &freecells, Agent***);
 public:
 	Grid();
-	void initialize (int, int );
+	Agent*** createMesh ();
+	void initialize ( Agent***, Agent*** );
 	void addAgent( int, int, Agent* );
 	void removeAgent( int, int, Agent* );
 
