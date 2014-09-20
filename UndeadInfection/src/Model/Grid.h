@@ -14,19 +14,24 @@
 #include "RandomClass.h"
 #include <iostream>
 #include <omp.h>
+#include <math.h>
 
 class Cell;
 
 class Grid {
 private:
 
+	int candidateI;
+	int candidateJ;
 
 	void printMatrix(int, Agent***);
 	void printState(int, Agent***);
 	void merge(Agent***, Agent***);
 	void resolveHumanZombie(Agent*, Agent*, RandomClass random);
 	void resolveGridHumanZombie(Agent* agent,int i, int j, Agent***, RandomClass random);
-	void calculatePopulationAndFreeCells(float &population, float &freecells, Agent***);
+	void resolveGridHumanHuman(Agent* agent,int i, int j, Agent***, RandomClass random);
+	void calculateStatistics(float &humanPopulation,float &zombies, float &freecells, Agent*** gridA);
+	void findSpace(int i,int j,int &freeI,int &freeJ,Agent*** gridB);
 public:
 	Grid();
 	Agent*** createMesh ();

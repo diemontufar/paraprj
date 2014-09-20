@@ -3,9 +3,10 @@
 #define PARAMETERS_H_
 
 /*
+ * http://www.indexmundi.com/australia/demographics_profile.html
  * Demographics Northern Territory:
  * Land Area: 1,420,970Km2
- * Population: 211,945 (2011 Census)
+ * Population: 211,945 (2011 Census) / 235,179 (2012)
  * % Women: 51.7%
  * % Men: 48.3%
  * Population Density: Population/Km2-> 0.17
@@ -28,6 +29,8 @@ static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incu
 //static int const GRIDCOLUMNS = 51;//Number of column grids
 static int const GRIDROWS = 700; //Number of row grids
 static int const GRIDCOLUMNS = 700;//Number of column grids
+static float const TOTALGRIDCELLS = GRIDROWS * GRIDCOLUMNS; //Number of cells grids
+static const float NUMBEROFZOMBIES = 10;
 
 static const int MINDECOMPOSITIONTIME = 14;//Ticks that take the zombie to decompose
 static const int MAXDECOMPOSITIONTIME = 28;//Ticks that take the zombie to decompose
@@ -35,10 +38,10 @@ static const int MAXDECOMPOSITIONTIME = 28;//Ticks that take the zombie to decom
 static const int MINLIFEEXPECTANCY = 65;//minimum human life expectancy
 static const int MAXLIFEEXPECTANCY= 75;//maximum human life expectancy
 static const float DEATHRATE = 403.0/23000000.0;
+static const float GENDERRATIO = 0.483;
 
-
-static const  float AUSPOP = 23000000.0;
-static const float NUMBEROFZOMBIES = 10;
+static const float AUSPOP = 23000000.0;
+static const float NTPOP = 235179.0;
 static const float NTPOPDENSITY = 0.17/2.0;
 //static const float DARWINPOPDENSITY = 50.0*50.0*NTPOPDENSITY;
 static const float DARWINPOPDENSITY = 500*500*NTPOPDENSITY;
@@ -47,18 +50,15 @@ static const float DEATHRATEAU= DEATHSAU/AUSPOP;
 static const float DEATHRATENT = 500*500*NTPOPDENSITY*DEATHRATEAU;
 
 
-static const float GENDERRATIO = 0.483; //Women vs Men
-
 static const float GUNDENSITY = 0.2; //19.13
-//static const float BIRTHSPERDAY = 847.0;
-static const float BIRTHSPERDAYNT = 6; //10,75 ~ 11 /2 = 6 http://www.abs.gov.au/ausstats/abs@.nsf/latestProducts/3301.0Media%20Release12012 sum 3 years and divide by 3
-
-
+static const float BIRTHSPERDAYAU = 300000/365; //~ 300,000 births per year in Australia
+static const float BIRTHSPERDAYNT = 12; // With a growth of 3.8% per year in NT ->http://www.abs.gov.au/ausstats/abs@.nsf/latestProducts/3301.0Media%20Release12012 sum 3 years and divide by 3
+static const float BIRTHSPERWOMAN = 2;
 
 static const float HEADSHOTPERCENTAGE = 0.10; //40%
 static const float SUCESSFULBITEPERCENTAGE =50; //40%
-#define MOVE    0.25 //Probability of a move in each direction
 
+#define MOVE    0.25 //Probability of a move in each direction
 #define DEBUG = true;
 #define DEBUGGRID = false;
 

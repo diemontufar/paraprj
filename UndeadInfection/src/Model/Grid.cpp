@@ -233,17 +233,28 @@ void Grid::run() {
 					AgentTypeEnum typeA = agentA->getType();
 					if (typeA == human) {
 						if (i > 2 && gridB[i - 1][j] != NULL) { //Someone up
-							resolveGridHumanZombie(agentA,i - 1,j, gridB, random);
+							if (gridB[i - 1][j]->getType() == zombie)
+								resolveGridHumanZombie(agentA,i - 1,j, gridB, random);
+							else
+								resolveGridHumanHuman(agentA,i - 1,j, gridB, random);
 						}
 						if (j < GRIDROWS && gridB[i][j + 1] != NULL) { //Someone on the right
-							resolveGridHumanZombie(agentA,i,j + 1, gridB, random);
+							if (gridB[i][j+1]->getType() == zombie)
+								resolveGridHumanZombie(agentA,i,j + 1, gridB, random);
+							else
+								resolveGridHumanHuman(agentA,i,j+1, gridB, random);
 						}
 						if (i < GRIDROWS && gridB[i + 1][j] != NULL) { //Down
-
-							resolveGridHumanZombie(agentA,i + 1,j, gridB, random);
+							if (gridB[i+1][j]->getType() == zombie)
+								resolveGridHumanZombie(agentA,i + 1,j, gridB, random);
+							else
+								resolveGridHumanHuman(agentA,i + 1,j, gridB, random);
 						}
 						if (j > 2 && gridB[i][j - 1] != NULL) { //Left
-							resolveGridHumanZombie(agentA,i,j - 1, gridB, random);
+							if (gridB[i][j-1]->getType() == zombie)
+								resolveGridHumanZombie(agentA,i,j - 1, gridB, random);
+							else
+								resolveGridHumanHuman(agentA,i,j - 1, gridB, random);
 						}
 						//Death process
 						if (!agentA->isInfected()){
@@ -260,36 +271,45 @@ void Grid::run() {
 
 		swap(gridA, gridB);
 
-		//Apply new births
-		float pop=0;
+		/*//Apply new births
+
+		1. Calculate statistics
 		float freeCells=0;
-		calculatePopulationAndFreeCells(pop, freeCells, gridA);
+		float totalHumans = 0;
+		float totalZombies = 0;
+		float delta = 0;
+
+		calculateStatistics(totalHumans,totalZombies, freeCells, gridA);
+
+		2. Calculate probabilities
+		delta = totalHumans / (TOTALGRIDCELLS - totalZombies); //delta is the density of humans
 		//Number of humans that must be given to birth in a given tick
-		double prob = BIRTHSPERDAYNT;
-		prob = prob/freeCells;
+		double probPaired = BIRTHSPERDAYNT/freeCells; //Prob. of birth when paired -consider Ages!!!
+		double probPair = 1-pow((1-delta),4); //Prob. two humans being pair 1-(1-delta)^4
+		double probAnyHumanHaveBaby = probPair * probPaired; //Prob. any Human will have a baby (Per capita birth rate)
 
 		for (int i = 1; i <= GRIDROWS; i++) {
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				if ( gridA[i][j] == NULL ){ //Empty cell
 					//Roll a dice
-					double move = random.random();
+					double birth = random.random();
 
-					if ( move <= prob ){
+					if ( birth <= probAnyHumanHaveBaby ){
 						//Its a baby!
 						//cout<< "Random: "<< move <<"Chance: "<<prob <<endl;
-						bool gender = random.random() < GENDERRATIO ? true : false;
-						bool hasAGun = random.random() < GUNDENSITY ? true : false;
+						bool gender = random.random() < GENDERRATIO ? true : false; //consider demographics and ages
+						bool hasAGun = random.random() < GUNDENSITY ? true : false; //->a baby with a gun??
 						int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
 						gridA[i][j] = new Agent(gender, 1, hasAGun, lifeExpectancy, human);
 						Counters::getInstance().newBorn();
 					}
 				}
 			}
-		}
+		}*/
 
 
 
-		if ( n%1000 == 0 ){
+		if ( n%100 == 0 ){
 			printState(n + 1, gridA);
 			//printMatrix(n + 1);
 			Counters::getInstance().resetCounters();
@@ -331,14 +351,16 @@ void Grid::printMatrix(int tick, Agent*** gridA) {
 		cout << endl;
 	}
 }
-void Grid::calculatePopulationAndFreeCells(float &population, float &freecells, Agent*** gridA){
+void Grid::calculateStatistics(float &humanPopulation,float &zombies, float &freecells, Agent*** gridA) {
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			Agent* agent = gridA[i][j];
-			if (agent != NULL && agent->getType()==human)
-					population+=1.0;
+			if (agent != NULL && agent->getType() == human)
+				humanPopulation += 1.0;
+			else if (agent != NULL && agent->getType() == zombie)
+				zombies += 1.0;
 			else
-				freecells+=1.0;
+				freecells += 1.0;
 		}
 	}
 }
@@ -363,9 +385,10 @@ void Grid::printState(int tick, Agent*** gridA) {
 #ifdef DEBUG
 	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
 	std::cout << "- Deads: " << Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
-	std::cout << " Converted: " << Counters::getInstance().getConverted() << " Shooted: " << Counters::getInstance().getShooted();
+	std::cout << " Converted: " << Counters::getInstance().getConverted() << " Shot: " << Counters::getInstance().getShooted();
 	std::cout << " Zdead: " << Counters::getInstance().getZDead() << " Ghost cases: " << Counters::getInstance().getGhostCase();
 	std::cout << " Natural deaths: " << Counters::getInstance().getHumanDead() << " Born: " << Counters::getInstance().getBorn() << "\n";
+	//std::cout << Counters::getInstance().getBorn() << "\n";
 #endif
 }
 void Grid::resolveGridHumanZombie(Agent* agentA,int i, int j, Agent*** gridB, RandomClass random) {
@@ -389,5 +412,82 @@ void Grid::resolveHumanZombie(Agent* human, Agent* zombie, RandomClass random) {
 	}
 }
 
+void Grid::resolveGridHumanHuman(Agent* agentA,int i, int j, Agent*** gridB, RandomClass random) {
+	Agent* agentB = gridB[i][j];
+	AgentTypeEnum typeB = agentB->getType();
+	if (typeB == human) {
+		//If humans have opposite genders, then try the chances to have a baby
+		if ((agentA->getGender() && !agentB->getGender()) || (!agentA->getGender() && agentB->getGender())){
+
+			//Only Humans between 25 and 45 years can have a baby
+			if (agentA->getAge()>=20 && agentA->getAge()<=45 && agentB->getAge()>=20 && agentB->getAge()<=45){
+
+			//1. Calculate statistics
+			float freeCells=0,totalHumans = 0,totalZombies = 0,delta = 0,probPaired=0,probPair=0,probAnyHumanHaveBaby=0;
+
+			calculateStatistics(totalHumans,totalZombies, freeCells, gridB);
+			//2. Calculate probabilities
+			delta = totalHumans / (TOTALGRIDCELLS - totalZombies); //delta is the density of humans
+			probPaired = 0.1; //IRTHSPERDAYNT/21250.0; //Prob. of birth when paired -consider Ages!!!
+			probPair = 1-pow((1-delta),4); //Prob. two humans being pair 1-(1-delta)^4
+			probAnyHumanHaveBaby = probPair * probPaired; //Prob. any Human will have a baby (Per capita birth rate)
+
+			//Roll a dice
+			double birth = random.random();
+
+			//Find the first free space around the agent to place the baby
+			//freeI,freeJ ???
+			int freeI=-1,freeJ=-1;
+
+			if ( birth <= probAnyHumanHaveBaby ){
+				//Its a baby!
+				//cout<< "Random: "<< move <<"Chance: "<<prob <<endl;
+				bool gender = random.random() < GENDERRATIO ? true : false; //consider demographics and ages
+				bool hasAGun = false; //->a baby does not have a gun
+				int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
+				findSpace(i,j,freeI,freeJ,gridB);
+
+				//If we found a free space to the new born place it, otherwise kill him! :(
+				if (freeI!=-1 && freeJ!=-1){
+					gridB[freeI][freeJ] = new Agent(gender, 1, hasAGun, lifeExpectancy, human);
+					Counters::getInstance().newBorn();
+				}
+			}
+			}
+		}
+	}
+}
+
+
+void Grid::findSpace(int i,int j,int &freeI,int &freeJ,Agent*** gridB){
+
+	bool foundIt = false;
+
+	/* Create a surrounding area of 2 halos for agent who is in gridB[i][j] and catch the first free position*/
+	for (int k = i - 2; k <= k + 4; k++) {
+		for (int l = j - 2; l <= j + 4; l++) {
+
+				freeI = k;
+				freeJ = l;
+
+				/* check if new born will be inside the bounds */
+				if (freeI >= 0 && freeI < GRIDROWS+1 && freeJ < GRIDCOLUMNS+1 && freeJ >= 0) {
+					if (gridB[freeI][freeJ] == NULL){
+						//I found a place!!
+						foundIt = true;
+						break;
+					}
+				}/*else{
+					cout << "Grid Size: " << GRIDROWS+1 << "x" << GRIDCOLUMNS+1 << endl;
+					cout << "Out of bounds: " << freeI << "," << freeJ << endl;
+					return;
+				}*/
+		}
+		if (foundIt) {
+			break;
+		}
+	}
+
+}
 
 
