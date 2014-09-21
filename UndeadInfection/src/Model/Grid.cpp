@@ -88,7 +88,7 @@ void Grid::merge(Agent*** gridA, Agent*** gridB) {
 void Grid::run() {
 	Agent*** gridA = createMesh();
 	Agent*** gridB = createMesh();
-	bool *locks = new bool[GRIDCOLUMNS + 2];
+	bool *locks = new bool[GRIDCOLUMNS + 4];
 	initialize(gridA, gridB);
 
     #if defined(_OPENMP)
@@ -96,7 +96,7 @@ void Grid::run() {
 	int			N_Threads	= omp_get_max_threads();
     #endif
 
-	for (int i = 0; i < GRIDCOLUMNS + 2; i++) locks[i] = false;
+	for (int i = 0; i < GRIDCOLUMNS + 4; i++) locks[i] = false;
 
 	printState(0, gridA);
 	//printMatrix(0);
@@ -271,44 +271,6 @@ void Grid::run() {
 
 		swap(gridA, gridB);
 
-		/*//Apply new births
-
-		1. Calculate statistics
-		float freeCells=0;
-		float totalHumans = 0;
-		float totalZombies = 0;
-		float delta = 0;
-
-		calculateStatistics(totalHumans,totalZombies, freeCells, gridA);
-
-		2. Calculate probabilities
-		delta = totalHumans / (TOTALGRIDCELLS - totalZombies); //delta is the density of humans
-		//Number of humans that must be given to birth in a given tick
-		double probPaired = BIRTHSPERDAYNT/freeCells; //Prob. of birth when paired -consider Ages!!!
-		double probPair = 1-pow((1-delta),4); //Prob. two humans being pair 1-(1-delta)^4
-		double probAnyHumanHaveBaby = probPair * probPaired; //Prob. any Human will have a baby (Per capita birth rate)
-
-		for (int i = 1; i <= GRIDROWS; i++) {
-			for (int j = 1; j <= GRIDCOLUMNS; j++) {
-				if ( gridA[i][j] == NULL ){ //Empty cell
-					//Roll a dice
-					double birth = random.random();
-
-					if ( birth <= probAnyHumanHaveBaby ){
-						//Its a baby!
-						//cout<< "Random: "<< move <<"Chance: "<<prob <<endl;
-						bool gender = random.random() < GENDERRATIO ? true : false; //consider demographics and ages
-						bool hasAGun = random.random() < GUNDENSITY ? true : false; //->a baby with a gun??
-						int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
-						gridA[i][j] = new Agent(gender, 1, hasAGun, lifeExpectancy, human);
-						Counters::getInstance().newBorn();
-					}
-				}
-			}
-		}*/
-
-
-
 		if ( n%100 == 0 ){
 			printState(n + 1, gridA);
 			//printMatrix(n + 1);
@@ -438,6 +400,7 @@ void Grid::resolveGridHumanHuman(Agent* agentA,int i, int j, Agent*** gridB, Ran
 			//Find the first free space around the agent to place the baby
 			//freeI,freeJ ???
 			int freeI=-1,freeJ=-1;
+			bool foundIt = false; //help us to found the first free space
 
 			if ( birth <= probAnyHumanHaveBaby ){
 				//Its a baby!
@@ -445,10 +408,44 @@ void Grid::resolveGridHumanHuman(Agent* agentA,int i, int j, Agent*** gridB, Ran
 				bool gender = random.random() < GENDERRATIO ? true : false; //consider demographics and ages
 				bool hasAGun = false; //->a baby does not have a gun
 				int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
-				findSpace(i,j,freeI,freeJ,gridB);
 
-				//If we found a free space to the new born place it, otherwise kill him! :(
-				if (freeI!=-1 && freeJ!=-1){
+
+				/*Find a free space for the baby*/
+				if (!foundIt && i  > 2 && gridB[i - 1][j] == NULL) { //Someone up
+					freeI=i-1,freeJ=j;
+					foundIt = true;
+				}
+				if (!foundIt && j < GRIDROWS && gridB[i][j + 1] == NULL) { //Someone on the right
+					freeI=i,freeJ=j+1;
+					foundIt = true;
+				}
+				if (!foundIt && i < GRIDROWS && gridB[i + 1][j] == NULL) { //Down
+					freeI=i+1,freeJ=j;
+					foundIt = true;
+				}
+				if (!foundIt && j > 2 && gridB[i][j - 1] == NULL) { //Left
+					freeI=i,freeJ=j-1;
+					foundIt = true;
+				}
+				if (!foundIt && i > 4 && gridB[i - 2][j] == NULL) { //Someone up up
+					freeI=i-2,freeJ=j;
+					foundIt = true;
+				}
+				if (!foundIt && j < GRIDROWS - 2 && gridB[i][j + 2] == NULL) { //Someone on the right right
+					freeI=i,freeJ=j+2;
+					foundIt = true;
+				}
+				if (!foundIt && i < GRIDROWS -2  && gridB[i + 2][j] == NULL) { //Down Down
+					freeI=i+2,freeJ=j;
+					foundIt = true;
+				}
+				if (!foundIt && j > 4 && gridB[i][j - 2] == NULL) { //Left Left
+					freeI=i,freeJ=j-2;
+					foundIt = true;
+				}
+
+				//If we found a free space to the new born, place it, otherwise kill him! :(
+				if (freeI!=-1 && freeJ!=-1 && foundIt ){
 					gridB[freeI][freeJ] = new Agent(gender, 1, hasAGun, lifeExpectancy, human);
 					Counters::getInstance().newBorn();
 				}
@@ -457,37 +454,4 @@ void Grid::resolveGridHumanHuman(Agent* agentA,int i, int j, Agent*** gridB, Ran
 		}
 	}
 }
-
-
-void Grid::findSpace(int i,int j,int &freeI,int &freeJ,Agent*** gridB){
-
-	bool foundIt = false;
-
-	/* Create a surrounding area of 2 halos for agent who is in gridB[i][j] and catch the first free position*/
-	for (int k = i - 2; k <= k + 4; k++) {
-		for (int l = j - 2; l <= j + 4; l++) {
-
-				freeI = k;
-				freeJ = l;
-
-				/* check if new born will be inside the bounds */
-				if (freeI >= 0 && freeI < GRIDROWS+1 && freeJ < GRIDCOLUMNS+1 && freeJ >= 0) {
-					if (gridB[freeI][freeJ] == NULL){
-						//I found a place!!
-						foundIt = true;
-						break;
-					}
-				}/*else{
-					cout << "Grid Size: " << GRIDROWS+1 << "x" << GRIDCOLUMNS+1 << endl;
-					cout << "Out of bounds: " << freeI << "," << freeJ << endl;
-					return;
-				}*/
-		}
-		if (foundIt) {
-			break;
-		}
-	}
-
-}
-
 

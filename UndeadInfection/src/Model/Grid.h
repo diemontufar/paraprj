@@ -31,7 +31,6 @@ private:
 	void resolveGridHumanZombie(Agent* agent,int i, int j, Agent***, RandomClass random);
 	void resolveGridHumanHuman(Agent* agent,int i, int j, Agent***, RandomClass random);
 	void calculateStatistics(float &humanPopulation,float &zombies, float &freecells, Agent*** gridA);
-	void findSpace(int i,int j,int &freeI,int &freeJ,Agent*** gridB);
 public:
 	Grid();
 	Agent*** createMesh ();

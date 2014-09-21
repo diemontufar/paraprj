@@ -40,9 +40,6 @@ int main() {
 }
 
 void runSimulation(){
-
-	//Necessary to evaluate random values correctly.
-	//TODO: consider process id when using MPI
 	Grid g;
 	g.run();
 }
