@@ -22,7 +22,7 @@
 
 //static const long NUMTICKS = 45625; //Number of ticks 125*365
 static const long NUMTICKS = 3650; //Number of ticks 125*365
-s//tatic const long NUMTICKS = 10; //Number of ticks 125*365
+//static const long NUMTICKS = 10; //Number of ticks 125*365
 static const long YEARTICKS = 365; //Ticks in 1 year 365
 static const long NUMTICKSPRINT = 50; //No. Ticks to print
 
