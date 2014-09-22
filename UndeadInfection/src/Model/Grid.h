@@ -30,7 +30,7 @@ private:
 	void resolveHumanZombie(Agent*, Agent*, RandomClass random);
 	void resolveGridHumanZombie(Agent* agent,int i, int j, Agent***, RandomClass random);
 	void resolveGridHumanHuman(Agent* agent,int i, int j, Agent***, RandomClass random);
-	void calculateStatistics(float &humanPopulation,float &zombies, float &freecells, Agent*** gridA);
+	void calculateStatistics(float &humanPopulation,float &zombies, float &freeCells, Agent*** gridA);
 public:
 	Grid();
 	Agent*** createMesh ();

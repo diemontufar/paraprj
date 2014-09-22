@@ -49,35 +49,51 @@ Agent*** Grid::createMesh (){
 void Grid::initialize(	Agent*** gridA, Agent*** gridB ) {
 	int numZombies = 0;
 	int numHumans = 0;
-	RandomClass random(0);
+	RandomClass random = new RandomClass(0);
+/*
+		#if defined(_OPENMP)
+		#pragma omp parallel default(none) shared(gridA,gridB) reduction(+:numHumans,numZombies)
+		{
+			RandomClass random(omp_get_thread_num());
+			#pragma omp for
 
-	for (int i = 1; i <= GRIDROWS; i++) {
-		for (int j = 1; j <= GRIDCOLUMNS; j++) {
-			gridB[i][j] = NULL;
-			//todo:change algorithm so it is random and with pop limits
-			if (numHumans < DARWINPOPDENSITY && random.randomBoolFalseBiasedN()) {
-				int age = random.random(MINLIFEEXPECTANCY - 1);
-				int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
-				bool gender = random.random() < GENDERRATIO ? true : false;
-				bool hasAGun = random.random() < GUNDENSITY ? true : false;
+        #else
+		RandomClass random = new RandomClass(0);
+        #endif
+*/
+		for (int i = 1; i <= GRIDROWS; i++) {
+			for (int j = 1; j <= GRIDCOLUMNS; j++) {
+				gridB[i][j] = NULL;
+				//todo:change algorithm so it is random and with pop limits
+				if (numHumans < DARWINPOPDENSITY && random.randomBoolFalseBiasedN()) {
+					int age = random.random(MINLIFEEXPECTANCY - 1);
+					int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
+					bool gender = random.random() < GENDERRATIO ? true : false;
+					bool hasAGun = random.random() < GUNDENSITY ? true : false;
 
-				gridA[i][j] = new Agent(gender, age, hasAGun, lifeExpectancy, human);
-				numHumans++;
-			} else {
-				if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN()) {
-					int lifeTime = random.random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
-					gridA[i][j] = new Agent(lifeTime, zombie);
-					numZombies++;
+					gridA[i][j] = new Agent(gender, age, hasAGun, lifeExpectancy, human);
+					numHumans++;
 				} else {
-					gridA[i][j] = NULL;
+					if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN()) {
+						int lifeTime = random.random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
+						gridA[i][j] = new Agent(lifeTime, zombie);
+						numZombies++;
+					} else {
+						gridA[i][j] = NULL;
+					}
 				}
+				//cout << "i:  "<<i << "j:  "<<j <<"numInitialized with humans: "<< endl;
 			}
-			//cout << "i:  "<<i << "j:  "<<j <<"numInitialized with humans: "<< endl;
 		}
-	}
+/*		#if defined(_OPENMP)
+				}
+				RandomClass random(omp_get_thread_num());
+		#endif
+*/
 	cout << "Initialized with humans: " << numHumans << "- Zombies: " << numZombies << endl;
 }
 
+/*THIS METHOD IS UNUSED!!!!!*/
 void Grid::merge(Agent*** gridA, Agent*** gridB) {
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
@@ -86,15 +102,21 @@ void Grid::merge(Agent*** gridA, Agent*** gridB) {
 	}
 }
 void Grid::run() {
+	#if defined(_OPENMP)
+		cout << "Starting parallel simulation... " << endl;
+	#else
+		cout << "Starting sequential simulation... " << endl;
+	#endif
 	Agent*** gridA = createMesh();
 	Agent*** gridB = createMesh();
 	bool *locks = new bool[GRIDCOLUMNS + 4];
 	initialize(gridA, gridB);
 
     #if defined(_OPENMP)
-	double		wtime		= omp_get_wtime();			// Record the starting time
-	int			N_Threads	= omp_get_max_threads();
-    #endif
+		double		wtime		= omp_get_wtime();			// Record the starting time
+		int			N_Threads	= omp_get_max_threads();
+		cout << "Num. threads: " << N_Threads << endl;
+	#endif
 
 	for (int i = 0; i < GRIDCOLUMNS + 4; i++) locks[i] = false;
 
@@ -225,7 +247,7 @@ void Grid::run() {
 			}
 		}
 
-		//Resolveb
+		//Resolve conflicts between Agents
 		for (int i = 1; i <= GRIDROWS; i++) {
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				Agent* agentA = gridB[i][j];
@@ -271,7 +293,7 @@ void Grid::run() {
 
 		swap(gridA, gridB);
 
-		if ( n%100 == 0 ){
+		if ( n%NUMTICKSPRINT == 0 ){
 			printState(n + 1, gridA);
 			//printMatrix(n + 1);
 			Counters::getInstance().resetCounters();
@@ -283,6 +305,8 @@ void Grid::run() {
 	cout << "Simulation took " << wtime/NUMTICKS << " seconds per time step with " << N_Threads << " threads" << endl;
 #endif
 }
+
+/* Print Grid*/
 void Grid::printMatrix(int tick, Agent*** gridA) {
 	cout << endl;
 
@@ -313,7 +337,16 @@ void Grid::printMatrix(int tick, Agent*** gridA) {
 		cout << endl;
 	}
 }
-void Grid::calculateStatistics(float &humanPopulation,float &zombies, float &freecells, Agent*** gridA) {
+
+/*Calculates:
+ *
+ * humanPopulation = Current number of humans within the grid
+ * zombies         = Current number of zombies within the grid
+ * freeCells       = Current number of free cells in the grid
+ * gridA           = The current grid
+ *
+ * */
+void Grid::calculateStatistics(float &humanPopulation,float &zombies, float &freeCells, Agent*** gridA) {
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			Agent* agent = gridA[i][j];
@@ -322,10 +355,12 @@ void Grid::calculateStatistics(float &humanPopulation,float &zombies, float &fre
 			else if (agent != NULL && agent->getType() == zombie)
 				zombies += 1.0;
 			else
-				freecells += 1.0;
+				freeCells += 1.0;
 		}
 	}
 }
+
+/*Prints the state of the gridA in any time step*/
 void Grid::printState(int tick, Agent*** gridA) {
 	int humans = 0;
 	int zombies = 0;
@@ -350,9 +385,10 @@ void Grid::printState(int tick, Agent*** gridA) {
 	std::cout << " Converted: " << Counters::getInstance().getConverted() << " Shot: " << Counters::getInstance().getShooted();
 	std::cout << " Zdead: " << Counters::getInstance().getZDead() << " Ghost cases: " << Counters::getInstance().getGhostCase();
 	std::cout << " Natural deaths: " << Counters::getInstance().getHumanDead() << " Born: " << Counters::getInstance().getBorn() << "\n";
-	//std::cout << Counters::getInstance().getBorn() << "\n";
 #endif
 }
+
+/*Resolve conflicts between Human-Zombie*/
 void Grid::resolveGridHumanZombie(Agent* agentA,int i, int j, Agent*** gridB, RandomClass random) {
 	Agent* agentB = gridB[i][j];
 	AgentTypeEnum typeB = agentB->getType();
@@ -361,6 +397,8 @@ void Grid::resolveGridHumanZombie(Agent* agentA,int i, int j, Agent*** gridB, Ra
 	}
 
 }
+
+/*Resolve conflicts between Human-Zombie*/
 void Grid::resolveHumanZombie(Agent* human, Agent* zombie, RandomClass random) {
 	//Probability and cases, for now it is a rand
 	int dice_roll = random.random(0,100);
@@ -374,6 +412,7 @@ void Grid::resolveHumanZombie(Agent* human, Agent* zombie, RandomClass random) {
 	}
 }
 
+/*Resolve conflicts between Human-Human*/
 void Grid::resolveGridHumanHuman(Agent* agentA,int i, int j, Agent*** gridB, RandomClass random) {
 	Agent* agentB = gridB[i][j];
 	AgentTypeEnum typeB = agentB->getType();
