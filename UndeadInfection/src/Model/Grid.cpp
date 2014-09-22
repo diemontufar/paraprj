@@ -109,7 +109,7 @@ void Grid::run() {
 	#endif
 	Agent*** gridA = createMesh();
 	Agent*** gridB = createMesh();
-	bool *locks = new bool[GRIDCOLUMNS + 4];
+	bool *locks = new bool[GRIDCOLUMNS + 2];
 	initialize(gridA, gridB);
 
     #if defined(_OPENMP)
@@ -118,7 +118,7 @@ void Grid::run() {
 		cout << "Num. threads: " << N_Threads << endl;
 	#endif
 
-	for (int i = 0; i < GRIDCOLUMNS + 4; i++) locks[i] = false;
+	for (int i = 0; i < GRIDCOLUMNS + 2; i++) locks[i] = false;
 
 	printState(0, gridA);
 	//printMatrix(0);
