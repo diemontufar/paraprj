@@ -25,12 +25,12 @@ void runSimulation();
 void evalResult(bool result);
 
 int main() {
-	evalResult(testHuman());
-	evalResult(testZombie());
-	evalResult(testInheritanceOfAgents());
-	evalResult(testZombieDecomposition());
-	evalResult(testHumanDeseaseIncubation());
-	evalResult(testHumanHumanClash());
+	//evalResult(testHuman());
+	//evalResult(testZombie());
+	//evalResult(testInheritanceOfAgents());
+	//evalResult(testZombieDecomposition());
+	//evalResult(testHumanDeseaseIncubation());
+	//evalResult(testHumanHumanClash());
 	//evalResult(testHumanZombieClashZombieShooted());
 	//evalResult(testHumanZombieClashHumanInfected());
 	//evalResult(testHumanZombieClashWithGrid());
