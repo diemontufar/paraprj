@@ -7,13 +7,23 @@
 
 #ifndef RANDOMCLASS_H_
 #define RANDOMCLASS_H_
-
-
+#include<time.h>
+#include <ctime>
+#include <cstdlib>
+#include <random>
 
 class RandomClass
 {
 private:
-	unsigned int seed;
+	typedef std::mt19937_64 MyRNG;  // the Mersenne Twister with a popular choice of parameters
+	unsigned int seed;           // populate somehow
+
+//	std::uniform_int_distribution<int> uint_dist;         // by default range [0, MAX]
+	//std::uniform_int_distribution<int> dist10(0,10); // range [0,10]
+	//std::uniform_real_distribution<double> zeroToOne(0.0, 1.0);
+
+	MyRNG rng;                   // e.g. keep one global instance (per thread)
+
 public:
     RandomClass(unsigned int threadNumber);
     virtual ~RandomClass();

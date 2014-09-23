@@ -6,11 +6,13 @@
  */
 
 #include "RandomClass.h"
-#include<time.h>
-#include <cstdlib>
+
+
 
 RandomClass::RandomClass(unsigned int threadNumber){
-	seed = threadNumber ;
+	std::seed_seq q{seed, (threadNumber+1) * ( static_cast<unsigned int>(time(NULL)) ), (threadNumber+2) * ( static_cast<unsigned int>(time(NULL)) )};
+	seed = (threadNumber+1) * ( static_cast<unsigned int>(time(NULL)) );
+	rng.seed(q);
 }
 
 
@@ -18,12 +20,8 @@ RandomClass::~RandomClass(){}
 
 // Generates random number < 1, works for probabilities
 double RandomClass::random() {
-	double rng=(double) rand_r(&seed);
-	double maxrange=(double)RAND_MAX;
-	//if (rng==0)
-		//rng=0.000000001;
-	double rand01=(rng) / (maxrange);
-	return (rand01);
+	std::uniform_real_distribution<double> zeroToOne(0.0, 1.0);
+	return zeroToOne(rng);
 }
 
 // Generates random number from 0 to range
@@ -33,23 +31,25 @@ int RandomClass::random(int range) {
 
 // Generates values between start and end
 int RandomClass::random(int start, int end){
-	return start + (rand_r(&seed) % end);
+	std::uniform_int_distribution<int> dist10(start,end);
+	return dist10(rng);
 }
 
 // Generates values between 0 and 1
 bool RandomClass::randomBool() {
-  return rand_r(&seed) % 2 == 1;
+  return random(1,2) % 2 == 1;
 }
 
 bool RandomClass::randomBoolTrueBiased() {
-  return rand_r(&seed) % 4 < 3;
+  return random(1,4) % 4 < 3;
 }
 bool RandomClass::randomBoolFalseBiasedN() {
-	return rand_r(&seed) % 10000 > 9000;
+	return random(1,10000) % 10000 > 9000;
+	//return rand_r(&seed) % 10000 > 9000;
 	//return rand() % 1000 > 900;
 }
 bool RandomClass::randomBoolFalseBiasedZN() {
   //return rand() % 10000 > 9990;
-  return rand_r(&seed) % 10000 > 9998;
+  //return rand_r(&seed) % 10000 > 9998;
+	return random(1,10000) % 10000 > 9098;
 }
-
