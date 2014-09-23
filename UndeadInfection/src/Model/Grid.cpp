@@ -103,17 +103,18 @@ void Grid::merge(Agent*** gridA, Agent*** gridB) {
 	}
 }
 void Grid::run() {
-#if defined(_OPENMP)
+#if defined(_OPENMP) //Cout whether we are working with opemp or not
 	cout << "Starting parallel simulation... " << endl;
 #else
 	cout << "Starting sequential simulation... " << endl;
 #endif
 	Agent*** gridA = createMesh();
 	Agent*** gridB = createMesh();
+	float freeCells=0,totalHumans = 0,totalZombies = 0, deathRate = 0;
 	bool *locks = new bool[GRIDCOLUMNS + 2];
 	initialize(gridA, gridB);
 
-#if defined(_OPENMP)
+#if defined(_OPENMP) //Record starting time and number of threads
 	double		wtime		= omp_get_wtime();			// Record the starting time
 	int			N_Threads	= omp_get_max_threads();
 	cout << "Num. threads: " << N_Threads << endl;
@@ -126,17 +127,21 @@ void Grid::run() {
 #ifdef DEBUGGRID
 	std::cout << "Run called" << "\n";
 #endif
+
 	//Time loop
 	for (int n = 0; n < NUMTICKS; n++) {
 #if defined(_OPENMP)
-#pragma omp parallel default(none) shared (locks, gridA, gridB)
+#pragma omp parallel default(none) shared (locks, gridA, gridB, freeCells, totalHumans, totalZombies, deathRate, cout, n)
 		{
+			int         tid = omp_get_thread_num();
 			RandomClass random(omp_get_thread_num());
-#pragma omp for
 #else
 			RandomClass random = new RandomClass(0);
 #endif
-			for (int i = 1; i <= GRIDROWS; i++) {
+#if defined(_OPENMP)
+      #pragma omp for
+#endif
+			for (int i = 1; i <= GRIDROWS; i++) { //Move, delete and convert
 #if defined (_OPENMP)
 				lock(i, locks);
 #endif
@@ -207,11 +212,11 @@ void Grid::run() {
 
 			}
 
-		float freeCells=0,totalHumans = 0,totalZombies = 0, deathRate = 0;
 		//Boundary condition
 #if defined(_OPENMP)
 #pragma omp single
 		{
+			//cout << tid << "TS:" << n << "Exec single" << endl;
 #endif
 		for (int i = 1; i <= GRIDROWS; i++) {
 			if (gridB[i][0] != NULL && gridB[i][1] == NULL) {
@@ -248,6 +253,7 @@ void Grid::run() {
 			}
 		}
 
+		totalHumans = totalZombies = freeCells = 0;
 		calculateStatistics(totalHumans,totalZombies, freeCells, gridB);
 		deathRate = DEATHRATENT/totalHumans;
 #if defined(_OPENMP)
@@ -255,6 +261,7 @@ void Grid::run() {
 #endif
 		//Resolve conflicts between Agents
 #if defined(_OPENMP)
+		//cout << tid << "TS:" << n << "humans" << totalHumans << "Death rate" << deathRate << endl;
 #pragma omp for
 #endif
 		for (int i = 1; i <= GRIDROWS; i++) {
@@ -292,10 +299,12 @@ void Grid::run() {
 						}
 						//Death process
 						if (!agentA->isInfected()){
+
 							double move = random.random();
-							//cout <<move << "," << deathRate << endl;
+							//cout << tid << "TS:" << n << "Death " <<move << "," << deathRate << endl;
 							if (move < deathRate) {
-								//cout <<move << "," << deathRate << endl;
+								if (n==366)
+								    cout << tid << "TS:" << n << "Death " <<move << "," << deathRate << endl;
 								agentA->markAsDead();
 							}
 
