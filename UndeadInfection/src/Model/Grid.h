@@ -29,7 +29,7 @@ private:
 	void merge(Agent***, Agent***);
 	void resolveHumanZombie(Agent*, Agent*, RandomClass random);
 	void resolveGridHumanZombie(Agent* agent,int i, int j, Agent***, RandomClass random);
-	void resolveGridHumanHuman(Agent* agent,int i, int j, Agent***, RandomClass random);
+	void resolveGridHumanHuman(Agent* agent,int i, int j, Agent***, RandomClass random, float totalHumans, float totalZombies, float freeCells);
 	void calculateStatistics(float &humanPopulation,float &zombies, float &freeCells, Agent*** gridA);
 public:
 	Grid();

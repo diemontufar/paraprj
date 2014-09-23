@@ -24,7 +24,7 @@
 static const long NUMTICKS = 3650; //Number of ticks 125*365
 //static const long NUMTICKS = 10; //Number of ticks 125*365
 static const long YEARTICKS = 365; //Ticks in 1 year 365
-static const long NUMTICKSPRINT = 50; //No. Ticks to print
+static const long NUMTICKSPRINT = 365; //No. Ticks to print
 
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human
 //static int const GRIDROWS = 51; //Number of row grids
@@ -47,9 +47,8 @@ static const float NTPOP = 235179.0;
 static const float NTPOPDENSITY = 0.17/2.0;
 //static const float DARWINPOPDENSITY = 50.0*50.0*NTPOPDENSITY;
 static const float DARWINPOPDENSITY = 500*500*NTPOPDENSITY;
-static const float DEATHSAU= 2.620; // http://www.healthinfonet.ecu.edu.au/health-facts/overviews/mortality
-static const float DEATHRATEAU= DEATHSAU/AUSPOP;
-static const float DEATHRATENT = 500*500*NTPOPDENSITY*DEATHRATEAU;
+static const float DEATHSNT= 1038.0; // http://www.healthinfonet.ecu.edu.au/health-facts/overviews/mortality http://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/3302.02012?OpenDocument
+static const float DEATHRATENT = DEATHSNT/(365.0*6*2);
 
 
 static const float GUNDENSITY = 0.2; //19.13
