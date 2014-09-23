@@ -32,10 +32,10 @@ static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incu
 static int const GRIDROWS = 700; //Number of row grids
 static int const GRIDCOLUMNS = 700;//Number of column grids
 static float const TOTALGRIDCELLS = GRIDROWS * GRIDCOLUMNS; //Number of cells grids
-static const float NUMBEROFZOMBIES = 10;
+static const float NUMBEROFZOMBIES = 3;
 
-static const int MINDECOMPOSITIONTIME = 14;//Ticks that take the zombie to decompose
-static const int MAXDECOMPOSITIONTIME = 28;//Ticks that take the zombie to decompose
+static const int MINDECOMPOSITIONTIME = 29;//Ticks that take the zombie to decompose
+static const int MAXDECOMPOSITIONTIME = 30;//Ticks that take the zombie to decompose
 
 static const int MINLIFEEXPECTANCY = 65;//minimum human life expectancy
 static const int MAXLIFEEXPECTANCY= 75;//maximum human life expectancy
@@ -57,7 +57,7 @@ static const float BIRTHSPERDAYNT = 12; // With a growth of 3.8% per year in NT 
 static const float BIRTHSPERWOMAN = 2;
 
 static const float HEADSHOTPERCENTAGE = 0.10; //40%
-static const float SUCESSFULBITEPERCENTAGE =50; //40%
+static const float SUCESSFULBITEPERCENTAGE =73; //40%
 
 #define MOVE    0.25 //Probability of a move in each direction
 #define DEBUG = true;
