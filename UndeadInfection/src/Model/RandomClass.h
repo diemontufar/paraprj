@@ -10,12 +10,13 @@
 #include<time.h>
 #include <ctime>
 #include <cstdlib>
+
 #include <random>
 
 class RandomClass
 {
 private:
-	typedef std::mt19937_64 MyRNG;  // the Mersenne Twister with a popular choice of parameters
+	typedef std::mt19937 MyRNG;  // the Mersenne Twister with a popular choice of parameters
 	unsigned int seed;           // populate somehow
 
 //	std::uniform_int_distribution<int> uint_dist;         // by default range [0, MAX]

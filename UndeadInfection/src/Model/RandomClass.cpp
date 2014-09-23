@@ -10,9 +10,9 @@
 
 
 RandomClass::RandomClass(unsigned int threadNumber){
-	std::seed_seq q{seed, (threadNumber+1) * ( static_cast<unsigned int>(time(NULL)) ), (threadNumber+2) * ( static_cast<unsigned int>(time(NULL)) )};
 	seed = (threadNumber+1) * ( static_cast<unsigned int>(time(NULL)) );
-	rng.seed(q);
+	seed = (threadNumber+1) *std::random_device()();
+	rng.seed(seed);
 }
 
 
