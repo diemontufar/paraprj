@@ -38,9 +38,12 @@ void lock2(int i, bool *locks) {
 	for (bool locked = false; locked == false; /*NOP*/) {
 #pragma omp critical (LockRegion)
 		{
-			locked = !locks[i-2] && !locks[i-1] && !locks[i] && !locks[i+1] && !locks[i+2];
+			int im2 = i>2?i - 2:0;
+			int ip2 = i<GRIDROWS ?i + 2:GRIDROWS;
+
+			locked = !locks[im2] && !locks[i-1] && !locks[i] && !locks[i+1] && !locks[ip2];
 			if (locked) {
-				locks[i-2] = true; locks[i-1] = true; locks[i] = true; locks[i+1] = true;locks[i+2] = true;
+				locks[im2] = true; locks[i-1] = true; locks[i] = true; locks[i+1] = true;locks[ip2] = true;
 			}
 		}
 	}
@@ -48,7 +51,10 @@ void lock2(int i, bool *locks) {
 void unlock2(int i, bool *locks) {
 #pragma omp critical (LockRegion)
 	{
-		locks[i-2] = false;locks[i-1] = false; locks[i] = false; locks[i+1] = false;locks[i+2] = false;
+		int im2 = i>2?i - 2:0;
+		int ip2 = i<GRIDROWS ?i + 2:GRIDROWS;
+
+		locks[im2] = false;locks[i-1] = false; locks[i] = false; locks[i+1] = false;locks[ip2] = false;
 	}
 }
 #endif
@@ -149,7 +155,7 @@ void Grid::run() {
 					if (gridA[i][j] != NULL) {
 						Agent* agent = gridA[i][j];
 						gridA[i][j] = NULL;
-						double move = random.random();
+
 						agent->step();
 
 						//Code to remove decomposed agents
@@ -172,7 +178,7 @@ void Grid::run() {
 
 						//Agent already dead no comparisons required
 						if (agent != NULL) {
-
+							double move = random.random();
 							int desti = 0;
 							int destj = 0;
 
