@@ -33,7 +33,7 @@ static int const GRIDCOLUMNS = 512;//Number of column grids
 static float const TOTALGRIDCELLS = GRIDROWS * GRIDCOLUMNS; //Number of cells grids
 static const float NUMBEROFZOMBIES = 3;
 
-static const int MINDECOMPOSITIONTIME = 28;//Ticks that take the zombie to decompose
+static const int MINDECOMPOSITIONTIME = 29;//Ticks that take the zombie to decompose
 static const int MAXDECOMPOSITIONTIME = 30;//Ticks that take the zombie to decompose
 
 static const int MINLIFEEXPECTANCY = 65;//minimum human life expectancy
