@@ -34,6 +34,23 @@ void unlock(int i, bool *locks) {
 		locks[i-1] = false; locks[i] = false; locks[i+1] = false;
 	}
 }
+void lock2(int i, bool *locks) {
+	for (bool locked = false; locked == false; /*NOP*/) {
+#pragma omp critical (LockRegion)
+		{
+			locked = !locks[i-2] && !locks[i-1] && !locks[i] && !locks[i+1] && !locks[i+2];
+			if (locked) {
+				locks[i-2] = true; locks[i-1] = true; locks[i] = true; locks[i+1] = true;locks[i+2] = true;
+			}
+		}
+	}
+}
+void unlock2(int i, bool *locks) {
+#pragma omp critical (LockRegion)
+	{
+		locks[i-2] = false;locks[i-1] = false; locks[i] = false; locks[i+1] = false;locks[i+2] = false;
+	}
+}
 #endif
 
 Agent*** Grid::createMesh (){
@@ -189,13 +206,13 @@ void Grid::run() {
 #endif
 
 			}
-#if defined(_OPENMP)
-		}
-		RandomClass random(0);
-#endif
 
-
+		float freeCells=0,totalHumans = 0,totalZombies = 0, deathRate = 0;
 		//Boundary condition
+#if defined(_OPENMP)
+#pragma omp single
+		{
+#endif
 		for (int i = 1; i <= GRIDROWS; i++) {
 			if (gridB[i][0] != NULL && gridB[i][1] == NULL) {
 				Agent* a = gridB[i][0];
@@ -231,12 +248,19 @@ void Grid::run() {
 			}
 		}
 
-		//Resolve conflicts between Agents
-		float freeCells=0,totalHumans = 0,totalZombies = 0;
 		calculateStatistics(totalHumans,totalZombies, freeCells, gridB);
-		float deathRate = DEATHRATENT/totalHumans;
-
+		deathRate = DEATHRATENT/totalHumans;
+#if defined(_OPENMP)
+     }
+#endif
+		//Resolve conflicts between Agents
+#if defined(_OPENMP)
+#pragma omp for
+#endif
 		for (int i = 1; i <= GRIDROWS; i++) {
+#if defined (_OPENMP)
+				lock2(i, locks);
+#endif
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				Agent* agentA = gridB[i][j];
 				if (agentA != NULL) {
@@ -279,7 +303,13 @@ void Grid::run() {
 					}
 				}
 			}
+#if defined(_OPENMP)
+				unlock2(i,locks);
+#endif
 		}
+#if defined(_OPENMP)
+	} //Parallel region
+#endif
 
 		swap(gridA, gridB);
 
@@ -371,7 +401,7 @@ void Grid::printState(int tick, Agent*** gridA) {
 	}
 #ifdef DEBUG
 	std::cout << "Tick" << tick << " Humans: " << humans << " Zombies " << zombies;
-	std::cout << "- Deads: " << Counters::getInstance().getDead() << " Infected:" << Counters::getInstance().getInfected();
+	std::cout << "- Infected:" << Counters::getInstance().getInfected();
 	std::cout << " Converted: " << Counters::getInstance().getConverted() << " Shot: " << Counters::getInstance().getShooted();
 	std::cout << " Zdead: " << Counters::getInstance().getZDead() << " Ghost cases: " << Counters::getInstance().getGhostCase();
 	std::cout << " Natural deaths: " << Counters::getInstance().getHumanDead() << " Born: " << Counters::getInstance().getBorn() << "\n";
