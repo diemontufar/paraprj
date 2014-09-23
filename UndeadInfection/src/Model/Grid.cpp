@@ -139,7 +139,7 @@ void Grid::run() {
 #if defined(_OPENMP)
 #pragma omp parallel default(none) shared (locks, gridA, gridB, freeCells, totalHumans, totalZombies, deathRate, cout, n)
 		{
-			int         tid = omp_get_thread_num();
+			//int         tid = omp_get_thread_num();
 			RandomClass random(omp_get_thread_num());
 #else
 			RandomClass random = new RandomClass(0);
@@ -309,8 +309,7 @@ void Grid::run() {
 							double move = random.random();
 							//cout << tid << "TS:" << n << "Death " <<move << "," << deathRate << endl;
 							if (move < deathRate) {
-								if (n==366)
-								    cout << tid << "TS:" << n << "Death " <<move << "," << deathRate << endl;
+								//cout << tid << "TS:" << n << "Death " <<move << "," << deathRate << endl;
 								agentA->markAsDead();
 							}
 
