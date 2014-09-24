@@ -50,7 +50,7 @@ static const float DEATHSNT= 1038.0; // http://www.healthinfonet.ecu.edu.au/heal
 static const float DEATHRATENT = DEATHSNT*SCALE/(365.0*2.0);
 
 
-static const float GUNDENSITY = 0.2; //19.13
+static const float GUNDENSITY = 0.2; //19.13 http://www.gunpolicy.org/firearms/region/northern-territory
 
 static const float HEADSHOTPERCENTAGE = 0.05; //40%
 static const float SUCESSFULBITEPERCENTAGE =50; //40%
