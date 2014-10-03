@@ -2,7 +2,7 @@
  * Grid.h
  *
  *  Created on: 21/08/2014
- *      Author: achaves
+ *      Author: Andres Chaves, Gustavo Carrion, Diego Montufar
  */
 
 

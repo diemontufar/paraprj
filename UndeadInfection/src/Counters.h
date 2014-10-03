@@ -2,7 +2,7 @@
  * Counters.h
  *
  *  Created on: 02/09/2014
- *      Author: achaves
+ *      Author: Andres Chaves, Gustavo Carrion, Diego Montufar
  */
 
 #ifndef COUNTERS_H_

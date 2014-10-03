@@ -2,7 +2,7 @@
  * Grid.cpp
  *
  *  Created on: 21/08/2014
- *      Author: achaves
+ *      Authors: Andres Chaves, Gustavo Carrion, Diego Montufar
  */
 
 #include "Grid.h"
@@ -97,7 +97,7 @@ void Grid::initialize(	Agent*** gridA, Agent*** gridB ) {
 			//cout << "i:  "<<i << "j:  "<<j <<"numInitialized with humans: "<< endl;
 		}
 	}
-	cout << "Initialized with humans: " << numHumans << "- Zombies: " << numZombies << endl;
+	cout << "Initialized with Humans: " << numHumans << " and Zombies: " << numZombies << endl;
 }
 void Grid::run() {
 #if defined(_OPENMP) //Cout whether we are working with opemp or not
@@ -419,11 +419,13 @@ void Grid::printState(int tick, Agent*** gridA, int infected, int converted, int
 		}
 	}
 #ifdef DEBUG
-	std::cout << tick << "," << male+female << "," << male << "," << female << "," << zombies;
-	std::cout << "," << infected;
-	std::cout << "," << converted << "," << shooted;
-	std::cout << "," << zDead << "," << ghostCase;
-	std::cout << "," << hDead << "," << born << "\n";
+
+	std::cout << "Tick:" << tick << ", Humans: " << male+female << ", Males: "<< male << ", Females: " << female << ", Zombies: " << zombies;
+	std::cout << ", Infected:" << infected;
+	std::cout << ", Converted: " << converted << ",Shots: " << shooted;
+	std::cout << ", Dead Deaths: " << zDead << ",Ghost Cases: " << ghostCase;
+	std::cout << ", Natural Deaths: " << hDead << ",Births: " << born << "\n";
+
 #endif
 }
 

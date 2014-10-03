@@ -1,8 +1,8 @@
 /*
  * Random.h
  *
- *  Created on: Sep 3, 2014
- *      Author: diogonal
+ *  Created on: 03/09/2014
+ *      Author: Andres Chaves, Gustavo Carrion, Diego Montufar
  */
 
 #ifndef RANDOMCLASS_H_

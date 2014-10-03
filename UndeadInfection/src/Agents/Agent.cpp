@@ -2,7 +2,7 @@
  * Agent.cpp
  *
  *  Created on: 21/08/2014
- *      Author: achaves
+ *      Authors: Andres Chaves, Gustavo Carrion, Diego Montufar
  */
 
 #include "Agent.h"

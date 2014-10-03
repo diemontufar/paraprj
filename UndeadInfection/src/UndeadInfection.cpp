@@ -1,9 +1,10 @@
 //============================================================================
 // Name        : UndeadInfection.cpp
-// Author      : Diego
+// Authors     : Andres Chaves, Gustavo Carrion, Diego Montufar
 // Version     :
 // Copyright   : copyright 2014
-// Description : Hello World in C++, Ansi-style
+// Description : Zombie Apocalypse Simulation using openMP
+// Compile     : Use compile.sh script
 //============================================================================
 
 #include <iostream>
@@ -25,6 +26,9 @@ void runSimulation();
 void evalResult(bool result);
 
 int main() {
+
+	/*Testing methods*/
+
 	//evalResult(testHuman());
 	//evalResult(testZombie());
 	//evalResult(testInheritanceOfAgents());
@@ -34,7 +38,8 @@ int main() {
 	//evalResult(testHumanZombieClashZombieShooted());
 	//evalResult(testHumanZombieClashHumanInfected());
 	//evalResult(testHumanZombieClashWithGrid());
-	//we reinitialize the seed
+
+	/*Start Simulation*/
 	runSimulation();
 	return 0;
 }

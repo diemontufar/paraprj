@@ -2,7 +2,7 @@
  * Agent.h
  * Contains the method the all agents must implement
  *  Created on: 19/08/2014
- *      Author: achaves
+ *      Authors: Andres Chaves, Gustavo Carrion, Diego Montufar
  */
 #ifndef AGENT_H_
 #define AGENT_H_
