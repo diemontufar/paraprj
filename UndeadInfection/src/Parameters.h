@@ -24,14 +24,18 @@
 static const long NUMTICKS = 3650; //Number of ticks 125*365
 //static const long NUMTICKS = 10; //Number of ticks 125*365
 static const long YEARTICKS = 365; //Ticks in 1 year 365
-static const long NUMTICKSPRINT = 365; //No. Ticks to print
+static const long NUMTICKSPRINT = 364; //No. Ticks to print
 
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human
 static float const SCALE = 1.0/6.0; //Proportion of rows/columns of NT covered in the simulation
 static int const GRIDROWS = 512; //Number of row grids
 static int const GRIDCOLUMNS = 512;//Number of column grids
 static float const TOTALGRIDCELLS = GRIDROWS * GRIDCOLUMNS; //Number of cells grids
-static const float NUMBEROFZOMBIES = 3;
+static const float NUMBEROFZOMBIES = 2;
+
+static const int MINFERTILITYAGE = 15;
+static const int MAXFERTILITYAGE = 45;
+static const float PROBTOHAVEBABYWHENPAIRED = 0.0035; //Prob. of birth when paired
 
 static const int MINDECOMPOSITIONTIME = 29;//Ticks that take the zombie to decompose
 static const int MAXDECOMPOSITIONTIME = 30;//Ticks that take the zombie to decompose
@@ -50,7 +54,7 @@ static const float DEATHSNT= 1038.0; // http://www.healthinfonet.ecu.edu.au/heal
 static const float DEATHRATENT = DEATHSNT*SCALE/(365.0*2.0);
 
 
-static const float GUNDENSITY = 0.2; //19.13 http://www.gunpolicy.org/firearms/region/northern-territory
+static const float GUNDENSITY = 0.2; //19.13
 
 static const float HEADSHOTPERCENTAGE = 0.05; //40%
 static const float SUCESSFULBITEPERCENTAGE =50; //40%

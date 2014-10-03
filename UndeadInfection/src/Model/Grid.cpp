@@ -124,7 +124,7 @@ void Grid::run() {
 	printState(0, gridA, infected, converted, shooted, zDead, ghostCase, hDead, born);
 	//printMatrix(0);
 #ifdef DEBUGGRID
-	std::cout << "Run called" << "\n";
+	//std::cout << "Run called" << "\n";
 #endif
 
 	//Time loop
@@ -419,11 +419,11 @@ void Grid::printState(int tick, Agent*** gridA, int infected, int converted, int
 		}
 	}
 #ifdef DEBUG
-	std::cout << "Tick" << tick << " Humans: " << male+female << " Male: " << male << " Female: " << female << " Zombies " << zombies;
-	std::cout << "- Infected:" << infected;
-	std::cout << " Converted: " << converted << " Shot: " << shooted;
-	std::cout << " Zdead: " << zDead << " Ghost cases: " << ghostCase;
-	std::cout << " Natural deaths: " << hDead << " Born: " << born << "\n";
+	std::cout << tick << "," << male+female << "," << male << "," << female << "," << zombies;
+	std::cout << "," << infected;
+	std::cout << "," << converted << "," << shooted;
+	std::cout << "," << zDead << "," << ghostCase;
+	std::cout << "," << hDead << "," << born << "\n";
 #endif
 }
 
@@ -462,17 +462,16 @@ void Grid::resolveGridHumanHuman(Agent* agentA,int i, int j, Agent*** gridB, Ran
 		if ((agentA->getGender() && !agentB->getGender()) || (!agentA->getGender() && agentB->getGender())){
 
 			//Only Humans between 25 and 45 years can have a baby
-			if (agentA->getAge()>=14 && agentA->getAge()<=50 && agentB->getAge()>=14 && agentB->getAge()<=50){
+			if (agentA->getAge()>=MINFERTILITYAGE && agentA->getAge()<=MAXFERTILITYAGE && agentB->getAge()>=MINFERTILITYAGE && agentB->getAge()<=MAXFERTILITYAGE){
 
 				//1. Calculate statistics
-				float delta = 0,probPaired=0,probPair=0,probAnyHumanHaveBaby=0;
+				float delta = 0,probPair=0,probAnyHumanHaveBaby=0;
 
 
 				//2. Calculate probabilities
 				delta = totalHumans / (TOTALGRIDCELLS - totalZombies); //delta is the density of humans
-				probPaired = 0.005; //IRTHSPERDAYNT/21250.0; //Prob. of birth when paired -consider Ages!!!
 				probPair = 1-pow((1-delta),4); //Prob. two humans being pair 1-(1-delta)^4
-				probAnyHumanHaveBaby = probPair * probPaired; //Prob. any Human will have a baby (Per capita birth rate)
+				probAnyHumanHaveBaby = probPair * PROBTOHAVEBABYWHENPAIRED; //Prob. any Human will have a baby (Per capita birth rate)
 
 				//Roll a dice
 				double birth = random.random();
