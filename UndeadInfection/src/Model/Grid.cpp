@@ -72,7 +72,7 @@ Agent*** Grid::createMesh (){
 void Grid::initialize(	Agent*** gridA, Agent*** gridB ) {
 	int numZombies = 0;
 	int numHumans = 0;
-	RandomClass random(0);
+	RandomClass random;
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridB[i][j] = NULL;
@@ -107,17 +107,25 @@ void Grid::run() {
 #endif
 	Agent*** gridA = createMesh();
 	Agent*** gridB = createMesh();
+	int N_Threads = 1;
+
 	float freeCells=0,totalHumans = 0,totalZombies = 0, deathRate = 0;
 	int shooted = 0, infected = 0, converted = 0, ghostCase = 0, zDead = 0, hDead = 0, outOfBounds = 0, born = 0;
 
 	bool *locks = new bool[GRIDCOLUMNS + 2];
 	initialize(gridA, gridB);
-
 #if defined(_OPENMP) //Record starting time and number of threads
 	double		wtime		= omp_get_wtime();			// Record the starting time
-	int			N_Threads	= omp_get_max_threads();
+	N_Threads	= omp_get_max_threads();
+	RandomClass randomObj[N_Threads];
 	cout << "Num. threads: " << N_Threads << endl;
+#else
+		RandomClass randomObj[1];
 #endif
+
+	for (int i = 0; i < N_Threads; i++){
+		randomObj[i].setSeed(i*0xFFFF*drand48());
+	}
 
 	for (int i = 0; i < GRIDCOLUMNS + 2; i++) locks[i] = false;
 
@@ -130,12 +138,12 @@ void Grid::run() {
 	//Time loop
 	for (int n = 0; n < NUMTICKS; n++) {
 #if defined(_OPENMP)
-#pragma omp parallel default(none) shared (locks, gridA, gridB, freeCells, totalHumans, totalZombies, deathRate, cout, n) reduction(+:shooted, infected, converted, ghostCase, zDead, hDead, born)
+#pragma omp parallel default(none) shared (locks, gridA, gridB, freeCells, totalHumans, totalZombies, deathRate, cout, n, randomObj) reduction(+:shooted, infected, converted, ghostCase, zDead, hDead, born)
 		{
 			//int         tid = omp_get_thread_num();
-			RandomClass random(omp_get_thread_num());
+			RandomClass random = randomObj[omp_get_thread_num()];
 #else
-			RandomClass random = new RandomClass(0);
+			RandomClass random = randomObj[0];
 #endif
 #if defined(_OPENMP)
       #pragma omp for
@@ -261,7 +269,7 @@ void Grid::run() {
 
 		totalHumans = totalZombies = freeCells = 0;
 		calculateStatistics(totalHumans,totalZombies, freeCells, gridB);
-		deathRate = DEATHRATENT/totalHumans;
+		deathRate = DEATHRATENT;
 #if defined(_OPENMP)
      }
 #endif
@@ -307,7 +315,7 @@ void Grid::run() {
 						if (!agentA->isInfected()){
 
 							double move = random.random();
-							//cout << tid << "TS:" << n << "Death " <<move << "," << deathRate << endl;
+		//					cout << "TS:" << n << "Death " <<move << "," << deathRate << endl;
 							if (move < deathRate) {
 								//cout << tid << "TS:" << n << "Death " <<move << "," << deathRate << endl;
 								agentA->markAsDead();

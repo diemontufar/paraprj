@@ -11,12 +11,12 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <random>
+#include "MersenneTwister.h"
 
 class RandomClass
 {
 private:
-	typedef std::mt19937 MyRNG;  // the Mersenne Twister with a popular choice of parameters
+	typedef MTRand MyRNG;  // the Mersenne Twister with a popular choice of parameters
 	unsigned int seed;           // populate somehow
 
 //	std::uniform_int_distribution<int> uint_dist;         // by default range [0, MAX]
@@ -26,7 +26,8 @@ private:
 	MyRNG rng;                   // e.g. keep one global instance (per thread)
 
 public:
-    RandomClass(unsigned int threadNumber);
+	RandomClass();
+    RandomClass(unsigned int seed);
     virtual ~RandomClass();
 
     double random();
@@ -36,16 +37,7 @@ public:
     bool randomBoolTrueBiased();
     bool randomBoolFalseBiasedN();
     bool randomBoolFalseBiasedZN();
-
-    //-static double random();
-    //-static void resetSeed();
-    //-static int random(int range);
-    //-static int random(int start, int end);
-    //-static bool randomBool();
-    //-static bool randomBoolTrueBiased();
-    //-static bool randomBoolFalseBiasedN();
-    //-static bool randomBoolFalseBiasedZN();
-
+    void setSeed(int seed);
 };
 
 
