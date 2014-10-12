@@ -50,8 +50,8 @@ static const float NTPOP = 235182.0; //2012 census
 static const float NTPOPDENSITY = 0.17/2.0;
 //static const float DARWINPOPDENSITY = 50.0*50.0*NTPOPDENSITY;
 static const float DARWINPOPDENSITY = 500.0*500.0*NTPOPDENSITY;
-static const float DEATHSNT= 1038.0; // http://www.healthinfonet.ecu.edu.au/health-facts/overviews/mortality http://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/3302.02012?OpenDocument
-static const float DEATHRATENT = 6.50/1000.0/365.0;
+static const float DEATHSNT= 1038.0; //http://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/3302.02012?OpenDocument
+static const float DEATHRATENT = DEATHSNT/365.0/6;
 
 
 static const float GUNDENSITY = 0.2; //19.13
