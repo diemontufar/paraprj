@@ -78,11 +78,15 @@ void Agent::step() {
 		//std::cout << "Step called"<<"\n";
 		//#endif
 		if (infected) {
+//#ifdef DEBUG
+//   std::cout << "+1!"<<"\n";
+//#endif
+
 			infectionTime++;
 			if (infectionTime >= INCUBATIONTIME) {
-				//#ifdef DEBUG
-				//   std::cout << "Dead"<<"\n";
-				//#endif
+//				#ifdef DEBUG
+//				   std::cout << "Zombiefication!"<<"\n";
+//				#endif
 				deadByConversion = true;
 			}
 		}
@@ -95,9 +99,9 @@ void Agent::step() {
 	else if (type==zombie){
 		decompositionTime++;
 		if (decompositionTime >= lifeTime){
-			// #ifdef DEBUG
-			//    std::cout << "Dead" << "\n";
-			// #endif
+			 //#ifdef DEBUG
+			 //   std::cout << "Death dead" << "\n";
+			 //#endif
 			decomposed = true;
 		}
 	}
@@ -134,6 +138,7 @@ bool Agent::isInfected() {
 	return infected;
 }
 void Agent::infect() {
+	//std::cout << "Infected :"<<type<<"\n";
 	assert(type==human);
 	infected = true;
 }

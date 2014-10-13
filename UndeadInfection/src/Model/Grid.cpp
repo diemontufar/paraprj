@@ -147,7 +147,7 @@ void Grid::run() {
 		double humansToDie=deathRate*(n+1);
 		//cout<<humansToDie<<endl;
 #if defined(_OPENMP)
-#pragma omp parallel default(none) shared (locks, gridA, gridB, freeCells, totalHumans, totalZombies, deathRate, cout, n, randomObj) reduction(+:shooted, infected, converted, ghostCase, zDead, hDead, born)
+#pragma omp parallel default(none) shared (locks, gridA, gridB, freeCells, totalHumans, totalZombies, deathRate, cout, n, randomObj) reduction(+:shooted, infected, converted, ghostCase, zDead, hDead, born, markedAsDeadCounter, humansToDie)
 		{
 			//int         tid = omp_get_thread_num();
 			RandomClass random = randomObj[omp_get_thread_num()];
@@ -284,9 +284,10 @@ void Grid::run() {
 #if defined (_OPENMP)
 				lock2(i, locks);
 #endif
+
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				//cout <<"Marked as dead counter: "<<markedAsDeadCounter<< "Humans to die:" << humansToDie << "Chance to die " <<chanceToDie<< endl;
-				Agent agentA = gridB[i][j];
+				Agent &agentA = gridB[i][j];
 				if (agentA.getType() != none) {
 					AgentTypeEnum typeA = agentA.getType();
 					if (typeA == human) {
@@ -339,7 +340,17 @@ void Grid::run() {
 		//Calculate acum deaths
 		deathRate=acumProbOfDying*totalHumans;
 		acumProbOfDying=deathRate/totalHumans;
+
+
+
 		swap(gridA, gridB);
+		///Clean gridB
+		for (int i = 1; i <= GRIDROWS; i++) {
+			for (int j = 1; j <= GRIDCOLUMNS; j++) {
+				gridB[i][j].clean();
+			}
+		}
+
 
 		if ( n%NUMTICKSPRINT == 0 ){
 			printState(n + 1, gridA, infected, converted, shooted, zDead, ghostCase, hDead, born);
@@ -442,7 +453,7 @@ void Grid::printState(int tick, Agent** gridA, int infected, int converted, int 
 }
 
 /*Resolve conflicts between Human-Zombie*/
-void Grid::resolveGridHumanZombie(Agent agentA,int i, int j, Agent** gridB, RandomClass random, int &shooted, int &infected) {
+void Grid::resolveGridHumanZombie(Agent &agentA,int i, int j, Agent** gridB, RandomClass random, int &shooted, int &infected) {
 	Agent agentB = gridB[i][j];
 	AgentTypeEnum typeB = agentB.getType();
 	if (typeB == zombie) {
@@ -452,7 +463,7 @@ void Grid::resolveGridHumanZombie(Agent agentA,int i, int j, Agent** gridB, Rand
 }
 
 /*Resolve conflicts between Human-Zombie*/
-void Grid::resolveHumanZombie(Agent human, Agent zombie, RandomClass random, int &shooted, int &infected) {
+void Grid::resolveHumanZombie(Agent &human, Agent &zombie, RandomClass random, int &shooted, int &infected) {
 	//Probability and cases, for now it is a rand
 	int dice_roll = random.random(0,100);
 
@@ -468,7 +479,7 @@ void Grid::resolveHumanZombie(Agent human, Agent zombie, RandomClass random, int
 }
 
 /*Resolve conflicts between Human-Human*/
-void Grid::resolveGridHumanHuman(Agent agentA,int i, int j, Agent** gridB, RandomClass random, float totalHumans, float totalZombies, float freeCells, int &born) {
+void Grid::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridB, RandomClass random, float totalHumans, float totalZombies, float freeCells, int &born) {
 	Agent agentB = gridB[i][j];
 	AgentTypeEnum typeB = agentB.getType();
 	if (typeB == human) {

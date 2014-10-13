@@ -27,9 +27,9 @@ private:
 	void printMatrix(int, Agent**);
 	void printState(int, Agent**, int infected, int converted, int shooted, int zDead, int ghostCase, int hDead, int born);
 	void merge(Agent**, Agent**);
-	void resolveHumanZombie(Agent, Agent, RandomClass random, int &shooted, int &infected);
-	void resolveGridHumanZombie(Agent agent,int i, int j, Agent**, RandomClass random, int &shooted, int &infected);
-	void resolveGridHumanHuman(Agent agent,int i, int j, Agent**, RandomClass random, float totalHumans, float totalZombies, float freeCells, int &newborn);
+	void resolveHumanZombie(Agent&, Agent&, RandomClass random, int &shooted, int &infected);
+	void resolveGridHumanZombie(Agent &agent,int i, int j, Agent**, RandomClass random, int &shooted, int &infected);
+	void resolveGridHumanHuman(Agent &agent,int i, int j, Agent**, RandomClass random, float totalHumans, float totalZombies, float freeCells, int &newborn);
 	void calculateStatistics(float &humanPopulation,float &zombies, float &freeCells, Agent** gridA);
 public:
 	Grid();

@@ -29,11 +29,11 @@ int main() {
 
 	/*Testing methods*/
 
-	//evalResult(testHuman());
-	//evalResult(testZombie());
-	//evalResult(testInheritanceOfAgents());
-	//evalResult(testZombieDecomposition());
-	//evalResult(testHumanDeseaseIncubation());
+	evalResult(testHuman());
+	evalResult(testZombie());
+	evalResult(testInheritanceOfAgents());
+	evalResult(testZombieDecomposition());
+	evalResult(testHumanDeseaseIncubation());
 	//evalResult(testHumanHumanClash());
 	//evalResult(testHumanZombieClashZombieShooted());
 	//evalResult(testHumanZombieClashHumanInfected());
@@ -62,46 +62,49 @@ bool testHumanHumanClash() {
 }
 
 bool testHumanDeseaseIncubation() {
-	/*cout << "Testing step of human";
+	cout << "Testing step of human";
 	RandomClass random(0);
-	Agent h(false,random.random(100)+1, false, 80, human);
+	Agent h;
+	h.migrateToHuman(false,random.random(100)+1, false, 80);
 	h.infect();
 	for (int i = 0; i <= INCUBATIONTIME + 1; i++) {
 		h.step();
 	}
 	if (!h.isDead()) {
 		return false;
-	}*/
+	}
 	return true;
 }
 
 bool testZombieDecomposition() {
-/*	cout << "Testing step of zombies";
-	Agent z(MINDECOMPOSITIONTIME,zombie);
+	cout << "Testing step of zombies";
+	Agent z;
+	z.migrateToZombie(MINDECOMPOSITIONTIME);
 	for (int i = 0; i <= MINDECOMPOSITIONTIME + 1; i++) {
 		z.step();
 	}
 	if (!z.isDecomposed()) {
 		return false;
-	}*/
+	}
 	return true;
 }
 
 bool testInheritanceOfAgents() {
-	/*cout << "Testing inheritance of agents" << endl;
-	Agent* a = new Agent(true,1, true, 70, human);
-	if (a->getType() != human)
+	cout << "Testing inheritance of agents" << endl;
+	Agent a;
+	a.migrateToHuman(true,1, true, 70);
+	if (a.getType() != human)
 		return false;
-	a = new Agent(5,zombie);
-
-	if (a->getType() != zombie)
-		return false;*/
+	a.migrateToZombie(5);
+	if (a.getType() != zombie)
+		return false;
 	return true;
 }
 
 bool testZombie() {
-	/*cout << "Testing zombies" << endl;
-	Agent zombieAgent(5,zombie);
+	cout << "Testing zombies" << endl;
+	Agent zombieAgent;
+	zombieAgent.migrateToZombie(5);
 	if (zombieAgent.getType() != zombie) {
 		return false;
 	}
@@ -115,14 +118,15 @@ bool testZombie() {
 	if (!zombieAgent.isShooted()) {
 		return false;
 	}
-*/
+
 	return true;
 
 }
 
 bool testHuman() {
-	/*cout << "Testing humans" << endl;
-	Agent male(false,60, false, 80, human);
+	cout << "Testing humans" << endl;
+	Agent male;
+	male.migrateToHuman(false,60, false, 80);
 
 	if (male.getGender() != false)
 		return false;
@@ -131,7 +135,8 @@ bool testHuman() {
 	if (male.isInfected() != false)
 		return false;
 
-	Agent female(true,100, true, 80, human);
+	Agent female;
+	female.migrateToHuman(true,100, true, 80);
 	if (female.getGender() == false)
 		return false;
 	if (female.isHasAGun() == false)
@@ -140,7 +145,7 @@ bool testHuman() {
 		return false;
 	if (female.getType() != human)
 		return false;
-*/
+
 	return true;
 }
 
