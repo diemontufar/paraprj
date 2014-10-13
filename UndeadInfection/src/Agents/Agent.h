@@ -9,8 +9,9 @@
 
 #include "../Parameters.h"
 #include <assert.h>
+#include <iostream>
 
-enum AgentTypeEnum {human,zombie,typeUndef};
+enum AgentTypeEnum {human,zombie,none};
 class Agent{
 
 private:
@@ -34,9 +35,11 @@ private:
 
 
 public:
-	//Virtual destructor
-	Agent(int lifeTime, AgentTypeEnum type); //Constructor for zombies
-	Agent(bool gender,int age, bool hasAGun, int lifeExpectancy, AgentTypeEnum type);
+	Agent();
+	void migrateToZombie(int lifeTime); //Constructor for zombies
+	void migrateToHuman(bool gender,int age, bool hasAGun, int lifeExpectancy);
+	void clean();
+	void clone(Agent A);
 
    ~Agent();
 

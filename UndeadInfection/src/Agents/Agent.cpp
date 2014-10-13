@@ -6,23 +6,25 @@
  */
 
 #include "Agent.h"
-Agent::Agent(int theLifeTime, AgentTypeEnum theType){
-	assert (theType!=human);
-	type = theType;
+
+
+Agent::Agent(){
+	type = none;
+}
+void Agent::migrateToZombie(int theLifeTime){
+	type = zombie;
 	decompositionTime = 0;
 	decomposed = false;
 	shooted = false;
 	lifeTime = theLifeTime;
 	//lifeTime=Random::random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
 }
-Agent::Agent(bool theGender,int theAge, bool isHasAGun, int theLifeExpectancy, AgentTypeEnum theType){
-	assert (theType!=zombie);
-	type = theType;
+void Agent::migrateToHuman(bool theGender,int theAge, bool isHasAGun, int theLifeExpectancy){
+	type = human;
 	infected = false;
 	gender = theGender;
 	age = theAge;
 	hasAGun = isHasAGun;
-	type = theType;
 	infectionTime = 0;
 	yearTime = 0;
 	deadByConversion = false;
@@ -30,9 +32,42 @@ Agent::Agent(bool theGender,int theAge, bool isHasAGun, int theLifeExpectancy, A
 	lifeExpectancy = theLifeExpectancy;
 	//lifeExpectancy=Random::random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
 }
+void Agent::clean(){
+	type = none;
+	decompositionTime = 0;
+	decomposed = false;
+	shooted = false;
+	lifeTime = 0;
+	infected = false;
+	gender = false;
+	age = 0;
+	hasAGun = false;
+	infectionTime = 0;
+	yearTime = 0;
+	deadByConversion = false;
+	naturalDead = false;
+	lifeExpectancy = 0;
+}
+void Agent::clone(Agent b){
+	type = b.getType();
+	decompositionTime = b.decompositionTime;
+	decomposed = b.decomposed;
+	shooted = b.shooted;
+	lifeTime = b.lifeTime;
+	infected = b.infected;
+	gender = b.gender;
+	age = b.age;
+	hasAGun = b.hasAGun;
+	infectionTime = b.infectionTime;
+	yearTime = b.yearTime;
+	deadByConversion = b.deadByConversion;
+	naturalDead = b.naturalDead;
+	lifeExpectancy = b.lifeExpectancy;
+}
 Agent::~Agent() {
 }
 AgentTypeEnum Agent::getType(){
+//	std::cout << "El tipoooo es :"<<type<<"\n";
 	return type;
 }
 
@@ -94,6 +129,7 @@ bool Agent::isNaturalDead() {
 }
 
 bool Agent::isInfected() {
+	//std::cout << "El tipuuuu es :"<<type<<"\n";
 	assert(type==human);
 	return infected;
 }
@@ -106,6 +142,7 @@ bool Agent::isDead() {
 	return deadByConversion;
 }
 bool Agent::isDecomposed(){
+	//std::cout << "El tipo es :"<<type<<"\n";
 	assert(type==zombie);
 	return decomposed;
 }
