@@ -80,7 +80,7 @@ void Grid::initialize(	Agent** gridA, Agent** gridB ) {
 			int biasedAgentLocationY=random.random(((i<=(GRIDCOLUMNS/2))?i:GRIDCOLUMNS-i),GRIDCOLUMNS-((i<=(GRIDCOLUMNS/2))?i:GRIDCOLUMNS-i));
 			int biasedAgentLocationX=random.random(((j<=(GRIDROWS/2))?j:GRIDROWS-j),GRIDROWS-((j<=(GRIDROWS/2))?j:GRIDROWS-j));
 			int ConcentrationMin,ConcentrationMax;
-			ConcentrationMin=(GRIDROWS/10)*4;
+			ConcentrationMin=(GRIDROWS/10)*3;
 			ConcentrationMax=(GRIDROWS/10)*6;
 			if (numHumans < DARWINPOPDENSITY && random.randomBoolFalseBiasedN()&& biasedAgentLocationY >=ConcentrationMin && biasedAgentLocationY<=ConcentrationMax && biasedAgentLocationX >=ConcentrationMin && biasedAgentLocationX<=ConcentrationMax ) {
 				int age = random.random(MINLIFEEXPECTANCY - 1);
@@ -91,7 +91,7 @@ void Grid::initialize(	Agent** gridA, Agent** gridB ) {
 				gridA[i][j].migrateToHuman(gender, age, hasAGun, lifeExpectancy);
 				numHumans++;
 			} else {
-				if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN() && biasedAgentLocationY >=ConcentrationMin && biasedAgentLocationY<=ConcentrationMax && biasedAgentLocationX >=ConcentrationMin && biasedAgentLocationX<=ConcentrationMax) {
+				if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN() && biasedAgentLocationY >=ConcentrationMin+(GRIDROWS/10) && biasedAgentLocationY<=ConcentrationMax-(GRIDROWS/10) && biasedAgentLocationX >=ConcentrationMin+(GRIDROWS/10) && biasedAgentLocationX<=ConcentrationMax-(GRIDROWS/10)) {
 					int lifeTime = random.random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
 					gridA[i][j].migrateToZombie(lifeTime);
 					numZombies++;

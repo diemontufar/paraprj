@@ -31,7 +31,7 @@ static float const SCALE = 1.0/6.0; //Proportion of rows/columns of NT covered i
 static int const GRIDROWS = 500; //Number of row grids
 static int const GRIDCOLUMNS =500;//Number of column grids
 static float const TOTALGRIDCELLS = GRIDROWS * GRIDCOLUMNS; //Number of cells grids
-static const float NUMBEROFZOMBIES = 10;
+static const float NUMBEROFZOMBIES = 2;
 
 static const int MINFERTILITYAGE = 15;
 static const int MAXFERTILITYAGE = 45;
@@ -57,7 +57,7 @@ static const float DEATHRATENT = DEATHSNT/365.0/6;
 static const float GUNDENSITY = 0.2; //19.13
 
 static const float HEADSHOTPERCENTAGE = 0.05; //40%
-static const float SUCESSFULBITEPERCENTAGE =50; //40%
+static const float SUCESSFULBITEPERCENTAGE =20; //40%
 
 #define MOVE    0.25 //Probability of a move in each direction
 #define DEBUG = true;
