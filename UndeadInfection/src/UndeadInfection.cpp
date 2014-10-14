@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "Agents/Agent.h"
 #include "Model/Grid.h"
+#include "Model/GridMPI.h"
 #include "Model/RandomClass.h"
 #include <time.h>
 
@@ -22,10 +23,10 @@ bool testInheritanceOfAgents();
 bool testZombieDecomposition();
 bool testHumanDeseaseIncubation();
 bool testHumanHumanClash();
-void runSimulation();
+void runSimulation(int argc, char** argv);
 void evalResult(bool result);
 
-int main() {
+int main(int argc, char** argv) {
 
 	/*Testing methods*/
 
@@ -40,13 +41,15 @@ int main() {
 	//evalResult(testHumanZombieClashWithGrid());
 
 	/*Start Simulation*/
-	runSimulation();
+	runSimulation(argc, argv);
 	return 0;
 }
 
-void runSimulation(){
-	Grid g;
-	g.run();
+void runSimulation(int argc, char** argv){
+	//Grid g;
+	//g.run();
+	GridMPI g;
+	g.run(argc, argv);
 }
 
 void evalResult(bool result) {
