@@ -19,7 +19,7 @@
  * Death rate: 0.015 / 365
  * Probability weapon: 0.3
  */
-
+static const int NUMTHREADS = 8;
 //static const long NUMTICKS = 45625; //Number of ticks 125*365
 static const long NUMTICKS = 3650; //Number of ticks 125*365
 //static const long NUMTICKS = 10; //Number of ticks 125*365
@@ -31,7 +31,7 @@ static float const SCALE = 1.0/6.0; //Proportion of rows/columns of NT covered i
 static int const GRIDROWS = 512; //Number of row grids
 static int const GRIDCOLUMNS = 512;//Number of column grids
 static float const TOTALGRIDCELLS = GRIDROWS * GRIDCOLUMNS; //Number of cells grids
-static const float NUMBEROFZOMBIES = 2;
+static const float NUMBEROFZOMBIES = 10;
 
 static const int MINFERTILITYAGE = 15;
 static const int MAXFERTILITYAGE = 45;
@@ -57,7 +57,7 @@ static const float DEATHRATENT = DEATHSNT/365.0/6;
 static const float GUNDENSITY = 0.2; //19.13
 
 static const float HEADSHOTPERCENTAGE = 0.05; //40%
-static const float SUCESSFULBITEPERCENTAGE =50; //40%
+static const float SUCESSFULBITEPERCENTAGE =95; //40%
 
 #define MOVE    0.25 //Probability of a move in each direction
 #define DEBUG = true;
