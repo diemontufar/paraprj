@@ -77,7 +77,12 @@ void Grid::initialize(	Agent** gridA, Agent** gridB ) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridB[i][j].clean();
 			//todo:change algorithm so it is random and with pop limits
-			if (numHumans < DARWINPOPDENSITY && random.randomBoolFalseBiasedN()) {
+			int biasedAgentLocationY=random.random(((i<=(GRIDCOLUMNS/2))?i:GRIDCOLUMNS-i),GRIDCOLUMNS-((i<=(GRIDCOLUMNS/2))?i:GRIDCOLUMNS-i));
+			int biasedAgentLocationX=random.random(((j<=(GRIDROWS/2))?j:GRIDROWS-j),GRIDROWS-((j<=(GRIDROWS/2))?j:GRIDROWS-j));
+			int ConcentrationMin,ConcentrationMax;
+			ConcentrationMin=(GRIDROWS/10)*3;
+			ConcentrationMax=(GRIDROWS/10)*6;
+			if (numHumans < DARWINPOPDENSITY && random.randomBoolFalseBiasedN()&& biasedAgentLocationY >=ConcentrationMin && biasedAgentLocationY<=ConcentrationMax && biasedAgentLocationX >=ConcentrationMin && biasedAgentLocationX<=ConcentrationMax ) {
 				int age = random.random(MINLIFEEXPECTANCY - 1);
 				int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
 				bool gender = random.random() < GENDERRATIO ? true : false;
@@ -86,7 +91,7 @@ void Grid::initialize(	Agent** gridA, Agent** gridB ) {
 				gridA[i][j].migrateToHuman(gender, age, hasAGun, lifeExpectancy);
 				numHumans++;
 			} else {
-				if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN()) {
+				if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN() && biasedAgentLocationY >=ConcentrationMin+(GRIDROWS/10) && biasedAgentLocationY<=ConcentrationMax-(GRIDROWS/10) && biasedAgentLocationX >=ConcentrationMin+(GRIDROWS/10) && biasedAgentLocationX<=ConcentrationMax-(GRIDROWS/10)) {
 					int lifeTime = random.random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
 					gridA[i][j].migrateToZombie(lifeTime);
 					numZombies++;
@@ -145,7 +150,7 @@ void Grid::run() {
 	//Time loop
 	for (int n = 0; n < NUMTICKS; n++) {
 		//Code to calculate the number of humans to be removed
-		double humansToDie=deathRate*(n+1);
+		double humansToDie=deathRate*(n%NUMTICKSPRINT +1);
 		//cout<<markedAsDeadCounter<<","<<humansToDie<<endl;
 #if defined(_OPENMP)
 #pragma omp parallel default(none) shared (locks, gridA, gridB, freeCells, totalHumans, totalZombies, deathRate, cout, n, randomObj) reduction(+:shooted, infected, converted, ghostCase, zDead, hDead, born, markedAsDeadCounter, humansToDie)
@@ -362,6 +367,8 @@ void Grid::run() {
 #endif
 		//End of deaths region
 		deathRate=acumProbOfDying*totalHumans;
+		//In the case there are no deaths means that the poblation is being consumed by zombies so fast that death rate goes down.
+		//cout<<deathRate<<"="<<acumProbOfDying<<"*"<<totalHumans<<"MK as dead "<<markedAsDeadCounter <<"Humans to die " <<humansToDie<<endl;
 		acumProbOfDying=deathRate/totalHumans;
 
 
@@ -376,8 +383,9 @@ void Grid::run() {
 
 
 		if ( n%NUMTICKSPRINT == 0 ){
+			markedAsDeadCounter=0;
 			printState(n + 1, gridA, infected, converted, shooted, zDead, ghostCase, hDead, born);
-			//printMatrix(n + 1);
+			//printMatrix(n + 1, gridA);
 			shooted=infected=zDead=outOfBounds=ghostCase=hDead=born=converted=0;
 		}
 	}

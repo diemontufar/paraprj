@@ -28,10 +28,10 @@ static const long NUMTICKSPRINT = 360; //No. Ticks to print
 
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human
 static float const SCALE = 1.0/6.0; //Proportion of rows/columns of NT covered in the simulation
-static int const GRIDROWS = 512; //Number of row grids
-static int const GRIDCOLUMNS = 512;//Number of column grids
+static int const GRIDROWS = 500; //Number of row grids
+static int const GRIDCOLUMNS =500;//Number of column grids
 static float const TOTALGRIDCELLS = GRIDROWS * GRIDCOLUMNS; //Number of cells grids
-static const float NUMBEROFZOMBIES = 10;
+static const float NUMBEROFZOMBIES = 2;
 
 static const int MINFERTILITYAGE = 15;
 static const int MAXFERTILITYAGE = 45;
@@ -57,11 +57,11 @@ static const float DEATHRATENT = DEATHSNT/365.0/6;
 static const float GUNDENSITY = 0.2; //19.13
 
 static const float HEADSHOTPERCENTAGE = 0.05; //40%
-static const float SUCESSFULBITEPERCENTAGE =95; //40%
+static const float SUCESSFULBITEPERCENTAGE =20; //40%
 
 #define MOVE    0.25 //Probability of a move in each direction
 #define DEBUG = true;
-#define DEBUGGRID = false;
+#define DEBUGGRID = true;
 
 
 //-static const float DEATHRATE = 403.0/23000000.0; //Used in inmmaculate conception
