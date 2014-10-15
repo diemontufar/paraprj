@@ -71,10 +71,10 @@ int GridMPI::run(int argc, char** argv){
 	//MPI INIT
 	int	myID;
 	int	N_Procs;
-	int localStats[12]; //humans, zombies, free, men, women, shot, infected, converted, ghostCase, zDead, hDead, born
-	int globalStats[12];
+	int localStats[13]; //humans, zombies, free, men, women, shot, infected, converted, ghostCase, clashCase, zDead, hDead, born
+	int globalStats[13];
 
-	for (int i = 0; i < 12; i++){
+	for (int i = 0; i < 13; i++){
 		localStats[i] = globalStats[i] = 0;
 	}
 	MPI_Init(&argc, &argv);
@@ -127,7 +127,7 @@ int GridMPI::run(int argc, char** argv){
 			MPI_Recv(&gridA[0][0], GRIDCOLUMNS+2, agentDatatype, SOURCE, TAG, MPI_COMM_WORLD, &status);
 			MPI_Send(&gridA[1][0], GRIDCOLUMNS+2, agentDatatype, SOURCE, TAG, MPI_COMM_WORLD);
 		}
-		printMatrixBarrier(n, gridA, myID, 'A');
+		//printMatrixBarrier(n, gridA, myID, 'A');
 		//MOVE
 		for (int i = 1; i <= GRIDROWS; i++) { //Move
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
@@ -169,7 +169,7 @@ int GridMPI::run(int argc, char** argv){
 				}
 			}
 		}
-		printMatrixBarrier(n, gridB, myID,'B');
+		//printMatrixBarrier(n, gridB, myID,'B');
 		//Move B to A and Apply Boundary
 		//Move ownership B to A
 		Agent rowToReceive[GRIDCOLUMNS+2];
@@ -181,7 +181,7 @@ int GridMPI::run(int argc, char** argv){
 				gridB[GRIDROWS+1][j].clean(); //Clean because we sent ownership to process B
 				if (rowToReceive[j].getType()!=none){
 					if (gridB[GRIDROWS][j].getType()!=none){
-						localStats[8]++;
+						localStats[9]++;
 					}
 					gridB[GRIDROWS][j] = rowToReceive[j];
 				}
@@ -194,7 +194,7 @@ int GridMPI::run(int argc, char** argv){
 				gridB[0][j].clean(); //Clean because we changed ownership
 				if (rowToReceive[j].getType()!=none){
 					if (gridB[1][j].getType()!=none){
-						localStats[8]++;
+						localStats[9]++;
 					}
 					gridB[1][j] = rowToReceive[j];
 				}
@@ -239,7 +239,7 @@ int GridMPI::run(int argc, char** argv){
 		swap(gridA, gridB);
 
 		calculateStatistics(localStats, gridA);
-		printf("P %d Ts %d: %d humans and %d zombies, %d ghost cases...\n", myID, n,localStats[0],localStats[1], localStats[8]);
+		//printf("P %d Ts %d: %d humans and %d zombies, %d ghost cases...\n", myID, n,localStats[0],localStats[1], localStats[8]);
 		///Clean gridB
 		for (int i = 0; i <= GRIDROWS+1; i++) {
 			for (int j = 0; j <= GRIDCOLUMNS+1; j++) {
@@ -247,17 +247,16 @@ int GridMPI::run(int argc, char** argv){
 			}
 		}
 
-		printMatrixBarrier(n, gridA, myID,'C');
-		MPI_Reduce(&localStats, &globalStats,12,	MPI_INT, MPI_SUM, SOURCE,	MPI_COMM_WORLD);
-		if	(myID == SOURCE){
-			printf("Ts %d: %d humans and %d zombies, %d ghost cases...\n", n,globalStats[0],globalStats[1], globalStats[8]);
-
+		//printMatrixBarrier(n, gridA, myID,'C');
+		MPI_Reduce(&localStats, &globalStats,13,	MPI_INT, MPI_SUM, SOURCE,	MPI_COMM_WORLD);
+		if	( myID == SOURCE && n%NUMTICKSPRINT == 0 ){
+			printf("Ts %d: %d humans and %d zombies, %d ghost cases, %d clashes...\n", n,globalStats[0],globalStats[1], globalStats[8], globalStats[9]);
+			for (int i = 0; i < 13; i++){
+				globalStats[i] = 0;
+			    localStats[i] = 0;
+			}
 		}
-		for (int i = 0; i < 12; i++){
-			localStats[i] = globalStats[i] = 0;
-		}
-		MPI_Barrier( MPI_COMM_WORLD );
-
+		localStats[0] = localStats[1] = 0;
 	}
 
 	if(myID==0)

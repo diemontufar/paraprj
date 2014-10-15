@@ -28,8 +28,8 @@ static const long NUMTICKSPRINT = 360; //No. Ticks to print
 
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human
 static float const SCALE = 1.0/6.0; //Proportion of rows/columns of NT covered in the simulation
-static int const GRIDROWS = 500; //Number of row grids
-static int const GRIDCOLUMNS =500;//Number of column grids
+static int const GRIDROWS = 768; //Number of row grids
+static int const GRIDCOLUMNS =1024;//Number of column grids
 static float const TOTALGRIDCELLS = GRIDROWS * GRIDCOLUMNS; //Number of cells grids
 static const float NUMBEROFZOMBIES = 2;
 
