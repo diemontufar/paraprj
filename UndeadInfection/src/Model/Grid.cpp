@@ -164,7 +164,7 @@ void Grid::run() {
 #endif
 				for (int j = 1; j <= GRIDCOLUMNS; j++) {
 					if ( gridA[i][j].getType() != none ) {
-						Agent agent = gridA[i][j];
+						Agent& agent = gridA[i][j];
 						//////CHECK THISSS gridA[i][j] = NULL;
 
 						agent.step();
@@ -368,8 +368,8 @@ void Grid::run() {
 
 		swap(gridA, gridB);
 		///Clean gridB
-		for (int i = 1; i <= GRIDROWS; i++) {
-			for (int j = 1; j <= GRIDCOLUMNS; j++) {
+		for (int i = 0; i <= GRIDROWS+1; i++) {
+			for (int j = 0; j <= GRIDCOLUMNS+1; j++) {
 				gridB[i][j].clean();
 			}
 		}

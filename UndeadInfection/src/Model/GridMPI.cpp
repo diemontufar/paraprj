@@ -71,7 +71,12 @@ int GridMPI::run(int argc, char** argv){
 	//MPI INIT
 	int	myID;
 	int	N_Procs;
+	int localStats[12]; //humans, zombies, free, men, women, shot, infected, converted, ghostCase, zDead, hDead, born
+	int globalStats[12];
 
+	for (int i = 0; i < 12; i++){
+		localStats[i] = globalStats[i] = 0;
+	}
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &N_Procs);
 	MPI_Comm_rank(MPI_COMM_WORLD, &myID);
@@ -111,20 +116,23 @@ int GridMPI::run(int argc, char** argv){
 	RandomClass random;
 	random.setSeed(0xFFFF*drand48());
 
+
 	for (int n = 0; n < NUMTICKS; n++) {
+		//Move all rows
 		if (myID == SOURCE) {
-			MPI_Send(&gridA[1][1], 1, agentVectorDatatype, DEST, TAG, MPI_COMM_WORLD);
-			MPI_Recv(&gridA[1][0], 1, agentVectorDatatype, DEST, TAG, MPI_COMM_WORLD, &status);
+			MPI_Send(&gridA[GRIDROWS][0], GRIDCOLUMNS+2, agentDatatype, DEST, TAG, MPI_COMM_WORLD);
+			MPI_Recv(&gridA[GRIDROWS+1][0], GRIDCOLUMNS+2, agentDatatype, DEST, TAG, MPI_COMM_WORLD, &status);
 		}
 		if (myID == DEST){
-			MPI_Recv(&gridA[1][GRIDROWS+1], 1, agentVectorDatatype, SOURCE, TAG, MPI_COMM_WORLD, &status);
-			MPI_Send(&gridA[1][GRIDROWS], 1, agentVectorDatatype, SOURCE, TAG, MPI_COMM_WORLD);
+			MPI_Recv(&gridA[0][0], GRIDCOLUMNS+2, agentDatatype, SOURCE, TAG, MPI_COMM_WORLD, &status);
+			MPI_Send(&gridA[1][0], GRIDCOLUMNS+2, agentDatatype, SOURCE, TAG, MPI_COMM_WORLD);
 		}
+		printMatrixBarrier(n, gridA, myID, 'A');
 		//MOVE
 		for (int i = 1; i <= GRIDROWS; i++) { //Move
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				if ( gridA[i][j].getType() != none ) {
-					Agent agent = gridA[i][j];
+					Agent& agent = gridA[i][j];
 					//Agent already dead no comparisons required
 					if (agent.getType() != none) {
 						double move = random.random();
@@ -161,21 +169,161 @@ int GridMPI::run(int argc, char** argv){
 				}
 			}
 		}
-		//Apply Boundary
-	}
+		printMatrixBarrier(n, gridB, myID,'B');
+		//Move B to A and Apply Boundary
+		//Move ownership B to A
+		Agent rowToReceive[GRIDCOLUMNS+2];
+		if (myID == SOURCE) {
+			MPI_Send(&gridB[GRIDROWS+1][0], GRIDCOLUMNS+2, agentDatatype, DEST, TAG, MPI_COMM_WORLD);
+			MPI_Recv(&rowToReceive, GRIDCOLUMNS+2, agentDatatype, DEST, TAG, MPI_COMM_WORLD, &status);
 
-		if(myID==0)
-		{
-			wtime	= MPI_Wtime() - wtime;	// Record the end time and calculate elapsed time
-			cout << "Simulation took " << wtime/NUMTICKS << " seconds per time step with " << N_Procs << " processes" << endl;
+			for (int j = 0; j < GRIDCOLUMNS+2; j++){
+				gridB[GRIDROWS+1][j].clean(); //Clean because we sent ownership to process B
+				if (rowToReceive[j].getType()!=none){
+					if (gridB[GRIDROWS][j].getType()!=none){
+						localStats[8]++;
+					}
+					gridB[GRIDROWS][j] = rowToReceive[j];
+				}
+			}
+		}
+		else{
+			MPI_Recv(&rowToReceive, GRIDCOLUMNS+2, agentDatatype, SOURCE, TAG, MPI_COMM_WORLD, &status);
+			MPI_Send(&gridB[0][0], GRIDCOLUMNS+2, agentDatatype, SOURCE, TAG, MPI_COMM_WORLD);
+			for (int j = 0; j < GRIDCOLUMNS+2; j++){
+				gridB[0][j].clean(); //Clean because we changed ownership
+				if (rowToReceive[j].getType()!=none){
+					if (gridB[1][j].getType()!=none){
+						localStats[8]++;
+					}
+					gridB[1][j] = rowToReceive[j];
+				}
+			}
+		}
+        //Apply Boundary
+		for (int i = 1; i <= GRIDROWS; i++) {
+			if ( gridB[i][0].getType() != none && gridB[i][1].getType() == none) {
+				Agent a = gridB[i][0];
+				gridB[i][1].clone(a);
+				gridB[i][0].clean();
+			} else if ( gridB[i][0].getType() != none && gridB[i][1].getType()!=none ) {
+				gridB[i][0].clean();
+				localStats[8]++;
+			}
+			if (gridB[i][GRIDCOLUMNS + 1].getType() != none && gridB[i][GRIDCOLUMNS].getType() == none ) {
+				gridB[i][GRIDCOLUMNS].clone(gridB[i][GRIDCOLUMNS + 1]);
+				gridB[i][GRIDCOLUMNS + 1].clean();
+			} else if (gridB[i][GRIDCOLUMNS + 1].getType()!=none && gridB[i][GRIDCOLUMNS].getType() != none) {
+				gridB[i][GRIDCOLUMNS + 1].clean();
+				localStats[8]++;
+			}
 		}
 
-		MPI_Finalize();
-		return 0;
+		for (int j = 1; j <= GRIDCOLUMNS; j++) {
+			if (gridB[0][j].getType() != none && gridB[1][j].getType() == none) {
+				gridB[1][j].clone(gridB[0][j]);
+				gridB[0][j].clean();
+			} else if (gridB[0][j].getType() != none && gridB[1][j].getType() != none) {
+				gridB[0][j].clean();
+				localStats[8]++;
+			}
+			if (gridB[GRIDROWS + 1][j].getType()!=none && gridB[GRIDROWS][j].getType() == none) {
+				gridB[GRIDROWS][j] = gridB[GRIDROWS + 1][j];
+				gridB[GRIDROWS + 1][j].clean();
+			} else if (gridB[GRIDROWS + 1][j].getType() != none && gridB[GRIDROWS][j].getType() != none) {
+				gridB[GRIDROWS + 1][j].clean();
+				localStats[8]++;
+			}
+		}
+
+		swap(gridA, gridB);
+
+		calculateStatistics(localStats, gridA);
+		printf("P %d Ts %d: %d humans and %d zombies, %d ghost cases...\n", myID, n,localStats[0],localStats[1], localStats[8]);
+		///Clean gridB
+		for (int i = 0; i <= GRIDROWS+1; i++) {
+			for (int j = 0; j <= GRIDCOLUMNS+1; j++) {
+				gridB[i][j].clean();
+			}
+		}
+
+		printMatrixBarrier(n, gridA, myID,'C');
+		MPI_Reduce(&localStats, &globalStats,12,	MPI_INT, MPI_SUM, SOURCE,	MPI_COMM_WORLD);
+		if	(myID == SOURCE){
+			printf("Ts %d: %d humans and %d zombies, %d ghost cases...\n", n,globalStats[0],globalStats[1], globalStats[8]);
+
+		}
+		for (int i = 0; i < 12; i++){
+			localStats[i] = globalStats[i] = 0;
+		}
+		MPI_Barrier( MPI_COMM_WORLD );
 
 	}
-	void exchange(double** phiH, double** phiVx, double** phiVy , int myN_x, int myN_y, int myID,
-			int rightNeighbor, int leftNeighbor, int topNeighbor, int bottomNeighbor, MPI_Comm Comm2D, MPI_Datatype strideType){
-		MPI_Status		status;
-		MPI_Sendrecv(&(phiH[2][2]),			myN_y,	MPI_DOUBLE,	leftNeighbor,		0,	&(phiH[myN_x+2][2]),	myN_y,	MPI_DOUBLE,	rightNeighbor,		0, Comm2D, &status);
+
+	if(myID==0)
+	{
+		wtime	= MPI_Wtime() - wtime;	// Record the end time and calculate elapsed time
+		cout << "Simulation took " << wtime/NUMTICKS << " seconds per time step with " << N_Procs << " processes" << endl;
 	}
+
+	MPI_Finalize();
+	return 0;
+
+}
+void GridMPI::calculateStatistics(int *stats, Agent** gridA) {
+	for (int i = 1; i <= GRIDROWS; i++) {
+		for (int j = 1; j <= GRIDCOLUMNS; j++) {
+			Agent agent = gridA[i][j];
+			if (agent.getType() == human)
+				stats[0] += 1.0;
+			else if (agent.getType() == zombie)
+				stats[1] += 1.0;
+			else
+				stats[2] += 1.0;
+		}
+	}
+}
+/* Print Grid*/
+void GridMPI::printMatrix(int tick, Agent** gridA, int rank, char gridName) {
+	cout << endl;
+	cout << "P:"<<rank<<"-GRID "<<gridName<<endl;
+	//for (int j = 0; j <= GRIDCOLUMNS + 1; j++) {
+	//	cout << j << (j <= 9 ? " |" : "|");
+	//}
+	//cout << endl;
+	for (int i = 0; i <= GRIDROWS + 1; i++) {
+		for (int j = 0; j <= GRIDCOLUMNS + 1; j++) {
+			cout << "--";
+		}
+		cout << endl;
+		for (int j = 0; j <= GRIDCOLUMNS + 1; j++) {
+			if (j == 1)
+				cout << "|";
+			Agent agent = gridA[i][j];
+			if (agent.getType() != none) {
+				AgentTypeEnum currentType = agent.getType();
+				if (currentType == human)
+					cout << "h|";
+				else
+					cout << "z|";
+			} else {
+				cout << " |";
+			}
+		}
+		cout << endl;
+	}
+}
+void GridMPI::printMatrixBarrier(int tick, Agent** gridA, int rank,  char gridName){
+	MPI_Barrier( MPI_COMM_WORLD );
+	if (rank == SOURCE)
+		printMatrix(tick,gridA,rank, gridName);
+	MPI_Barrier( MPI_COMM_WORLD );
+	if (rank == DEST)
+			printMatrix(tick,gridA,rank, gridName);
+	MPI_Barrier( MPI_COMM_WORLD );
+}
+void exchange(double** phiH, double** phiVx, double** phiVy , int myN_x, int myN_y, int myID,
+		int rightNeighbor, int leftNeighbor, int topNeighbor, int bottomNeighbor, MPI_Comm Comm2D, MPI_Datatype strideType){
+	MPI_Status		status;
+	MPI_Sendrecv(&(phiH[2][2]),			myN_y,	MPI_DOUBLE,	leftNeighbor,		0,	&(phiH[myN_x+2][2]),	myN_y,	MPI_DOUBLE,	rightNeighbor,		0, Comm2D, &status);
+}

@@ -22,7 +22,9 @@ private:
 
 	Agent** createMesh ();
 	void initialize ( Agent**, Agent**, int rank );
-
+	void calculateStatistics(int *stats, Agent** gridA);
+	void printMatrixBarrier(int tick, Agent** gridA, int rank, char gridName);
+	void printMatrix(int tick, Agent** gridA, int rank,  char gridName);
 public:
 	GridMPI();
 	virtual ~GridMPI();
