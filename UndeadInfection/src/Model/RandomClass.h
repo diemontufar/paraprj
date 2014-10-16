@@ -31,6 +31,7 @@ public:
     virtual ~RandomClass();
 
     double random();
+    double random(double max);
     int random(int range);
     int random(int start, int end);
     bool randomBool();

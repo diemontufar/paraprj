@@ -19,7 +19,12 @@ RandomClass::~RandomClass(){}
 
 // Generates random number < 1, works for probabilities
 double RandomClass::random() {
-	return rng.rand53();
+	return rng.rand();
+}
+
+// Generates random number < 1, works for probabilities
+double RandomClass::random(double max) {
+	return rng.rand(max);
 }
 
 // Generates random number from 0 to range
