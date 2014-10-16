@@ -152,10 +152,11 @@ int GridMPI::run(int argc, char** argv){
 	//MPI INIT
 	int	myID;
 	int	N_Procs;
-	int localStats[13]; //humans, zombies, free, men, women, shot, infected, converted, ghostCase, clashCase, zDead, hDead, born
-	int globalStats[13];
+	int localStats[TOTALCOUNTERS]; //men, women, shot, infected, converted, ghostCase, clashCase, zDead, hDead, born
+	int globalStats[TOTALCOUNTERS];
+	float freeCells=0,totalHumans = 0,totalZombies = 0;
 
-	for (int i = 0; i < 13; i++){
+	for (int i = 0; i < TOTALCOUNTERS; i++){
 		localStats[i] = globalStats[i] = 0;
 	}
 	MPI_Init(&argc, &argv);
@@ -248,11 +249,52 @@ int GridMPI::run(int argc, char** argv){
         //Apply Boundary
 		applyBoundary(gridB, localStats);
 		swap(gridA, gridB);
+		totalHumans = totalZombies = freeCells = 0;
+		calculateStatistics(totalHumans,totalZombies, freeCells, gridA);
+
+		for (int i = 1; i <= GRIDROWS; i++) {
+			for (int j = 1; j <= GRIDCOLUMNS; j++) {
+				//cout <<"Marked as dead counter: "<<markedAsDeadCounter<< "Humans to die:" << humansToDie << "Chance to die " <<chanceToDie<< endl;
+				Agent &agentA = gridA[i][j];
+				if (agentA.getType() != none) {
+					AgentTypeEnum typeA = agentA.getType();
+					if (typeA == human) {
+						if (gridA[i - 1][j].getType() != none) { //Someone up
+							if (gridA[i - 1][j].getType() == zombie)
+								resolveHumanZombie(agentA, gridB[i-1][j], random, localStats);
+							//else
+							//	resolveGridHumanHuman(agentA,i - 1,j, gridB, random, totalHumans, totalZombies, freeCells, born);
+						}
+						if (j < GRIDROWS && gridB[i][j + 1].getType() != none) { //Someone on the right
+							if (gridB[i][j+1].getType() == zombie)
+								resolveHumanZombie(agentA,gridB[i][j+1], random, localStats);
+							//else
+							//	resolveGridHumanHuman(agentA,i,j+1, gridB, random, totalHumans, totalZombies, freeCells, born);
+						}
+						if (i < GRIDROWS && gridB[i + 1][j].getType() != none) { //Down
+							if (gridB[i+1][j].getType() == zombie)
+								resolveHumanZombie(agentA,gridB[i+1][j], random, localStats);
+							//else
+								//resolveGridHumanHuman(agentA,i + 1,j, gridB, random, totalHumans, totalZombies, freeCells, born);
+						}
+						if (j > 2 && gridB[i][j - 1].getType() != none) { //Left
+							if (gridB[i][j-1].getType() == zombie)
+								resolveHumanZombie(agentA,gridB[i][j-1], random, localStats);
+							//else
+								//resolveGridHumanHuman(agentA,i,j - 1, gridB, random, totalHumans, totalZombies, freeCells, born);
+						}
+
+
+
+					}
+				}
+			}
+		}
 
 
 
 
-		calculateStatistics(localStats, gridA);
+
 		//printf("P %d Ts %d: %d humans and %d zombies, %d ghost cases...\n", myID, n,localStats[0],localStats[1], localStats[8]);
 		///Clean gridB
 		for (int i = 0; i <= GRIDROWS+1; i++) {
@@ -283,19 +325,37 @@ int GridMPI::run(int argc, char** argv){
 	return 0;
 
 }
-void GridMPI::calculateStatistics(int *stats, Agent** gridA) {
+void GridMPI::calculateStatistics(float &humanPopulation,float &zombies, float &freeCells, Agent** gridA) {
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			Agent agent = gridA[i][j];
 			if (agent.getType() == human)
-				stats[0] += 1.0;
+				humanPopulation += 1.0;
 			else if (agent.getType() == zombie)
-				stats[1] += 1.0;
+				zombies += 1.0;
 			else
-				stats[2] += 1.0;
+				freeCells += 1.0;
 		}
 	}
 }
+
+
+/*Resolve conflicts between Human-Zombie*/
+void GridMPI::resolveHumanZombie(Agent &human, Agent &zombie, RandomClass random, int* localStats) {
+	//Probability and cases, for now it is a rand
+	int dice_roll = random.random(0,100);
+
+	if (dice_roll <= HEADSHOTPERCENTAGE) {
+		zombie.shoot();
+		//Counters::getInstance().newShooted();
+		localStats[SHOT]++;
+	} else if (dice_roll <= SUCESSFULBITEPERCENTAGE) {
+		human.infect();
+		//Counters::getInstance().newInfected();
+		localStats[INFECTED]++;
+	}
+}
+
 /* Print Grid*/
 void GridMPI::printMatrix(int tick, Agent** gridA, int rank, char gridName) {
 	cout << endl;
