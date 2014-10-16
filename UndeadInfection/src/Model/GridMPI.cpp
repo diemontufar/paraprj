@@ -86,7 +86,7 @@ void GridMPI::ownershipExchange(int myID, MPI_Datatype agentDatatype, Agent** gr
 			gridB[GRIDROWS+1][j].clean(); //Clean because we sent ownership to process B
 			if (rowToReceive[j].getType()!=none){
 				if (gridB[GRIDROWS][j].getType()!=none){
-					localStats[9]++;
+					localStats[CLASHCASE]++;
 				}
 				gridB[GRIDROWS][j] = rowToReceive[j];
 			}
@@ -99,7 +99,7 @@ void GridMPI::ownershipExchange(int myID, MPI_Datatype agentDatatype, Agent** gr
 			gridB[0][j].clean(); //Clean because we changed ownership
 			if (rowToReceive[j].getType()!=none){
 				if (gridB[1][j].getType()!=none){
-					localStats[9]++;
+					localStats[CLASHCASE]++;
 				}
 				gridB[1][j] = rowToReceive[j];
 			}
@@ -114,14 +114,14 @@ void GridMPI::applyBoundary(Agent** gridB, int* localStats){
 			gridB[i][0].clean();
 		} else if ( gridB[i][0].getType() != none && gridB[i][1].getType()!=none ) {
 			gridB[i][0].clean();
-			localStats[8]++;
+			localStats[GHOSTCASE]++;
 		}
 		if (gridB[i][GRIDCOLUMNS + 1].getType() != none && gridB[i][GRIDCOLUMNS].getType() == none ) {
 			gridB[i][GRIDCOLUMNS].clone(gridB[i][GRIDCOLUMNS + 1]);
 			gridB[i][GRIDCOLUMNS + 1].clean();
 		} else if (gridB[i][GRIDCOLUMNS + 1].getType()!=none && gridB[i][GRIDCOLUMNS].getType() != none) {
 			gridB[i][GRIDCOLUMNS + 1].clean();
-			localStats[8]++;
+			localStats[GHOSTCASE]++;
 		}
 	}
 
@@ -131,14 +131,14 @@ void GridMPI::applyBoundary(Agent** gridB, int* localStats){
 			gridB[0][j].clean();
 		} else if (gridB[0][j].getType() != none && gridB[1][j].getType() != none) {
 			gridB[0][j].clean();
-			localStats[8]++;
+			localStats[GHOSTCASE]++;
 		}
 		if (gridB[GRIDROWS + 1][j].getType()!=none && gridB[GRIDROWS][j].getType() == none) {
 			gridB[GRIDROWS][j] = gridB[GRIDROWS + 1][j];
 			gridB[GRIDROWS + 1][j].clean();
 		} else if (gridB[GRIDROWS + 1][j].getType() != none && gridB[GRIDROWS][j].getType() != none) {
 			gridB[GRIDROWS + 1][j].clean();
-			localStats[8]++;
+			localStats[GHOSTCASE]++;
 		}
 	}
 }
@@ -154,7 +154,7 @@ int GridMPI::run(int argc, char** argv){
 	int	N_Procs;
 	int localStats[TOTALCOUNTERS]; //men, women, shot, infected, converted, ghostCase, clashCase, zDead, hDead, born
 	int globalStats[TOTALCOUNTERS];
-	float freeCells=0,totalHumans = 0,totalZombies = 0;
+	float freeCells=0;
 
 	for (int i = 0; i < TOTALCOUNTERS; i++){
 		localStats[i] = globalStats[i] = 0;
@@ -200,6 +200,32 @@ int GridMPI::run(int argc, char** argv){
 
 
 	for (int n = 0; n < NUMTICKS; n++) {
+		//Check and Death
+		for (int i = 1; i <= GRIDROWS; i++) {
+			for (int j = 1; j <= GRIDCOLUMNS; j++) {
+				if ( gridA[i][j].getType() != none ) {
+					Agent& agent = gridA[i][j];
+					agent.step();
+
+					//Code to remove decomposed agents
+					if ((agent.getType() == zombie) && (agent.isDecomposed() || agent.isShooted())) {
+						localStats[ZDEAD]++;
+						agent.clean();
+					} else {
+						if ( agent.getType() == human && agent.isNaturalDead() ) {
+							localStats[HDEAD]++;
+							agent.clean();
+						} else {
+							if ( agent.getType() == human && agent.isInfected() ) {
+								localStats[CONVERTED]++;
+								agent.migrateToZombie(random.random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME));
+							}
+						}
+					}
+				}
+			}
+		}
+
 		//Move all rows
 		fullExchange(myID, agentDatatype, gridA, status);
 		//printMatrixBarrier(n, gridA, myID, 'A');
@@ -209,36 +235,34 @@ int GridMPI::run(int argc, char** argv){
 				if ( gridA[i][j].getType() != none ) {
 					Agent& agent = gridA[i][j];
 					//Agent already dead no comparisons required
-					if (agent.getType() != none) {
-						double move = random.random();
-						int desti = 0;
-						int destj = 0;
+					double move = random.random();
+					int desti = 0;
+					int destj = 0;
 
-						if (move < 1.0 * MOVE) {
-							desti = i - 1;
-							destj = j;
-						} else if (move < 2.0 * MOVE) {
-							desti = i + 1;
-							destj = j;
-						} else if (move < 3.0 * MOVE) {
-							desti = i;
-							destj = j - 1;
-						} else if (move < 4.0 * MOVE) {
-							desti = i;
-							destj = j + 1;
-						} else {
-							desti = i;
-							destj = j;
-						}
-						if (gridA[desti][destj].getType() == none && gridB[desti][destj].getType() == none) {
-							gridB[desti][destj].clone(agent);
-							//#ifdef DEBUGGRID
-							//std::cerr << "Tick: " << (n+1) << "Human moved from" << i <<","<< j << " to "<< desti <<","<< destj<<"\n";
-							//#endif
+					if (move < 1.0 * MOVE) {
+						desti = i - 1;
+						destj = j;
+					} else if (move < 2.0 * MOVE) {
+						desti = i + 1;
+						destj = j;
+					} else if (move < 3.0 * MOVE) {
+						desti = i;
+						destj = j - 1;
+					} else if (move < 4.0 * MOVE) {
+						desti = i;
+						destj = j + 1;
+					} else {
+						desti = i;
+						destj = j;
+					}
+					if (gridA[desti][destj].getType() == none && gridB[desti][destj].getType() == none) {
+						gridB[desti][destj].clone(agent);
+						//#ifdef DEBUGGRID
+						//std::cerr << "Tick: " << (n+1) << "Human moved from" << i <<","<< j << " to "<< desti <<","<< destj<<"\n";
+						//#endif
 
-						} else {
-							gridB[i][j].clone(agent);
-						}
+					} else {
+						gridB[i][j].clone(agent);
 					}
 					agent.clean();
 				}
@@ -246,11 +270,12 @@ int GridMPI::run(int argc, char** argv){
 		}
 		//Move ownership B to A
 		ownershipExchange(myID, agentDatatype, gridB, status, localStats);
-        //Apply Boundary
+		//Apply Boundary
 		applyBoundary(gridB, localStats);
 		swap(gridA, gridB);
-		totalHumans = totalZombies = freeCells = 0;
-		calculateStatistics(totalHumans,totalZombies, freeCells, gridA);
+
+		localStats[MEN] = localStats[WOMEN] = localStats[ZOMBIES] = freeCells = 0;
+		calculateStatistics(freeCells, gridA, localStats);
 
 		for (int i = 1; i <= GRIDROWS; i++) {
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
@@ -260,41 +285,53 @@ int GridMPI::run(int argc, char** argv){
 					AgentTypeEnum typeA = agentA.getType();
 					if (typeA == human) {
 						if (gridA[i - 1][j].getType() != none) { //Someone up
-							if (gridA[i - 1][j].getType() == zombie)
-								resolveHumanZombie(agentA, gridB[i-1][j], random, localStats);
-							//else
-							//	resolveGridHumanHuman(agentA,i - 1,j, gridB, random, totalHumans, totalZombies, freeCells, born);
+							if (gridA[i - 1][j].getType() == zombie && !gridA[i - 1][j].isShooted())
+								resolveHumanZombie(agentA, gridA[i-1][j], random, localStats);
+							else
+								resolveGridHumanHuman(agentA,i - 1,j, gridA, random, localStats);
 						}
-						if (j < GRIDROWS && gridB[i][j + 1].getType() != none) { //Someone on the right
-							if (gridB[i][j+1].getType() == zombie)
-								resolveHumanZombie(agentA,gridB[i][j+1], random, localStats);
-							//else
-							//	resolveGridHumanHuman(agentA,i,j+1, gridB, random, totalHumans, totalZombies, freeCells, born);
+						if (gridA[i][j + 1].getType() != none) { //Someone on the right
+							if (gridA[i][j+1].getType() == zombie && !gridA[i][j+1].isShooted())
+								resolveHumanZombie(agentA,gridA[i][j+1], random, localStats);
+							else
+								resolveGridHumanHuman(agentA,i,j+1, gridA, random, localStats);
 						}
-						if (i < GRIDROWS && gridB[i + 1][j].getType() != none) { //Down
-							if (gridB[i+1][j].getType() == zombie)
-								resolveHumanZombie(agentA,gridB[i+1][j], random, localStats);
-							//else
-								//resolveGridHumanHuman(agentA,i + 1,j, gridB, random, totalHumans, totalZombies, freeCells, born);
+						if (gridA[i + 1][j].getType() != none) { //Down
+							if (gridA[i+1][j].getType() == zombie && !gridA[i+1][j].isShooted())
+								resolveHumanZombie(agentA,gridA[i+1][j], random, localStats);
+							else
+								resolveGridHumanHuman(agentA,i + 1,j, gridA, random, localStats);
 						}
-						if (j > 2 && gridB[i][j - 1].getType() != none) { //Left
-							if (gridB[i][j-1].getType() == zombie)
-								resolveHumanZombie(agentA,gridB[i][j-1], random, localStats);
-							//else
-								//resolveGridHumanHuman(agentA,i,j - 1, gridB, random, totalHumans, totalZombies, freeCells, born);
+						if (gridA[i][j - 1].getType() != none) { //Left
+							if (gridA[i][j-1].getType() == zombie && !gridA[i][j-1].isShooted())
+								resolveHumanZombie(agentA,gridA[i][j-1], random, localStats);
+							else
+								resolveGridHumanHuman(agentA,i,j - 1, gridA, random, localStats);
 						}
-
-
-
 					}
 				}
 			}
 		}
 
-
-
-
-
+		//Dead marking
+		for (int i = 1; i <= GRIDROWS; i++) {
+			for (int j = 1; j <= GRIDCOLUMNS; j++) {
+				//cout <<"Marked as dead counter: "<<markedAsDeadCounter<< "Humans to die:" << humansToDie << "Chance to die " <<chanceToDie<< endl;
+				Agent &agent = gridA[i][j];
+				if (agent.getType() == human) {
+					//Death process
+					if (!agent.isInfected()){
+						double move = random.random();
+						//					cout << "TS:" << n << "Death " <<move << "," << deathRate << endl;
+						//cout << "TS:" << n << "Death " <<move << "," << deathRate <<"," << humansToDie<<"," << chanceToDie << endl;
+						if (move < 0.05 ) {
+							//cout<<markedAsDeadCounter<<"<="<<humansToDie<<endl;
+							agent.markAsDead();
+						}
+					}
+				}
+			}
+		}
 		//printf("P %d Ts %d: %d humans and %d zombies, %d ghost cases...\n", myID, n,localStats[0],localStats[1], localStats[8]);
 		///Clean gridB
 		for (int i = 0; i <= GRIDROWS+1; i++) {
@@ -304,15 +341,17 @@ int GridMPI::run(int argc, char** argv){
 		}
 
 		//printMatrixBarrier(n, gridA, myID,'C');
-		MPI_Reduce(&localStats, &globalStats,13,	MPI_INT, MPI_SUM, SOURCE,	MPI_COMM_WORLD);
+		localStats[MEN]=localStats[WOMEN]=localStats[ZOMBIES]=freeCells = 0;
+		calculateStatistics(freeCells, gridA, localStats);
+		MPI_Reduce(&localStats, &globalStats,TOTALCOUNTERS,	MPI_INT, MPI_SUM, SOURCE,	MPI_COMM_WORLD);
 		if	( myID == SOURCE && n%NUMTICKSPRINT == 0 ){
-			printf("Ts %d: %d humans and %d zombies, %d ghost cases, %d clashes...\n", n,globalStats[0],globalStats[1], globalStats[8], globalStats[9]);
-			for (int i = 0; i < 13; i++){
+			printState((n+1), globalStats);
+			for (int i = 0; i < TOTALCOUNTERS; i++){
 				globalStats[i] = 0;
-			    localStats[i] = 0;
+				localStats[i] = 0;
 			}
 		}
-		localStats[0] = localStats[1] = 0;
+		localStats[MEN] = localStats[WOMEN] = localStats[ZOMBIES] = freeCells = 0;
 	}
 
 	if(myID==0)
@@ -325,14 +364,28 @@ int GridMPI::run(int argc, char** argv){
 	return 0;
 
 }
-void GridMPI::calculateStatistics(float &humanPopulation,float &zombies, float &freeCells, Agent** gridA) {
+/*Prints the state of the gridA in any time step*/
+void GridMPI::printState(int tick, int* stats) {
+	std::cout << "Tick:" << tick << ", Humans: " << stats[MEN]+stats[WOMEN] << ", Males: "<< stats[MEN] << ", Females: " << stats[WOMEN] << ", Zombies: " << stats[ZOMBIES];
+	std::cout << ", Infected:" << stats[INFECTED];
+	std::cout << ", Converted: " << stats[CONVERTED] << ",Shots: " << stats[SHOT];
+	std::cout << ", Dead Deaths: " << stats[ZDEAD] << ",Ghost Cases: " << stats[GHOSTCASE];
+	std::cout << ",Clash Cases: " << stats[CLASHCASE] << ", Natural Deaths: " << stats[HDEAD];
+	std::cout << ",Births: " << stats[BORN] << "\n";
+}
+
+void GridMPI::calculateStatistics(float &freeCells, Agent** gridA, int* localStats){
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			Agent agent = gridA[i][j];
-			if (agent.getType() == human)
-				humanPopulation += 1.0;
+			if (agent.getType() == human){
+				if (agent.getGender())
+					localStats[MEN]++;
+				else
+					localStats[WOMEN]++;;
+			}
 			else if (agent.getType() == zombie)
-				zombies += 1.0;
+				localStats[ZOMBIES]++;
 			else
 				freeCells += 1.0;
 		}
@@ -341,18 +394,101 @@ void GridMPI::calculateStatistics(float &humanPopulation,float &zombies, float &
 
 
 /*Resolve conflicts between Human-Zombie*/
-void GridMPI::resolveHumanZombie(Agent &human, Agent &zombie, RandomClass random, int* localStats) {
+void GridMPI::resolveHumanZombie(Agent &humanAgent, Agent &zombieAgent, RandomClass random, int* localStats) {
 	//Probability and cases, for now it is a rand
 	int dice_roll = random.random(0,100);
 
 	if (dice_roll <= HEADSHOTPERCENTAGE) {
-		zombie.shoot();
-		//Counters::getInstance().newShooted();
+		zombieAgent.shoot();
 		localStats[SHOT]++;
 	} else if (dice_roll <= SUCESSFULBITEPERCENTAGE) {
-		human.infect();
-		//Counters::getInstance().newInfected();
+		humanAgent.infect();
 		localStats[INFECTED]++;
+	}
+}
+/*Resolve conflicts between Human-Human*/
+void GridMPI::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass random, int* localStats) {
+	Agent agentB = gridA[i][j];
+	AgentTypeEnum typeB = agentB.getType();
+	if (typeB == human) {
+		//If humans have opposite genders, then try the chances to have a baby
+		if ((agentA.getGender() && !agentB.getGender()) || (!agentA.getGender() && agentB.getGender())){
+
+			//Only Humans between 25 and 45 years can have a baby
+			if ( agentA.getAge()>=MINFERTILITYAGE && agentA.getAge()<=MAXFERTILITYAGE && agentB.getAge()>=MINFERTILITYAGE && agentB.getAge()<=MAXFERTILITYAGE ){
+				//cout << "Fertility Range Checked" << endl;
+				//1. Calculate statistics
+				float delta = 0,probPair=0,probAnyHumanHaveBaby=0;
+
+
+				//2. Calculate probabilities
+				delta = (localStats[MEN]+localStats[WOMEN]) / (TOTALGRIDCELLS - localStats[ZOMBIES]); //delta is the density of humans
+				probPair = 1-pow((1-delta),4); //Prob. two humans being pair 1-(1-delta)^4
+				probAnyHumanHaveBaby = probPair * PROBTOHAVEBABYWHENPAIRED; //Prob. any Human will have a baby (Per capita birth rate)
+
+				//Roll a dice
+				double birth = random.random();
+
+				//Find the first free space around the agent to place the baby
+				//freeI,freeJ ???
+				int freeI=-1,freeJ=-1;
+				bool foundIt = false; //help us to found the first free space
+				//cout << birth << "," << probAnyHumanHaveBaby << endl;
+				if ( birth <= probAnyHumanHaveBaby){
+					cout << birth << "," << probAnyHumanHaveBaby << endl;
+					//Its a baby!
+					//cout<< "Random: "<< move <<"Chance: "<<prob <<endl;
+					bool gender = random.random() < GENDERRATIO ? true : false; //consider demographics and ages
+					bool hasAGun = false; //->a baby does not have a gun
+					int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
+
+
+					/*Find a free space for the baby*/
+					if ( !foundIt && i  > 2 && gridA[i - 1][j].getType() == none ) { //Someone up
+						freeI=i-1,freeJ=j;
+						foundIt = true;
+					}
+					if ( !foundIt && j < GRIDROWS && gridA[i][j + 1].getType() == none ) { //Someone on the right
+						freeI=i,freeJ=j+1;
+						foundIt = true;
+					}
+					if ( !foundIt && i < GRIDROWS && gridA[i + 1][j].getType() == none ) { //Down
+						freeI=i+1,freeJ=j;
+						foundIt = true;
+					}
+					if ( !foundIt && j > 2 && gridA[i][j - 1].getType() == none ) { //Left
+						freeI=i,freeJ=j-1;
+						foundIt = true;
+					}
+					if ( !foundIt && i > 4 && gridA[i - 2][j].getType() == none ) { //Someone up up
+						freeI=i-2,freeJ=j;
+						foundIt = true;
+					}
+					if ( !foundIt && j < GRIDROWS - 2 && gridA[i][j + 2].getType() == none ) { //Someone on the right right
+						freeI=i,freeJ=j+2;
+						foundIt = true;
+					}
+					if ( !foundIt && i < GRIDROWS -2  && gridA[i + 2][j].getType() == none ) { //Down Down
+						freeI=i+2,freeJ=j;
+						foundIt = true;
+					}
+					if ( !foundIt && j > 4 && gridA[i][j - 2].getType() == none ) { //Left Left
+						freeI=i,freeJ=j-2;
+						foundIt = true;
+					}
+
+					//If we found a free space to the new born, place it, otherwise kill him! :(
+					if (freeI!=-1 && freeJ!=-1 && foundIt ){
+						cout<<"Baby!"<<endl;
+						gridA[freeI][freeJ].migrateToHuman(gender, 1, hasAGun, lifeExpectancy);
+						localStats[BORN]++;
+					}
+					else{
+						cout<<"Couldnt find a space!"<<endl;
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -392,6 +528,6 @@ void GridMPI::printMatrixBarrier(int tick, Agent** gridA, int rank,  char gridNa
 		printMatrix(tick,gridA,rank, gridName);
 	MPI_Barrier( MPI_COMM_WORLD );
 	if (rank == DEST)
-			printMatrix(tick,gridA,rank, gridName);
+		printMatrix(tick,gridA,rank, gridName);
 	MPI_Barrier( MPI_COMM_WORLD );
 }
