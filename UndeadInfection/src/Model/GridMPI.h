@@ -25,6 +25,11 @@ private:
 	void calculateStatistics(int *stats, Agent** gridA);
 	void printMatrixBarrier(int tick, Agent** gridA, int rank, char gridName);
 	void printMatrix(int tick, Agent** gridA, int rank,  char gridName);
+	void fullExchange(int myID, MPI_Datatype agentDatatype, Agent** gridA,
+			MPI_Status& status);
+	void ownershipExchange(int myID, MPI_Datatype agentDatatype, Agent** gridB, MPI_Status& status, int* localStats);
+	void applyBoundary(Agent** gridB, int* localStats);
+
 public:
 	GridMPI();
 	virtual ~GridMPI();
