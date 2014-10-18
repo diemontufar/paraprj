@@ -46,8 +46,9 @@ void GridMPI::initialize(	Agent** gridA, Agent** gridB, int rank ) {
 				int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
 				bool gender = random.random() < GENDERRATIO ? true : false;
 				bool hasAGun = random.random() < GUNDENSITY ? true : false;
+				int numBabies = 0;
 
-				gridA[i][j].migrateToHuman(gender, age, hasAGun, lifeExpectancy);
+				gridA[i][j].migrateToHuman(gender, age, hasAGun, lifeExpectancy, numBabies);
 				numHumans++;
 			} else {
 				if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN()) {
@@ -280,10 +281,13 @@ int GridMPI::run(int argc, char** argv){
         //Probability of birth
 		float delta = 0,probPair=0,probAnyHumanHaveBaby=0;
 		//2. Calculate probabilities
-		delta = (localStats[MEN]+localStats[WOMEN]) / (TOTALGRIDCELLS/2 - localStats[ZOMBIES]); //delta is the density of humans
+		delta = (localStats[MEN]+localStats[WOMEN]) / (TOTALGRIDCELLS - localStats[ZOMBIES] - localStats[INFECTED] - localStats[CONVERTED]); //delta is the density of humans
 		probPair = 1-pow((1-delta),4); //Prob. two humans being pair 1-(1-delta)^4
 		probAnyHumanHaveBaby = probPair * PROBTOHAVEBABYWHENPAIRED; //Prob. any Human will have a baby (Per capita birth rate)
-
+		//probAnyHumanHaveBaby = ceil(probAnyHumanHaveBaby*pow(10,6))/pow(10,6);
+		//cout << "1-(1-delta)^4: " << probAnyHumanHaveBaby << "; delta: " << delta << endl;
+		//cout << "delta= " << delta <<"; Num humans: " << (localStats[MEN]+localStats[WOMEN]) << "; TotalGridCells: " << TOTALGRIDCELLS << "; Zombies: " << localStats[ZOMBIES] << endl;
+		//cout << "Prob. have a baby: " <<  probAnyHumanHaveBaby << endl;
 		for (int i = 1; i <= GRIDROWS; i++) {
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				//cout <<"Marked as dead counter: "<<markedAsDeadCounter<< "Humans to die:" << humansToDie << "Chance to die " <<chanceToDie<< endl;
@@ -418,27 +422,34 @@ void GridMPI::resolveHumanZombie(Agent &humanAgent, Agent &zombieAgent, RandomCl
 void GridMPI::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass& random, int* localStats, float probAnyHumanHaveBaby) {
 	Agent agentB = gridA[i][j];
 	AgentTypeEnum typeB = agentB.getType();
-	if (typeB == human) {
+	if (typeB == human && !agentB.isInfected() && !agentA.isInfected()) {
+
 		//If humans have opposite genders, then try the chances to have a baby
 		if ((agentA.getGender() && !agentB.getGender()) || (!agentA.getGender() && agentB.getGender())){
 
-			//Only Humans between 25 and 45 years can have a baby
+			//Only Humans between 15 and 45 years can have a baby
 			if ( agentA.getAge()>=MINFERTILITYAGE && agentA.getAge()<=MAXFERTILITYAGE && agentB.getAge()>=MINFERTILITYAGE && agentB.getAge()<=MAXFERTILITYAGE ){
 				//cout << "Fertility Range Checked" << endl;
 				//1. Calculate statistics
 
 				//Roll a dice
 				double birth = random.random();
+				//birth = ceil(birth*pow(10,6))/pow(10,6);
 
 				//Find the first free space around the agent to place the baby
-				//freeI,freeJ ???
 				int freeI=-1,freeJ=-1;
 				bool foundIt = false; //help us to found the first free space
 				//cout << birth << "," << probAnyHumanHaveBaby << endl;
-				if ( birth <= probAnyHumanHaveBaby){
-					//cout << birth << "," << probAnyHumanHaveBaby << endl;
+				//cout << "Maybe a baby: "<< birth << "," << probAnyHumanHaveBaby << endl;
+
+				if ( birth < probAnyHumanHaveBaby && agentA.getNumBabies()<=BIRTHSPERPERSON && agentB.getNumBabies()<=BIRTHSPERPERSON){
+					//cout << "A baby: "<< birth << "," << probAnyHumanHaveBaby << endl;
 					//Its a baby!
 					//cout<< "Random: "<< move <<"Chance: "<<prob <<endl;
+					agentA.incrementNumBabies();
+					agentB.incrementNumBabies();
+					//cout << "Agent A: "<< agentA.getNumBabies() << "," << "Agent B: "<< agentB.getNumBabies() << endl;
+					int numBabies = 0;
 					bool gender = random.random() < GENDERRATIO ? true : false; //consider demographics and ages
 					bool hasAGun = false; //->a baby does not have a gun
 					int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
@@ -481,7 +492,7 @@ void GridMPI::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, R
 					//If we found a free space to the new born, place it, otherwise kill him! :(
 					if (freeI!=-1 && freeJ!=-1 && foundIt ){
 						//cout<<"Baby!"<<endl;
-						gridA[freeI][freeJ].migrateToHuman(gender, 1, hasAGun, lifeExpectancy);
+						gridA[freeI][freeJ].migrateToHuman(gender, 1, hasAGun, lifeExpectancy, numBabies);
 						localStats[BORN]++;
 					}
 					else{

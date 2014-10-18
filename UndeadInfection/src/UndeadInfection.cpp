@@ -116,7 +116,7 @@ bool testHumanDeseaseIncubation() {
 	cout << "Testing step of human";
 	RandomClass random(0);
 	Agent h;
-	h.migrateToHuman(false,random.random(100)+1, false, 80);
+	h.migrateToHuman(false,random.random(100)+1, false, 80,0);
 	h.infect();
 	for (int i = 0; i <= INCUBATIONTIME + 1; i++) {
 		h.step();
@@ -143,7 +143,7 @@ bool testZombieDecomposition() {
 bool testInheritanceOfAgents() {
 	cout << "Testing inheritance of agents" << endl;
 	Agent a;
-	a.migrateToHuman(true,1, true, 70);
+	a.migrateToHuman(true,1, true, 70,0);
 	if (a.getType() != human)
 		return false;
 	a.migrateToZombie(5);
@@ -177,7 +177,7 @@ bool testZombie() {
 bool testHuman() {
 	cout << "Testing humans" << endl;
 	Agent male;
-	male.migrateToHuman(false,60, false, 80);
+	male.migrateToHuman(false,60, false, 80,0);
 
 	if (male.getGender() != false)
 		return false;
@@ -187,7 +187,7 @@ bool testHuman() {
 		return false;
 
 	Agent female;
-	female.migrateToHuman(true,100, true, 80);
+	female.migrateToHuman(true,100, true, 80,0);
 	if (female.getGender() == false)
 		return false;
 	if (female.isHasAGun() == false)

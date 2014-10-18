@@ -26,6 +26,7 @@ private:
     short int infectionTime; //How much ticks have passed since the human has been exposed
     short int yearTime; //How much ticks have passed to complete a year
     short int lifeExpectancy; // How much time the human will live
+    short int numBabies; // How much time the human will live
 
     //Zombies attr
     short decompositionTime; //Number of ticks that have passed
@@ -37,7 +38,7 @@ private:
 public:
 	Agent();
 	void migrateToZombie(int lifeTime); //Constructor for zombies
-	void migrateToHuman(bool gender,int age, bool hasAGun, int lifeExpectancy);
+	void migrateToHuman(bool gender,int age, bool hasAGun, int lifeExpectancy, int numBabies);
 	void clean();
 	void clone(Agent A);
 
@@ -51,6 +52,8 @@ public:
 	bool isInfected();
 	bool isNaturalDead();
 	void markAsDead();
+	void incrementNumBabies();
+	int getNumBabies();
 	bool isDead();
 	void infect();
 

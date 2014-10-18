@@ -17,9 +17,10 @@ void Agent::migrateToZombie(int theLifeTime){
 	decomposed = false;
 	shooted = false;
 	lifeTime = theLifeTime;
+	numBabies = 0;
 	//lifeTime=Random::random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
 }
-void Agent::migrateToHuman(bool theGender,int theAge, bool isHasAGun, int theLifeExpectancy){
+void Agent::migrateToHuman(bool theGender,int theAge, bool isHasAGun, int theLifeExpectancy, int theNumBabies){
 	type = human;
 	infected = false;
 	gender = theGender;
@@ -30,6 +31,7 @@ void Agent::migrateToHuman(bool theGender,int theAge, bool isHasAGun, int theLif
 	deadByConversion = false;
 	naturalDead = false;
 	lifeExpectancy = theLifeExpectancy;
+	numBabies = theNumBabies;
 	//lifeExpectancy=Random::random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
 }
 void Agent::clean(){
@@ -47,6 +49,7 @@ void Agent::clean(){
 	deadByConversion = false;
 	naturalDead = false;
 	lifeExpectancy = 0;
+	numBabies = 0;
 }
 void Agent::clone(Agent b){
 	type = b.getType();
@@ -63,6 +66,7 @@ void Agent::clone(Agent b){
 	deadByConversion = b.deadByConversion;
 	naturalDead = b.naturalDead;
 	lifeExpectancy = b.lifeExpectancy;
+	numBabies = b.numBabies;
 }
 Agent::~Agent() {
 }
@@ -142,6 +146,18 @@ void Agent::infect() {
 	assert(type==human);
 	infected = true;
 }
+
+void Agent::incrementNumBabies() {
+	//std::cout << "Num babies :"<<numBabies<<"\n";
+	assert(type==human);
+	numBabies++;
+}
+
+int Agent::getNumBabies() {
+	assert(type==human);
+	return numBabies;
+}
+
 bool Agent::isDead() {
 	assert(type==human);
 	return deadByConversion;

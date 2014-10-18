@@ -12,6 +12,7 @@
 #include "RandomClass.h"
 #include <mpi.h>
 #include <iostream>
+#include <iomanip>
 
 #define SOURCE 0
 #define DEST 1

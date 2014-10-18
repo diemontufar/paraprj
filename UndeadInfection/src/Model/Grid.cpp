@@ -88,8 +88,9 @@ void Grid::initialize(	Agent** gridA, Agent** gridB ) {
 				int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
 				bool gender = random.random() < GENDERRATIO ? true : false;
 				bool hasAGun = random.random() < GUNDENSITY ? true : false;
+				int numBabies = 0;
 
-				gridA[i][j].migrateToHuman(gender, age, hasAGun, lifeExpectancy);
+				gridA[i][j].migrateToHuman(gender, age, hasAGun, lifeExpectancy,numBabies);
 				numHumans++;
 			} else {
 				if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN() && biasedAgentLocationY >=ConcentrationMin+(GRIDROWS/10) && biasedAgentLocationY<=ConcentrationMax-(GRIDROWS/10) && biasedAgentLocationX >=ConcentrationMin+(GRIDROWS/10) && biasedAgentLocationX<=ConcentrationMax-(GRIDROWS/10)) {
@@ -578,7 +579,7 @@ void Grid::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridB, Rand
 
 					//If we found a free space to the new born, place it, otherwise kill him! :(
 					if (freeI!=-1 && freeJ!=-1 && foundIt ){
-						gridB[freeI][freeJ].migrateToHuman(gender, 1, hasAGun, lifeExpectancy);
+						gridB[freeI][freeJ].migrateToHuman(gender, 1, hasAGun, lifeExpectancy,0);
 						born++;
 					}
 				}

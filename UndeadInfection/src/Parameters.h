@@ -35,7 +35,8 @@ static const float NUMBEROFZOMBIES = 2;
 
 static const int MINFERTILITYAGE = 15;
 static const int MAXFERTILITYAGE = 45;
-static const float PROBTOHAVEBABYWHENPAIRED = 0.0035; //Prob. of birth when paired
+static const float PROBTOHAVEBABYWHENPAIRED = 0.0008; //Prob. of birth when paired
+static const float BIRTHSPERPERSON = 2;
 
 static const int MINDECOMPOSITIONTIME = 29;//Ticks that take the zombie to decompose
 static const int MAXDECOMPOSITIONTIME = 32;//Ticks that take the zombie to decompose
