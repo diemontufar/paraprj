@@ -279,15 +279,12 @@ int GridMPI::run(int argc, char** argv){
 		localStats[MEN] = localStats[WOMEN] = localStats[ZOMBIES] = freeCells = 0;
 		calculateStatistics(freeCells, gridA, localStats);
         //Probability of birth
-		float delta = 0,probPair=0,probAnyHumanHaveBaby=0;
+		double delta = 0,probPair=0,probAnyHumanHaveBaby=0;
 		//2. Calculate probabilities
-		delta = (localStats[MEN]+localStats[WOMEN]) / (TOTALGRIDCELLS - localStats[ZOMBIES] - localStats[INFECTED] - localStats[CONVERTED]); //delta is the density of humans
+		delta = (localStats[MEN]+localStats[WOMEN]) / (TOTALGRIDCELLS - localStats[ZOMBIES]); //delta is the density of humans
 		probPair = 1-pow((1-delta),4); //Prob. two humans being pair 1-(1-delta)^4
 		probAnyHumanHaveBaby = probPair * PROBTOHAVEBABYWHENPAIRED; //Prob. any Human will have a baby (Per capita birth rate)
-		//probAnyHumanHaveBaby = ceil(probAnyHumanHaveBaby*pow(10,6))/pow(10,6);
-		//cout << "1-(1-delta)^4: " << probAnyHumanHaveBaby << "; delta: " << delta << endl;
-		//cout << "delta= " << delta <<"; Num humans: " << (localStats[MEN]+localStats[WOMEN]) << "; TotalGridCells: " << TOTALGRIDCELLS << "; Zombies: " << localStats[ZOMBIES] << endl;
-		//cout << "Prob. have a baby: " <<  probAnyHumanHaveBaby << endl;
+
 		for (int i = 1; i <= GRIDROWS; i++) {
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				//cout <<"Marked as dead counter: "<<markedAsDeadCounter<< "Humans to die:" << humansToDie << "Chance to die " <<chanceToDie<< endl;
@@ -419,7 +416,7 @@ void GridMPI::resolveHumanZombie(Agent &humanAgent, Agent &zombieAgent, RandomCl
 	}
 }
 /*Resolve conflicts between Human-Human*/
-void GridMPI::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass& random, int* localStats, float probAnyHumanHaveBaby) {
+void GridMPI::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass& random, int* localStats, double probAnyHumanHaveBaby) {
 	Agent agentB = gridA[i][j];
 	AgentTypeEnum typeB = agentB.getType();
 	if (typeB == human && !agentB.isInfected() && !agentA.isInfected()) {
