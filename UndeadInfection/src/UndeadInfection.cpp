@@ -10,10 +10,12 @@
 #include <iostream>
 #include <stdio.h>
 #include "Agents/Agent.h"
+#include <unordered_map>
 #include "Model/Grid.h"
 #include "Model/GridMPI.h"
 #include "Model/RandomClass.h"
 #include <time.h>
+#include <omp.h>
 
 using namespace std;
 
@@ -50,6 +52,52 @@ void runSimulation(int argc, char** argv){
 	//g.run();
 	GridMPI g;
 	g.run(argc, argv);
+/*	RandomClass random;
+	random.setSeed(0xFFFF*drand48());
+	double min=1, max=0;
+	int size = 10000;
+	float sizef = 10000.0;
+	int dist[size];
+	for (int i = 0; i < size; i++)
+		dist[i] = 0;
+
+	for (int i = 0; i < 40000000; i++){
+		double rand = random.random();
+
+		if (rand < min)
+			min = rand;
+		if (rand > max)
+			max = rand;
+
+		for ( int j = 0; j < size;j++){
+			if (rand >= j/sizef && rand < (j+1)/sizef){
+				dist[j]++;
+				j = size;
+			}
+		}
+
+	}
+	for ( int j = 0; j < size;j++){
+		cout<< ">" << j/sizef << " <" << (j+1)/sizef << ":" << dist[j] << endl;
+	}
+	cout<< "MIN: " << min <<" - MAX:" << max << endl;*/
+
+	/*std::unordered_map<double, int> map;
+	for (int i = 0; i < 40000000; i++){
+		double rand = random.random();
+		std::unordered_map<double,int>::const_iterator got = map.find (rand);
+
+		  if ( got == map.end() )
+			  map[rand]++;
+		  else
+			  map[rand] = 1;
+	}
+	cout << "Repetidos: "<<endl;
+	for ( auto it = map.begin(); it != map.end(); ++it ){
+		if (it->second > 1){
+			std::cout << " " << it->first << ":" << it->second << endl;
+		}
+	}*/
 }
 
 void evalResult(bool result) {
