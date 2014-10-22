@@ -12,7 +12,10 @@
 #include "RandomClass.h"
 #include <mpi.h>
 #include <iostream>
+#include <stdio.h>
+#include <fstream>
 #include <iomanip>
+#include <unordered_map>
 
 #define SOURCE 0
 #define DEST 1
@@ -44,8 +47,9 @@ private:
 	void ownershipExchange(int myID, MPI_Datatype agentDatatype, Agent** gridB, MPI_Status& status, int* localStats);
 	void applyBoundary(Agent** gridB, int* localStats);
 	void resolveHumanZombie(Agent &human, Agent &zombie, RandomClass& random, int *localStats);
-	void resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass& random, int* localStats, double probHumanHaveBaby);
+	void resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass& random, int* localStats, double probHumanHaveBaby, int ts);
 	void printState(int tick, int* stats);
+	void write (Agent**, int timestemp, int rank);
 
 public:
 	GridMPI();
