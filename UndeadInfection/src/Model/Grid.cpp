@@ -150,9 +150,9 @@ void Grid::run() {
 #pragma omp parallel default(none) shared (locks, gridA, gridB, freeCells, totalHumans, totalZombies, deathRate, cout, n, randomObj,probPair,delta,probAnyHumanHaveBaby) reduction(+:shooted, infected, converted, ghostCase, zDead, hDead, born)
 		{
 			//int         tid = omp_get_thread_num();
-			RandomClass random = randomObj[omp_get_thread_num()];
+			RandomClass& random = randomObj[omp_get_thread_num()];
 #else
-			RandomClass random = randomObj[0];
+			RandomClass& random = randomObj[0];
 #endif
 #if defined(_OPENMP)
       #pragma omp for

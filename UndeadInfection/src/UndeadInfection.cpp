@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include "Model/Grid.h"
 #include "Model/GridMPI.h"
+#include "Model/GridHybrid.h"
 #include "Model/RandomClass.h"
 #include <time.h>
 #include <omp.h>
@@ -50,7 +51,9 @@ int main(int argc, char** argv) {
 void runSimulation(int argc, char** argv){
 	//Grid g;
 	//g.run();
-	GridMPI g;
+	//GridMPI g;
+	//g.run(argc, argv);
+	GridHybrid g;
 	g.run(argc, argv);
 /*	RandomClass random;
 	random.setSeed(0xFFFF*drand48());

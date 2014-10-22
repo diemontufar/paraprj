@@ -17,6 +17,50 @@ GridHybrid::~GridHybrid() {
 	// TODO Auto-generated destructor stub
 }
 
+#if defined(_OPENMP)
+void lockHybrid(int i, bool *locks) {
+	for (bool locked = false; locked == false; /*NOP*/) {
+#pragma omp critical (LockRegion)
+		{
+			locked = !locks[i-1] && !locks[i] && !locks[i+1];
+			if (locked) {
+				locks[i-1] = true; locks[i] = true; locks[i+1] = true;
+			}
+		}
+	}
+}
+void unlockHybrid(int i, bool *locks) {
+#pragma omp critical (LockRegion)
+	{
+		locks[i-1] = false; locks[i] = false; locks[i+1] = false;
+	}
+}
+void lock2Hybrid(int i, bool *locks) {
+	for (bool locked = false; locked == false; /*NOP*/) {
+#pragma omp critical (LockRegion)
+		{
+			int im2 = i>2?i - 2:0;
+			int ip2 = i<GRIDROWS ?i + 2:GRIDROWS;
+
+			locked = !locks[im2] && !locks[i-1] && !locks[i] && !locks[i+1] && !locks[ip2];
+			if (locked) {
+				locks[im2] = true; locks[i-1] = true; locks[i] = true; locks[i+1] = true;locks[ip2] = true;
+			}
+		}
+	}
+}
+void unlock2Hybrid(int i, bool *locks) {
+#pragma omp critical (LockRegion)
+	{
+		int im2 = i>2?i - 2:0;
+		int ip2 = i<GRIDROWS ?i + 2:GRIDROWS;
+
+		locks[im2] = false;locks[i-1] = false; locks[i] = false; locks[i+1] = false;locks[ip2] = false;
+	}
+}
+#endif
+
+
 Agent** GridHybrid::createMesh (){
 	Agent** grid = new Agent*[GRIDROWS+2];
 	grid[0] = new Agent [(GRIDROWS+2)*(GRIDCOLUMNS*2)];
@@ -158,10 +202,27 @@ int GridHybrid::run(int argc, char** argv){
 	int localStats[TOTALCOUNTERS]; //men, women, shot, infected, converted, ghostCase, clashCase, zDead, hDead, born
 	int globalStats[TOTALCOUNTERS];
 	float freeCells=0;
+	int N_Threads = 1;
+	bool *locks = new bool[GRIDCOLUMNS + 2];
 
 	for (int i = 0; i < TOTALCOUNTERS; i++){
 		localStats[i] = globalStats[i] = 0;
 	}
+#if defined(_OPENMP) //Record starting time and number of threads
+	N_Threads	= omp_get_max_threads();
+	RandomClass randomObj[N_Threads];
+	cout << "Num. threads: " << N_Threads << endl;
+#else
+		RandomClass randomObj[1];
+#endif
+
+	for (int i = 0; i < N_Threads; i++){
+		randomObj[i].setSeed(i*0xFFFF*drand48());
+	}
+
+	for (int i = 0; i < GRIDCOLUMNS + 2; i++) locks[i] = false;
+
+
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &N_Procs);
 	MPI_Comm_rank(MPI_COMM_WORLD, &myID);
@@ -186,13 +247,19 @@ int GridHybrid::run(int argc, char** argv){
 	MPI_Type_commit(&agentVectorDatatype);
 
 	//Time loop
-	RandomClass random;
-	random.setSeed(0xFFFF*drand48());
-
 
 	for (int n = 0; n < NUMTICKS; n++) {
 		//Check and Death
+		int zdead = 0, converted = 0, hdead = 0;
+#if defined(_OPENMP)
+      #pragma omp parallel for default(none) shared (gridA, randomObj, localStats) reduction(+:zdead,converted,hdead)
+#endif
 		for (int i = 1; i <= GRIDROWS; i++) {
+#if defined(_OPENMP)
+				RandomClass& random = randomObj[omp_get_thread_num()];
+#else
+	            RandomClass& random = randomObj[0];
+#endif
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				if ( gridA[i][j].getType() != none ) {
 					Agent& agent = gridA[i][j];
@@ -200,15 +267,15 @@ int GridHybrid::run(int argc, char** argv){
 
 					//Code to remove decomposed agents
 					if ((agent.getType() == zombie) && (agent.isDecomposed() || agent.isShooted())) {
-						localStats[ZDEAD]++;
+						zdead++;
 						agent.clean();
 					} else {
 						if ( agent.getType() == human && agent.isNaturalDead() ) {
-							localStats[HDEAD]++;
+							hdead++;
 							agent.clean();
 						} else {
 							if ( agent.getType() == human && agent.isInfected() ) {
-								localStats[CONVERTED]++;
+								converted++;
 								agent.migrateToZombie(random.random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME));
 							}
 						}
@@ -216,12 +283,23 @@ int GridHybrid::run(int argc, char** argv){
 				}
 			}
 		}
-
+		localStats[ZDEAD] = zdead;
+		localStats[HDEAD] = hdead;
+		localStats[CONVERTED] = converted;
+		RandomClass random = randomObj[0];
 		//Move all rows
 		fullExchange(myID, agentDatatype, gridA, status);
 		//printMatrixBarrier(n, gridA, myID, 'A');
 		//MOVE
+#if defined(_OPENMP)
+      #pragma omp parallel for default(none) shared (gridA, gridB, randomObj, localStats)
+#endif
 		for (int i = 1; i <= GRIDROWS; i++) { //Move
+#if defined(_OPENMP)
+				RandomClass& random = randomObj[omp_get_thread_num()];
+#else
+	            RandomClass& random = randomObj[0];
+#endif
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				if ( gridA[i][j].getType() != none ) {
 					Agent& agent = gridA[i][j];

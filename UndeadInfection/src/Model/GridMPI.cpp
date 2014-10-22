@@ -190,8 +190,6 @@ int GridMPI::run(int argc, char** argv){
 
 
 	for (int n = 0; n < NUMTICKS; n++) {
-		//RandomClass random;
-		//random.setSeed(0xFFFF*drand48());
 
 		//Check and Death
 		for (int i = 1; i <= GRIDROWS; i++) {
