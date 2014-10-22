@@ -48,10 +48,10 @@ int main(int argc, char** argv) {
 }
 
 void runSimulation(int argc, char** argv){
-	Grid g;
-	g.run();
-//	GridMPI g;
-	//g.run(argc, argv);
+	//Grid g;
+	//g.run();
+	GridMPI g;
+	g.run(argc, argv);
 /*	RandomClass random;
 	random.setSeed(0xFFFF*drand48());
 	double min=1, max=0;

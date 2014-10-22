@@ -1,22 +1,23 @@
 /*
- * GridMPI.cpp
+ * GridHybrid.cpp
  *
- *  Created on: 14/10/2014
+ *  Created on: 22/10/2014
  *      Author: achaves
  */
 
-#include "GridMPI.h"
-
+#include "GridHybrid.h"
 using namespace std;
-GridMPI::GridMPI() {
+
+GridHybrid::GridHybrid() {
 	// TODO Auto-generated constructor stub
 
 }
 
-GridMPI::~GridMPI() {
+GridHybrid::~GridHybrid() {
 	// TODO Auto-generated destructor stub
 }
-Agent** GridMPI::createMesh (){
+
+Agent** GridHybrid::createMesh (){
 	Agent** grid = new Agent*[GRIDROWS+2];
 	grid[0] = new Agent [(GRIDROWS+2)*(GRIDCOLUMNS*2)];
 
@@ -32,7 +33,7 @@ Agent** GridMPI::createMesh (){
 	}
 	return grid;
 }
-void GridMPI::initialize(	Agent** gridA, Agent** gridB, int rank ) {
+void GridHybrid::initialize(	Agent** gridA, Agent** gridB, int rank ) {
 	int numZombies = 0;
 	int numHumans = 0;
 	RandomClass random;
@@ -63,7 +64,7 @@ void GridMPI::initialize(	Agent** gridA, Agent** gridB, int rank ) {
 	cout << "Process: "<<rank<< " Initialized with Humans: " << numHumans << " and Zombies: " << numZombies << endl;
 }
 
-void GridMPI::fullExchange(int myID, MPI_Datatype agentDatatype, Agent** gridA,	MPI_Status& status) {
+void GridHybrid::fullExchange(int myID, MPI_Datatype agentDatatype, Agent** gridA,	MPI_Status& status) {
 	//Move all rows
 	if (myID == SOURCE) {
 		MPI_Send(&gridA[GRIDROWS][0], GRIDCOLUMNS + 2, agentDatatype, DEST, TAG,
@@ -78,7 +79,7 @@ void GridMPI::fullExchange(int myID, MPI_Datatype agentDatatype, Agent** gridA,	
 				MPI_COMM_WORLD );
 	}
 }
-void GridMPI::ownershipExchange(int myID, MPI_Datatype agentDatatype, Agent** gridB, MPI_Status& status, int* localStats){
+void GridHybrid::ownershipExchange(int myID, MPI_Datatype agentDatatype, Agent** gridB, MPI_Status& status, int* localStats){
 	Agent rowToReceive[GRIDCOLUMNS+2];
 	if (myID == SOURCE) {
 		MPI_Send(&gridB[GRIDROWS+1][0], GRIDCOLUMNS+2, agentDatatype, DEST, TAG, MPI_COMM_WORLD);
@@ -108,7 +109,7 @@ void GridMPI::ownershipExchange(int myID, MPI_Datatype agentDatatype, Agent** gr
 		}
 	}
 }
-void GridMPI::applyBoundary(Agent** gridB, int* localStats){
+void GridHybrid::applyBoundary(Agent** gridB, int* localStats){
 	for (int i = 1; i <= GRIDROWS; i++) {
 		if ( gridB[i][0].getType() != none && gridB[i][1].getType() == none) {
 			Agent a = gridB[i][0];
@@ -144,7 +145,7 @@ void GridMPI::applyBoundary(Agent** gridB, int* localStats){
 		}
 	}
 }
-int GridMPI::run(int argc, char** argv){
+int GridHybrid::run(int argc, char** argv){
 	cout << "Starting MPI simulation... " << endl;
 	cout << "Human: " << human << endl;
 	cout << "Zombie: " << zombie << endl;
@@ -190,9 +191,6 @@ int GridMPI::run(int argc, char** argv){
 
 
 	for (int n = 0; n < NUMTICKS; n++) {
-		//RandomClass random;
-		//random.setSeed(0xFFFF*drand48());
-
 		//Check and Death
 		for (int i = 1; i <= GRIDROWS; i++) {
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
@@ -393,7 +391,7 @@ int GridMPI::run(int argc, char** argv){
 
 }
 /*Prints the state of the gridA in any time step*/
-void GridMPI::printState(int tick, int* stats) {
+void GridHybrid::printState(int tick, int* stats) {
 	std::cout << "Tick:" << tick << ", Human: " << stats[MEN]+stats[WOMEN] << ", Male: "<< stats[MEN] << ", Female: " << stats[WOMEN] << ", Zombies: " << stats[ZOMBIES];
 	std::cout << ", Infected:" << stats[INFECTED];
 	std::cout << ", Converted: " << stats[CONVERTED] << ",Shots: " << stats[SHOT];
@@ -402,7 +400,7 @@ void GridMPI::printState(int tick, int* stats) {
 	std::cout << ",Birth: " << stats[BORN] << "\n";
 }
 
-void GridMPI::calculateStatistics(float &freeCells, Agent** gridA, int* localStats){
+void GridHybrid::calculateStatistics(float &freeCells, Agent** gridA, int* localStats){
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			Agent agent = gridA[i][j];
@@ -422,7 +420,7 @@ void GridMPI::calculateStatistics(float &freeCells, Agent** gridA, int* localSta
 
 
 /*Resolve conflicts between Human-Zombie*/
-void GridMPI::resolveHumanZombie(Agent &humanAgent, Agent &zombieAgent, RandomClass& random, int* localStats) {
+void GridHybrid::resolveHumanZombie(Agent &humanAgent, Agent &zombieAgent, RandomClass& random, int* localStats) {
 	//Probability and cases, for now it is a rand
 	int dice_roll = random.random(0,100);
 
@@ -435,7 +433,7 @@ void GridMPI::resolveHumanZombie(Agent &humanAgent, Agent &zombieAgent, RandomCl
 	}
 }
 /*Resolve conflicts between Human-Human*/
-void GridMPI::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass& random, int* localStats, double probAnyHumanHaveBaby, int ts) {
+void GridHybrid::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass& random, int* localStats, double probAnyHumanHaveBaby, int ts) {
 	Agent agentB = gridA[i][j];
 	AgentTypeEnum typeB = agentB.getType();
 	if (typeB == human && !agentB.isInfected() && !agentA.isInfected()) {
@@ -521,7 +519,7 @@ void GridMPI::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, R
 }
 
 /* Print Grid*/
-void GridMPI::printMatrix(int tick, Agent** gridA, int rank, char gridName) {
+void GridHybrid::printMatrix(int tick, Agent** gridA, int rank, char gridName) {
 	cout << endl;
 	cout << "P:"<<rank<<"-GRID "<<gridName<<endl;
 	//for (int j = 0; j <= GRIDCOLUMNS + 1; j++) {
@@ -550,7 +548,7 @@ void GridMPI::printMatrix(int tick, Agent** gridA, int rank, char gridName) {
 		cout << endl;
 	}
 }
-void GridMPI::printMatrixBarrier(int tick, Agent** gridA, int rank,  char gridName){
+void GridHybrid::printMatrixBarrier(int tick, Agent** gridA, int rank,  char gridName){
 	MPI_Barrier( MPI_COMM_WORLD );
 	if (rank == SOURCE)
 		printMatrix(tick,gridA,rank, gridName);
@@ -559,7 +557,7 @@ void GridMPI::printMatrixBarrier(int tick, Agent** gridA, int rank,  char gridNa
 		printMatrix(tick,gridA,rank, gridName);
 	MPI_Barrier( MPI_COMM_WORLD );
 }
-void GridMPI::write(Agent** gridA, int ts, int rank){
+void GridHybrid::write(Agent** gridA, int ts, int rank){
     fstream         file;
     char            fileName[128];
     sprintf(fileName, "Zombies_%02d_%04d.txt", rank, ts);

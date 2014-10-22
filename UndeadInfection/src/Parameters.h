@@ -27,11 +27,11 @@ static const long NUMTICKSPRINT = 360; //No. Ticks to print
 
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human
 static float const SCALE = 1.0; //Proportion of rows/columns of NT covered in the simulation
-//static int const GRIDROWS = 768; //Number of row grids
-//static int const GRIDCOLUMNS =1024;//Number of column grids
+static int const GRIDROWS = 768; //Number of row grids
+static int const GRIDCOLUMNS =1024;//Number of column grids
 
-static int const GRIDROWS = 1536; //Number of row grids
-static int const GRIDCOLUMNS =2048;//Number of column grids
+//-static int const GRIDROWS = 1536; //Number of row grids
+//-static int const GRIDCOLUMNS =2048;//Number of column grids
 
 static float const TOTALGRIDCELLS = GRIDROWS * GRIDCOLUMNS; //Number of cells grids
 static const float NUMBEROFZOMBIES = 2;
@@ -53,8 +53,8 @@ static const float AUSPOP = 23000000.0;
 static const float NTPOP = 235182.0; //2012 census
 static const float NTPOPDENSITY = 0.17/2.0;
 //static const float DARWINPOPDENSITY = 50.0*50.0*NTPOPDENSITY;
-//static const float DARWINPOPDENSITY = 768.0*1024.0*NTPOPDENSITY;
-static const float DARWINPOPDENSITY = 1536.0*2048.0*NTPOPDENSITY/2.0;
+static const float DARWINPOPDENSITY = 768.0*1024.0*NTPOPDENSITY;
+//-static const float DARWINPOPDENSITY = 1536.0*2048.0*NTPOPDENSITY/2.0;
 static const float DEATHSNT= 1038.0; //http://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/3302.02012?OpenDocument
 static const double DEATHRATENT = DEATHSNT/(365.0*2.0*2.0);
 //static const double DEATHRATEMALE = 1.0/(80.0*365.0); //Look for it)
