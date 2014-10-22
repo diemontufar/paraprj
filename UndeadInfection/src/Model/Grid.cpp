@@ -78,33 +78,26 @@ void Grid::initialize(	Agent** gridA, Agent** gridB ) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			gridB[i][j].clean();
 			//todo:change algorithm so it is random and with pop limits
-			int biasedAgentLocationY=random.random(((i<=(GRIDCOLUMNS/2))?i:GRIDCOLUMNS-i),GRIDCOLUMNS-((i<=(GRIDCOLUMNS/2))?i:GRIDCOLUMNS-i));
-			int biasedAgentLocationX=random.random(((j<=(GRIDROWS/2))?j:GRIDROWS-j),GRIDROWS-((j<=(GRIDROWS/2))?j:GRIDROWS-j));
-			int ConcentrationMin,ConcentrationMax;
-			ConcentrationMin=(GRIDROWS/10)*3;
-			ConcentrationMax=(GRIDROWS/10)*6;
-			if (numHumans < DARWINPOPDENSITY && random.randomBoolFalseBiasedN()&& biasedAgentLocationY >=ConcentrationMin && biasedAgentLocationY<=ConcentrationMax && biasedAgentLocationX >=ConcentrationMin && biasedAgentLocationX<=ConcentrationMax ) {
+			if (numHumans < DARWINPOPDENSITY && random.randomBoolFalseBiasedN()) {
 				int age = random.random(MINLIFEEXPECTANCY - 1);
 				int lifeExpectancy=random.random(MINLIFEEXPECTANCY, MAXLIFEEXPECTANCY);
 				bool gender = random.random() < GENDERRATIO ? true : false;
 				bool hasAGun = random.random() < GUNDENSITY ? true : false;
 				int numBabies = 0;
 
-				gridA[i][j].migrateToHuman(gender, age, hasAGun, lifeExpectancy,numBabies);
+				gridA[i][j].migrateToHuman(gender, age, hasAGun, lifeExpectancy, numBabies);
 				numHumans++;
 			} else {
-				if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN() && biasedAgentLocationY >=ConcentrationMin+(GRIDROWS/10) && biasedAgentLocationY<=ConcentrationMax-(GRIDROWS/10) && biasedAgentLocationX >=ConcentrationMin+(GRIDROWS/10) && biasedAgentLocationX<=ConcentrationMax-(GRIDROWS/10)) {
+				if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN()) {
 					int lifeTime = random.random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
 					gridA[i][j].migrateToZombie(lifeTime);
 					numZombies++;
-				}// else {
-				//	gridA[i][j] = NULL;
-				//}
+				}
 			}
 			//cout << "i:  "<<i << "j:  "<<j <<"numInitialized with humans: "<< endl;
 		}
 	}
-	cout << "Initialized with Humans: " << numHumans << " and Zombies: " << numZombies << endl;
+	cout << " Initialized with Humans: " << numHumans << " and Zombies: " << numZombies << endl;
 }
 void Grid::run() {
 #if defined(_OPENMP) //Cout whether we are working with opemp or not
@@ -119,17 +112,16 @@ void Grid::run() {
 	Agent** gridB = createMesh();
 	int N_Threads = 1;
 
-	float freeCells=0,totalHumans = 0,totalZombies = 0, deathRate = DEATHRATENT, acumProbOfDying=DEATHRATENT/DARWINPOPDENSITY;
+	double freeCells=0,totalHumans = 0,totalZombies = 0, deathRate = DEATHRATENT;
 	int shooted = 0, infected = 0, converted = 0, ghostCase = 0, zDead = 0, hDead = 0, outOfBounds = 0, born = 0;
     //Probability of birth
-	float delta = 0,probPair=0,probAnyHumanHaveBaby=0;
+	double delta = 0,probPair=0,probAnyHumanHaveBaby=0;
 
 
 	bool *locks = new bool[GRIDCOLUMNS + 2];
 	initialize(gridA, gridB);
 #if defined(_OPENMP) //Record starting time and number of threads
 	double		wtime		= omp_get_wtime();			// Record the starting time
-	omp_set_num_threads(NUMTHREADS);
 	N_Threads	= omp_get_max_threads();
 	RandomClass randomObj[N_Threads];
 	cout << "Num. threads: " << N_Threads << endl;
@@ -141,7 +133,7 @@ void Grid::run() {
 		//Linux
 		//randomObj[i].setSeed(i*0xFFFF*drand48());
 		//Windows
-		randomObj[i].setSeed(i*0xFFFF*rand());
+		randomObj[i].setSeed(0xFFFF*rand());
 	}
 
 	for (int i = 0; i < GRIDCOLUMNS + 2; i++) locks[i] = false;
@@ -151,12 +143,11 @@ void Grid::run() {
 #ifdef DEBUGGRID
 	//std::cout << "Run called" << "\n";
 #endif
-	int markedAsDeadCounter=0;
 	//Time loop
 	for (int n = 0; n < NUMTICKS; n++) {
 		//Code to calculate the number of humans to be removed
 #if defined(_OPENMP)
-#pragma omp parallel default(none) shared (locks, gridA, gridB, freeCells, totalHumans, totalZombies, deathRate, cout, n, randomObj) reduction(+:shooted, infected, converted, ghostCase, zDead, hDead, born, delta,probPair,probAnyHumanHaveBaby)
+#pragma omp parallel default(none) shared (locks, gridA, gridB, freeCells, totalHumans, totalZombies, deathRate, cout, n, randomObj,probPair,delta,probAnyHumanHaveBaby) reduction(+:shooted, infected, converted, ghostCase, zDead, hDead, born)
 		{
 			//int         tid = omp_get_thread_num();
 			RandomClass random = randomObj[omp_get_thread_num()];
@@ -281,11 +272,11 @@ void Grid::run() {
 		totalHumans = totalZombies = freeCells = 0;
 		calculateStatistics(totalHumans,totalZombies, freeCells, gridB);
 		//2. Calculate probabilities
-		delta = (totalHumans) / (TOTALGRIDCELLS/2 - totalZombies); //delta is the density of humans
+		delta = (totalHumans) / (TOTALGRIDCELLS - totalZombies); //delta is the density of humans
 		probPair = 1-pow((1-delta),4); //Prob. two humans being pair 1-(1-delta)^4
 		probAnyHumanHaveBaby = probPair * PROBTOHAVEBABYWHENPAIRED; //Prob. any Human will have a baby (Per capita birth rate)
 
-		deathRate = DEATHRATENT;
+		deathRate = DEATHRATENT*2.0/(130000.0+(130000.0-(double)(totalHumans)));
 #if defined(_OPENMP)
      }
 #endif
@@ -302,28 +293,41 @@ void Grid::run() {
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				//cout <<"Marked as dead counter: "<<markedAsDeadCounter<< "Humans to die:" << humansToDie << "Chance to die " <<chanceToDie<< endl;
 				Agent &agentA = gridB[i][j];
+				bool clashDone = false;
 				if (agentA.getType() != none) {
 					AgentTypeEnum typeA = agentA.getType();
 					if (typeA == human) {
 						if (i > 2 && gridB[i - 1][j].getType() != none) { //Someone up
-							if (gridB[i - 1][j].getType() == zombie)
+							if (gridB[i - 1][j].getType() == zombie){
 								resolveGridHumanZombie(agentA,i - 1,j, gridB, random, shooted, infected);
-							else
+								clashDone = true;
+							}
+							else{
 								resolveGridHumanHuman(agentA,i - 1,j, gridB, random, totalHumans, totalZombies, freeCells, born, probAnyHumanHaveBaby);
+								clashDone = true;
+							}
 						}
-						if (j < GRIDROWS && gridB[i][j + 1].getType() != none) { //Someone on the right
-							if (gridB[i][j+1].getType() == zombie)
+						if (!clashDone && j < GRIDROWS && gridB[i][j + 1].getType() != none) { //Someone on the right
+							if (gridB[i][j+1].getType() == zombie){
 								resolveGridHumanZombie(agentA,i,j + 1, gridB, random, shooted, infected);
-							else
+								clashDone = true;
+							}
+							else{
 								resolveGridHumanHuman(agentA,i,j+1, gridB, random, totalHumans, totalZombies, freeCells, born, probAnyHumanHaveBaby);
+								clashDone = true;
+							}
 						}
-						if (i < GRIDROWS && gridB[i + 1][j].getType() != none) { //Down
-							if (gridB[i+1][j].getType() == zombie)
+						if (!clashDone && i < GRIDROWS && gridB[i + 1][j].getType() != none) { //Down
+							if (gridB[i+1][j].getType() == zombie){
 								resolveGridHumanZombie(agentA,i + 1,j, gridB, random, shooted, infected);
-							else
+								clashDone = true;
+							}
+							else{
 								resolveGridHumanHuman(agentA,i + 1,j, gridB, random, totalHumans, totalZombies, freeCells, born, probAnyHumanHaveBaby);
+								clashDone = true;
+							}
 						}
-						if (j > 2 && gridB[i][j - 1].getType() != none) { //Left
+						if (!clashDone && j > 2 && gridB[i][j - 1].getType() != none) { //Left
 							if (gridB[i][j-1].getType() == zombie)
 								resolveGridHumanZombie(agentA,i,j - 1, gridB, random, shooted, infected);
 							else
@@ -339,46 +343,35 @@ void Grid::run() {
 				unlock2(i,locks);
 #endif
 		}
+
+#if defined(_OPENMP)
+//		cout << tid << "TS:" << n << "humans" << totalHumans << "Death rate" << deathRate << endl;
+#pragma omp for
+#endif
+		for (int i = 1; i <= GRIDROWS; i++) {
+			for (int j = 1; j <= GRIDCOLUMNS; j++) {
+				//cout <<"Marked as dead counter: "<<markedAsDeadCounter<< "Humans to die:" << humansToDie << "Chance to die " <<chanceToDie<< endl;
+				Agent &agent = gridB[i][j];
+				if (agent.getType() == human) {
+					//Death process
+					if (!agent.isInfected()){
+						double move = random.random();
+						//cout << "TS:" << n << "Death " <<move << "," << deathRate << endl;
+						//cout << "TS:" << n << "Death " <<move << "," << deathRate <<"," << humansToDie<<"," << chanceToDie << endl;
+						//if (move < DEATHRATENT ) {
+						//if ((agent.getGender() && move <= DEATHRATEMALE) || (!agent.getGender() && move <= DEATHRATEFEMALE) ) {
+						if ( move <= deathRate  ) {
+							//cout<<markedAsDeadCounter<<"<="<<humansToDie<<endl;
+							agent.markAsDead();
+						}
+					}
+				}
+			}
+		}
+
 #if defined(_OPENMP)
 	} //Parallel region
 #endif
-//Deaths region
-#if defined(_OPENMP)
-     #pragma omp for
-#endif
-			for (int i = 1; i <= GRIDROWS; i++) {
-						for (int j = 1; j <= GRIDCOLUMNS; j++) {
-							//cout <<"Marked as dead counter: "<<markedAsDeadCounter<< "Humans to die:" << humansToDie << "Chance to die " <<chanceToDie<< endl;
-							Agent &agentA = gridB[i][j];
-							if (agentA.getType() != none) {
-								AgentTypeEnum typeA = agentA.getType();
-								if (typeA == human) {
-									//Death process
-									if (!agentA.isInfected()){
-										double move = randomObj[0].random();
-					//					cout << "TS:" << n << "Death " <<move << "," << deathRate << endl;
-										//cout << "TS:" << n << "Death " <<move << "," << deathRate <<"," << humansToDie<<"," << chanceToDie << endl;
-										if (move < DEATHRATENT) {
-											//cout<<markedAsDeadCounter<<"<="<<humansToDie<<endl;
-										    markedAsDeadCounter++;
-											agentA.markAsDead();
-										}
-									}
-								}
-							}
-						}
-			}
-#if defined(_OPENMP)
-
-#endif
-		//End of deaths region
-		deathRate=acumProbOfDying*totalHumans;
-		//In the case there are no deaths means that the poblation is being consumed by zombies so fast that death rate goes down.
-		//cout<<deathRate<<"="<<acumProbOfDying<<"*"<<totalHumans<<"MK as dead "<<markedAsDeadCounter <<"Humans to die " <<humansToDie<<endl;
-		acumProbOfDying=deathRate/totalHumans;
-
-
-
 		swap(gridA, gridB);
 		///Clean gridB
 		for (int i = 0; i <= GRIDROWS+1; i++) {
@@ -389,7 +382,6 @@ void Grid::run() {
 
 
 		if ( n%NUMTICKSPRINT == 0 ){
-			markedAsDeadCounter=0;
 			printState(n + 1, gridA, infected, converted, shooted, zDead, ghostCase, hDead, born);
 			//printMatrix(n + 1, gridA);
 			shooted=infected=zDead=outOfBounds=ghostCase=hDead=born=converted=0;
@@ -442,7 +434,7 @@ void Grid::printMatrix(int tick, Agent** gridA) {
  * gridA           = The current grid
  *
  * */
-void Grid::calculateStatistics(float &humanPopulation,float &zombies, float &freeCells, Agent** gridA) {
+void Grid::calculateStatistics(double &humanPopulation,double &zombies, double &freeCells, Agent** gridA) {
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
 			Agent agent = gridA[i][j];
