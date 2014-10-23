@@ -19,12 +19,7 @@ RandomClass::~RandomClass(){}
 
 // Generates random number < 1, works for probabilities
 double RandomClass::random() {
-	return rng.rand();
-}
-
-// Generates random number < 1, works for probabilities
-double RandomClass::random(double max) {
-	return rng.rand(max);
+	return rng.rand53();
 }
 
 // Generates random number from 0 to range
@@ -46,7 +41,7 @@ bool RandomClass::randomBoolTrueBiased() {
   return random(1,4) % 4 < 3;
 }
 bool RandomClass::randomBoolFalseBiasedN() {
-	return random(1,10000) % 10000 > 7000;
+	return random(1,10000) % 10000 > 9100;
 	//return rand_r(&seed) % 10000 > 9000;
 	//return rand() % 1000 > 900;
 }
