@@ -20,25 +20,29 @@
  * Probability weapon: 0.3
  */
 static const int NUMTHREADS = 8;
-//static const long NUMTICKS = 45625; //Number of ticks 125*365
 static const long NUMTICKS = 3650; //Number of ticks 125*365
-//static const long NUMTICKS = 10; //Number of ticks 125*365
+//-static const long NUMTICKS = 50; //Number of ticks 125*365
 static const long YEARTICKS = 365; //Ticks in 1 year 365
 static const long NUMTICKSPRINT = 180; //No. Ticks to print
 
 static const int INCUBATIONTIME = 5;//Ticks that take the zombie disease to incubate in an infected human
-static float const SCALE = 1.0/6.0; //Proportion of rows/columns of NT covered in the simulation
+static float const SCALE = 1.0; //Proportion of rows/columns of NT covered in the simulation
 static int const GRIDROWS = 768; //Number of row grids
 static int const GRIDCOLUMNS =1024;//Number of column grids
+
+//-static int const GRIDROWS = 1536; //Number of row grids
+//-static int const GRIDCOLUMNS =2048;//Number of column grids
+
 static float const TOTALGRIDCELLS = GRIDROWS * GRIDCOLUMNS; //Number of cells grids
 static const float NUMBEROFZOMBIES = 2;
 
 static const int MINFERTILITYAGE = 15;
 static const int MAXFERTILITYAGE = 45;
-static const float PROBTOHAVEBABYWHENPAIRED = 0.0035; //Prob. of birth when paired
+static const float PROBTOHAVEBABYWHENPAIRED = 0.001; //Prob. of birth when paired
+static const float BIRTHSPERPERSON = 2;
 
-static const int MINDECOMPOSITIONTIME = 29;//Ticks that take the zombie to decompose
-static const int MAXDECOMPOSITIONTIME = 30;//Ticks that take the zombie to decompose
+static const int MINDECOMPOSITIONTIME = 28;//Ticks that take the zombie to decompose
+static const int MAXDECOMPOSITIONTIME = 32;//Ticks that take the zombie to decompose
 
 static const int MINLIFEEXPECTANCY = 65;//minimum human life expectancy
 static const int MAXLIFEEXPECTANCY= 75;//maximum human life expectancy
@@ -49,15 +53,18 @@ static const float AUSPOP = 23000000.0;
 static const float NTPOP = 235182.0; //2012 census
 static const float NTPOPDENSITY = 0.17/2.0;
 //static const float DARWINPOPDENSITY = 50.0*50.0*NTPOPDENSITY;
-static const float DARWINPOPDENSITY = GRIDCOLUMNS*GRIDROWS*NTPOPDENSITY;
+static const float DARWINPOPDENSITY = 768.0*1024.0*NTPOPDENSITY;
+//-static const float DARWINPOPDENSITY = 1536.0*2048.0*NTPOPDENSITY/2.0;
 static const float DEATHSNT= 1038.0; //http://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/3302.02012?OpenDocument
-static const float DEATHRATENT = DEATHSNT/365.0/6;
+static const double DEATHRATENT = DEATHSNT/(365.0*2.0*2.0);
+//static const double DEATHRATEMALE = 1.0/(80.0*365.0); //Look for it)
+//static const double DEATHRATEFEMALE = 1.0/(84.0*365.0);;
 
 
 static const float GUNDENSITY = 0.2; //19.13
 
-static const float HEADSHOTPERCENTAGE = 0.05; //40%
-static const float SUCESSFULBITEPERCENTAGE =20; //40%
+static const float HEADSHOTPERCENTAGE = 0.04; //40%
+static const float SUCESSFULBITEPERCENTAGE = 15; //40%
 
 #define MOVE    0.25 //Probability of a move in each direction
 #define DEBUG = true;

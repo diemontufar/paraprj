@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <fstream>
 #include <iomanip>
-#include <unordered_map>
 #include <omp.h>
 
 #define SOURCE 0
