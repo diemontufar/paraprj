@@ -252,7 +252,7 @@ int GridHybrid::run(int argc, char** argv){
 		//Check and Death
 		int zdead = 0, converted = 0, hdead = 0;
 #if defined(_OPENMP)
-      #pragma omp parallel for default(none) shared (gridA, randomObj, localStats) reduction(+:zdead,converted,hdead)
+      #pragma omp parallel for default(none) shared (gridA, randomObj) reduction(+:zdead,converted,hdead)
 #endif
 		for (int i = 1; i <= GRIDROWS; i++) {
 #if defined(_OPENMP)
@@ -283,20 +283,21 @@ int GridHybrid::run(int argc, char** argv){
 				}
 			}
 		}
-		localStats[ZDEAD] = zdead;
-		localStats[HDEAD] = hdead;
-		localStats[CONVERTED] = converted;
+		localStats[ZDEAD] += zdead;
+		localStats[HDEAD] += hdead;
+		localStats[CONVERTED] += converted;
 		RandomClass random = randomObj[0];
 		//Move all rows
 		fullExchange(myID, agentDatatype, gridA, status);
 		//printMatrixBarrier(n, gridA, myID, 'A');
 		//MOVE
 #if defined(_OPENMP)
-      #pragma omp parallel for default(none) shared (gridA, gridB, randomObj, localStats)
+      #pragma omp parallel for default(none) shared (gridA, gridB, randomObj, locks)
 #endif
 		for (int i = 1; i <= GRIDROWS; i++) { //Move
 #if defined(_OPENMP)
 				RandomClass& random = randomObj[omp_get_thread_num()];
+				lockHybrid(i, locks);
 #else
 	            RandomClass& random = randomObj[0];
 #endif
@@ -336,6 +337,9 @@ int GridHybrid::run(int argc, char** argv){
 					agent.clean();
 				}
 			}
+#if defined(_OPENMP)
+				unlockHybrid(i,locks);
+#endif
 		}
 		//Move ownership B to A
 		ownershipExchange(myID, agentDatatype, gridB, status, localStats);
@@ -354,7 +358,18 @@ int GridHybrid::run(int argc, char** argv){
         //cout << "TS: " << n << " Prob: "<< probAnyHumanHaveBaby << endl;
 		//printMatrixBarrier(n, gridA, myID, 'A');
 
+
+		int shot = 0, infected = 0, born = 0;
+#if defined(_OPENMP)
+      #pragma omp parallel for default(none) shared (gridA, gridB, randomObj, locks, n, probAnyHumanHaveBaby) reduction(+:shot,infected,born)
+#endif
 		for (int i = 1; i <= GRIDROWS; i++) {
+#if defined(_OPENMP)
+				RandomClass& random = randomObj[omp_get_thread_num()];
+				lockHybrid(i, locks);
+#else
+	            RandomClass& random = randomObj[0];
+#endif
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				//cout <<"Marked as dead counter: "<<markedAsDeadCounter<< "Humans to die:" << humansToDie << "Chance to die " <<chanceToDie<< endl;
 				bool clashDone = false;
@@ -364,51 +379,66 @@ int GridHybrid::run(int argc, char** argv){
 					if (typeA == human) {
 						if (gridA[i - 1][j].getType() != none) { //Someone up
 							if (gridA[i - 1][j].getType() == zombie && !gridA[i - 1][j].isShooted()){
-								resolveHumanZombie(agentA, gridA[i-1][j], random, localStats);
+								resolveHumanZombie(agentA, gridA[i-1][j], random, shot, infected);
 								clashDone = true;
 							}
 							else{
-								resolveGridHumanHuman(agentA,i - 1,j, gridA, random, localStats, probAnyHumanHaveBaby, n);
+								resolveGridHumanHuman(agentA,i - 1,j, gridA, random, born, probAnyHumanHaveBaby, n);
 								clashDone = true;
 							}
 						}
 						if (!clashDone && gridA[i][j + 1].getType() != none) { //Someone on the right
 							if (gridA[i][j+1].getType() == zombie && !gridA[i][j+1].isShooted()){
-								resolveHumanZombie(agentA,gridA[i][j+1], random, localStats);
+								resolveHumanZombie(agentA,gridA[i][j+1], random, shot, infected);
 								clashDone = true;
 							}
 							else{
-								resolveGridHumanHuman(agentA,i,j+1, gridA, random, localStats, probAnyHumanHaveBaby,n);
+								resolveGridHumanHuman(agentA,i,j+1, gridA, random, born, probAnyHumanHaveBaby,n);
 								clashDone = true;
 							}
 						}
 						if (!clashDone && gridA[i + 1][j].getType() != none) { //Down
 							if (gridA[i+1][j].getType() == zombie && !gridA[i+1][j].isShooted()){
-								resolveHumanZombie(agentA,gridA[i+1][j], random, localStats);
+								resolveHumanZombie(agentA,gridA[i+1][j], random, shot, infected);
 								clashDone = true;
 							}
 							else{
-								resolveGridHumanHuman(agentA,i + 1,j, gridA, random, localStats, probAnyHumanHaveBaby,n);
+								resolveGridHumanHuman(agentA,i + 1,j, gridA, random, born, probAnyHumanHaveBaby,n);
 								clashDone = true;
 							}
 						}
 						if (!clashDone && gridA[i][j - 1].getType() != none) { //Left
 							if (gridA[i][j-1].getType() == zombie && !gridA[i][j-1].isShooted()){
-								resolveHumanZombie(agentA,gridA[i][j-1], random, localStats);
+								resolveHumanZombie(agentA,gridA[i][j-1], random, shot, infected);
 							}
 							else{
-								resolveGridHumanHuman(agentA,i,j - 1, gridA, random, localStats, probAnyHumanHaveBaby,n);
+								resolveGridHumanHuman(agentA,i,j - 1, gridA, random, born, probAnyHumanHaveBaby,n);
 							}
 						}
 					}
 				}
 			}
+#if defined(_OPENMP)
+				unlockHybrid(i,locks);
+#endif
 		}
+		localStats[SHOT] += shot;
+		localStats[INFECTED] += infected;
+		localStats[BORN] += born;
+
 		//printMatrixBarrier(n, gridA, myID, 'A');
 //BC?
 		//Dead marking
 		double deathRate = DEATHRATENT/(60000.0+(60000.0-(double)(localStats[MEN]+localStats[WOMEN])));
+#if defined(_OPENMP)
+      #pragma omp parallel for default(none) shared (gridA, gridB, randomObj, deathRate)
+#endif
 		for (int i = 1; i <= GRIDROWS; i++) {
+#if defined(_OPENMP)
+				RandomClass& random = randomObj[omp_get_thread_num()];
+#else
+	            RandomClass& random = randomObj[0];
+#endif
 			for (int j = 1; j <= GRIDCOLUMNS; j++) {
 				//cout <<"Marked as dead counter: "<<markedAsDeadCounter<< "Humans to die:" << humansToDie << "Chance to die " <<chanceToDie<< endl;
 				Agent &agent = gridA[i][j];
@@ -498,20 +528,20 @@ void GridHybrid::calculateStatistics(float &freeCells, Agent** gridA, int* local
 
 
 /*Resolve conflicts between Human-Zombie*/
-void GridHybrid::resolveHumanZombie(Agent &humanAgent, Agent &zombieAgent, RandomClass& random, int* localStats) {
+void GridHybrid::resolveHumanZombie(Agent &humanAgent, Agent &zombieAgent, RandomClass& random, int& shot, int &infected) {
 	//Probability and cases, for now it is a rand
 	int dice_roll = random.random(0,100);
 
 	if (dice_roll <= HEADSHOTPERCENTAGE) {
 		zombieAgent.shoot();
-		localStats[SHOT]++;
+		shot++;
 	} else if (dice_roll <= SUCESSFULBITEPERCENTAGE) {
 		humanAgent.infect();
-		localStats[INFECTED]++;
+		infected++;
 	}
 }
 /*Resolve conflicts between Human-Human*/
-void GridHybrid::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass& random, int* localStats, double probAnyHumanHaveBaby, int ts) {
+void GridHybrid::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass& random, int& born, double probAnyHumanHaveBaby, int ts) {
 	Agent agentB = gridA[i][j];
 	AgentTypeEnum typeB = agentB.getType();
 	if (typeB == human && !agentB.isInfected() && !agentA.isInfected()) {
@@ -585,7 +615,7 @@ void GridHybrid::resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA
 					if (freeI!=-1 && freeJ!=-1 && foundIt ){
 						//cout<<"Baby!"<<endl;
 						gridA[freeI][freeJ].migrateToHuman(gender, 1, hasAGun, lifeExpectancy, numBabies);
-						localStats[BORN]++;
+						born++;
 					}
 					else{
 						//cout<<"Couldnt find a space!"<<endl;

@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <fstream>
 #include <iomanip>
-#include <unordered_map>
 
 #define SOURCE 0
 #define DEST 1

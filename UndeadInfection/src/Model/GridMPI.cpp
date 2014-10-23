@@ -371,6 +371,7 @@ int GridMPI::run(int argc, char** argv){
 			}
 		}
 		else if (myID == DEST && n%NUMTICKSPRINT == 0 ){
+			write(gridA, (n+1), myID);
 			for (int i = 0; i < TOTALCOUNTERS; i++){
 				globalStats[i] = 0;
 				localStats[i] = 0;
@@ -379,7 +380,7 @@ int GridMPI::run(int argc, char** argv){
 		localStats[MEN] = localStats[WOMEN] = localStats[ZOMBIES] = freeCells = 0;
 		MPI_Barrier( MPI_COMM_WORLD );
 	}
-
+	write(gridA, NUMTICKS , myID);
 	if(myID==0)
 	{
 		wtime	= MPI_Wtime() - wtime;	// Record the end time and calculate elapsed time
@@ -526,6 +527,7 @@ void GridMPI::printMatrix(int tick, Agent** gridA, int rank, char gridName) {
 	//	cout << j << (j <= 9 ? " |" : "|");
 	//}
 	//cout << endl;
+
 	for (int i = 0; i <= GRIDROWS + 1; i++) {
 		for (int j = 0; j <= GRIDCOLUMNS + 1; j++) {
 			cout << "--";
@@ -560,12 +562,14 @@ void GridMPI::printMatrixBarrier(int tick, Agent** gridA, int rank,  char gridNa
 void GridMPI::write(Agent** gridA, int ts, int rank){
     fstream         file;
     char            fileName[128];
+	int yoffset = (rank==SOURCE?0:GRIDROWS);
+
     sprintf(fileName, "Zombies_%02d_%04d.txt", rank, ts);
     file.open(fileName, ios::out);
     file << "x,y,agent"<<endl;
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
-			file << i<<","<<j<<","<<gridA[i][j].getType()<< endl;
+			file << i+yoffset<<","<<j<<","<<gridA[i][j].getType()<< endl;
 		}
 	}
     file.close();
