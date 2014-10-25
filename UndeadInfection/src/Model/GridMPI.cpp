@@ -51,7 +51,7 @@ void GridMPI::initialize(	Agent** gridA, Agent** gridB, int rank ) {
 				gridA[i][j].migrateToHuman(gender, age, hasAGun, lifeExpectancy, numBabies);
 				numHumans++;
 			} else {
-				if (numZombies < NUMBEROFZOMBIES && random.randomBoolFalseBiasedZN()) {
+				if (numZombies < NUMBEROFZOMBIES && ((rank == SOURCE && i > GRIDROWS*4/5 && (j>(GRIDCOLUMNS/4) && j<(GRIDCOLUMNS*3/4))) || (rank==DEST && i>20)) && random.randomBoolFalseBiasedZN()) {
 					int lifeTime = random.random(MINDECOMPOSITIONTIME,MAXDECOMPOSITIONTIME);
 					gridA[i][j].migrateToZombie(lifeTime);
 					numZombies++;
@@ -169,11 +169,16 @@ int GridMPI::run(int argc, char** argv){
 		wtime = MPI_Wtime();
 	}
 
+	fstream         file;
+    char            fileName[128];
+    sprintf(fileName, "Zombies_%02d.js", myID);
+    file.open(fileName, ios::out);
+
 	//Allocating arrays
 	Agent** gridA = createMesh();
 	Agent** gridB = createMesh();
 	initialize(gridA, gridB, myID);
-	write(gridA, 0, myID);
+	write(gridA, 0, myID, file);
 
 	//Calculating the jump size to send row
 	MPI_Status		status;
@@ -364,14 +369,14 @@ int GridMPI::run(int argc, char** argv){
 		MPI_Reduce(&localStats, &globalStats,TOTALCOUNTERS,	MPI_INT, MPI_SUM, SOURCE,	MPI_COMM_WORLD);
 		if	( myID == SOURCE && n%NUMTICKSPRINT == 0 ){
 			printState((n+1), globalStats);
-			write(gridA, (n+1), myID);
+			write(gridA, (n+1), myID, file);
 			for (int i = 0; i < TOTALCOUNTERS; i++){
 				globalStats[i] = 0;
 				localStats[i] = 0;
 			}
 		}
 		else if (myID == DEST && n%NUMTICKSPRINT == 0 ){
-			write(gridA, (n+1), myID);
+			write(gridA, (n+1), myID, file);
 			for (int i = 0; i < TOTALCOUNTERS; i++){
 				globalStats[i] = 0;
 				localStats[i] = 0;
@@ -380,7 +385,8 @@ int GridMPI::run(int argc, char** argv){
 		localStats[MEN] = localStats[WOMEN] = localStats[ZOMBIES] = freeCells = 0;
 		MPI_Barrier( MPI_COMM_WORLD );
 	}
-	write(gridA, NUMTICKS , myID);
+	write(gridA, NUMTICKS , myID, file);
+	file.close();
 	if(myID==0)
 	{
 		wtime	= MPI_Wtime() - wtime;	// Record the end time and calculate elapsed time
@@ -559,18 +565,28 @@ void GridMPI::printMatrixBarrier(int tick, Agent** gridA, int rank,  char gridNa
 		printMatrix(tick,gridA,rank, gridName);
 	MPI_Barrier( MPI_COMM_WORLD );
 }
-void GridMPI::write(Agent** gridA, int ts, int rank){
-    fstream         file;
-    char            fileName[128];
+void GridMPI::write(Agent** gridA, int ts, int rank, fstream& file){
+	char            fileName[128];
 	int yoffset = (rank==SOURCE?0:GRIDROWS);
-
-    sprintf(fileName, "Zombies_%02d_%04d.txt", rank, ts);
-    file.open(fileName, ios::out);
-    file << "x,y,agent"<<endl;
+    sprintf(fileName, "function step%d_%04d(){", rank, ts);
+    file << fileName << endl;
+    //file << "x,y,agent"<<endl;
 	for (int i = 1; i <= GRIDROWS; i++) {
 		for (int j = 1; j <= GRIDCOLUMNS; j++) {
-			file << i+yoffset<<","<<j<<","<<gridA[i][j].getType()<< endl;
+			if (gridA[i][j].getType()==human){
+				//file << "ctx.fillRect("<<j<<","<<i+yoffset<<",1,1);"<<endl;
+				file << "ctx.fillRect("<<i+yoffset<<","<<j<<",1,1);"<<endl;
+			}
+			else if (gridA[i][j].getType()==zombie){
+				  file << "ctx.fillStyle=\"#FF0000\";";
+				  //file << "ctx.fillRect("<<j<<","<<i+yoffset<<",3,3);"<<endl;
+				  file << "ctx.fillRect("<<i+yoffset<<","<<j<<",3,3);"<<endl;
+				  file << "ctx.fillStyle = \"rgba(0,0,0,1)\";";
+			}
+			//file << i+yoffset<<","<<j<<","<<gridA[i][j].getType()<< endl;
 		}
 	}
-    file.close();
+	file << "}"<<endl;
+
+
 }

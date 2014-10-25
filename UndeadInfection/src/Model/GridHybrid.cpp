@@ -210,10 +210,10 @@ int GridHybrid::run(int argc, char** argv){
 	}
 #if defined(_OPENMP) //Record starting time and number of threads
 	N_Threads	= omp_get_max_threads();
-	RandomClass randomObj[N_Threads];
+	RandomClass* randomObj = new RandomClass[N_Threads];
 	cout << "Num. threads: " << N_Threads << endl;
 #else
-		RandomClass randomObj[1];
+		RandomClass* randomObj = new RandomClass[1];
 #endif
 
 	for (int i = 0; i < N_Threads; i++){

@@ -46,14 +46,14 @@ bool RandomClass::randomBoolTrueBiased() {
   return random(1,4) % 4 < 3;
 }
 bool RandomClass::randomBoolFalseBiasedN() {
-	return random(1,10000) % 10000 > 9100;
+	return random(1,10000) % 10000 > 9200;
 	//return rand_r(&seed) % 10000 > 9000;
 	//return rand() % 1000 > 900;
 }
 bool RandomClass::randomBoolFalseBiasedZN() {
   //return rand() % 10000 > 9990;
   //return rand_r(&seed) % 10000 > 9998;
-	return random(1,10000) % 10000 > 9980;
+	return random(1,10000) % 10000 > 9995;
 }
 void RandomClass::setSeed(int seed){
 	rng.seed(seed);

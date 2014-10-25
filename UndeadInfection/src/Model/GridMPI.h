@@ -48,7 +48,7 @@ private:
 	void resolveHumanZombie(Agent &human, Agent &zombie, RandomClass& random, int *localStats);
 	void resolveGridHumanHuman(Agent &agentA,int i, int j, Agent** gridA, RandomClass& random, int* localStats, double probHumanHaveBaby, int ts);
 	void printState(int tick, int* stats);
-	void write (Agent**, int timestemp, int rank);
+	void write (Agent**, int timestemp, int rank, std::fstream& file);
 
 public:
 	GridMPI();
